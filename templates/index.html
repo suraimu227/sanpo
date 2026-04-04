@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>DQW 3D - Ideal Map Style</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
         #gui {
@@ -11,7 +14,38 @@
             background: rgba(0, 0, 40, 0.85); color: white; padding: 12px;
             border: 2px solid #fff; border-radius: 8px; width: 160px; text-align: center;
             pointer-events: none;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
         }
+        #gui.gui-dot-window {
+            z-index: 2100;
+            background: #0a0a0a;
+            border: 2px solid #eaeaea;
+            color: #f0f0f0;
+            box-shadow: inset 0 0 0 1px #333, 0 4px 12px rgba(0,0,0,0.5);
+        }
+        #gui.gui-dot-window #update-btn {
+            background: #252525;
+            color: #e0e0e0;
+            border: 1px solid #777;
+        }
+        #gui.gui-dot-window #update-btn:disabled {
+            background: #1a1a1a;
+            color: #888;
+            border-color: #444;
+        }
+        #clock-display {
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #clock-dot-canvas {
+            display: none;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        #gui.gui-dot-window #clock-dot-canvas { display: block; }
+        #gui.gui-dot-window #clock-text { display: none; }
         #env-panel {
             position: absolute; top: 10px; right: 10px; z-index: 1000;
             background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px;
@@ -21,45 +55,90 @@
         input[type=range] { width: 100%; cursor: pointer; pointer-events: auto; }
         button { pointer-events: auto; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; padding: 4px 0; }
         button.active { background: #00ffff; color: #000; font-weight: bold; }
-        #clock-display { font-size: 26px; font-weight: bold; color: #0f0; text-shadow: 0 0 8px #0f0; }
+        #clock-text { font-size: 26px; font-weight: bold; color: #0f0; text-shadow: 0 0 8px #0f0; }
         #update-btn { width: 100%; background: #ffd700; border: none; padding: 8px; font-weight: bold; border-radius: 4px; margin-top: 8px; color: #000; }
         #update-btn:disabled { opacity: 0.55; cursor: wait; }
         #map-loading {
             position: fixed; inset: 0; z-index: 2000;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(0, 0, 24, 0.6);
-            transition: opacity 0.25s ease, visibility 0.25s;
+            background: rgba(0, 0, 0, 0.72);
+            transition: opacity 0.2s ease, visibility 0.2s;
         }
         #map-loading.hidden {
             opacity: 0; visibility: hidden; pointer-events: none;
         }
-        .map-loading-box {
-            text-align: center; color: #fff;
-            padding: 20px 28px; border-radius: 10px;
-            background: rgba(0, 0, 40, 0.92); border: 2px solid #00ffff;
-            box-shadow: 0 0 24px rgba(0, 255, 255, 0.25);
+        .rpg-load-frame {
+            font-family: "Press Start 2P", "Courier New", monospace;
+            text-align: center;
+            padding: 28px 32px 24px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 4px solid #e8e8e8;
+            outline: 3px solid #404040;
+            outline-offset: 2px;
+            box-shadow:
+                inset 0 0 0 2px #2a2a2a,
+                0 8px 0 #333,
+                0 12px 24px rgba(0,0,0,0.55);
+            image-rendering: pixelated;
         }
-        .map-loading-box p { margin: 0 0 14px; font-size: 15px; letter-spacing: 0.05em; }
-        .map-loading-track {
-            width: 260px; height: 10px; background: #1a1a2e;
-            border-radius: 5px; overflow: hidden; border: 1px solid #446;
+        .rpg-load-title {
+            color: #f0f0f0;
+            font-size: 11px;
+            line-height: 1.9;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 20px;
         }
-        .map-loading-bar {
-            height: 100%; width: 35%;
-            background: linear-gradient(90deg, #0088aa, #00ffff, #0088aa);
-            border-radius: 5px;
-            animation: map-load-indeterminate 1.1s ease-in-out infinite;
+        .rpg-load-bar-outer {
+            width: 280px;
+            height: 22px;
+            margin: 0 auto;
+            padding: 4px;
+            background: #080808;
+            border: 3px solid #c0c0c0;
+            box-shadow: inset 0 2px 0 rgba(0,0,0,0.65);
         }
-        @keyframes map-load-indeterminate {
+        .rpg-load-bar-inner {
+            height: 100%;
+            overflow: hidden;
+            background: repeating-linear-gradient(
+                90deg,
+                #121212 0px,
+                #121212 8px,
+                #1c1c1c 8px,
+                #1c1c1c 16px
+            );
+            border: 1px solid #444;
+        }
+        .rpg-load-bar-fill {
+            height: 100%;
+            width: 45%;
+            background: linear-gradient(180deg, #f0f0f0 0%, #a8a8a8 45%, #707070 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+            animation: rpg-load-charge 1.15s steps(8, end) infinite;
+        }
+        @keyframes rpg-load-charge {
             0% { transform: translateX(-100%); }
-            100% { transform: translateX(380%); }
+            100% { transform: translateX(620%); }
+        }
+        .rpg-load-caption {
+            margin-top: 18px;
+            font-size: 9px;
+            color: #b0b0b0;
+            letter-spacing: 0.12em;
+            animation: rpg-load-blink 0.85s step-end infinite;
+        }
+        @keyframes rpg-load-blink {
+            50% { opacity: 0.35; }
         }
     </style>
 </head>
 <body>
 
 <div id="gui">
-    <div id="clock-display">00:00</div>
+    <div id="clock-display">
+        <canvas id="clock-dot-canvas" aria-hidden="true"></canvas>
+        <span id="clock-text">00:00</span>
+    </div>
     <button id="update-btn" onclick="manualUpdate()">＊周囲を更新</button>
 </div>
 
@@ -77,9 +156,14 @@
 </div>
 
 <div id="map-loading" class="hidden" aria-hidden="true" role="status">
-    <div class="map-loading-box">
-        <p>地図を読み込み中…</p>
-        <div class="map-loading-track"><div class="map-loading-bar"></div></div>
+    <div class="rpg-load-frame">
+        <div class="rpg-load-title">ちずを<br>よみこんでいます</div>
+        <div class="rpg-load-bar-outer">
+            <div class="rpg-load-bar-inner">
+                <div class="rpg-load-bar-fill"></div>
+            </div>
+        </div>
+        <div class="rpg-load-caption">しばらく おまちください</div>
     </div>
 </div>
 
@@ -95,6 +179,8 @@
     let isManualTime = false;
     let mapFetchInFlight = 0;
     const R = 6378137;
+    const MAP_QUERY_RADIUS_M = 400;
+    const CAMERA_ORBIT_DISTANCE = 68;
 
     function updateMapLoadingUI() {
         const el = document.getElementById('map-loading');
@@ -103,6 +189,74 @@
         el.classList.toggle('hidden', !busy);
         el.setAttribute('aria-hidden', busy ? 'false' : 'true');
         if (btn) btn.disabled = busy;
+        const gui = document.getElementById('gui');
+        if (gui) gui.classList.toggle('gui-dot-window', busy);
+        if (busy) drawGuiDotClock();
+    }
+
+    const DOT_MATRIX_FONT = {
+        '0': ['###','#.#','#.#','#.#','###'],
+        '1': ['.#.','##.','.#.','.#.','###'],
+        '2': ['###','..#','###','#..','###'],
+        '3': ['###','..#','###','..#','###'],
+        '4': ['#.#','#.#','###','..#','..#'],
+        '5': ['###','#..','###','..#','###'],
+        '6': ['###','#..','###','#.#','###'],
+        '7': ['###','..#','..#','..#','..#'],
+        '8': ['###','#.#','###','#.#','###'],
+        '9': ['###','#.#','###','..#','###'],
+        ':': ['...','.#.','...','.#.','...']
+    };
+
+    function dotMatrixLineWidth(str, ps, cg) {
+        let w = 0;
+        for (let i = 0; i < str.length; i++) {
+            const ch = str[i];
+            if (ch === ' ') { w += ps * 2; continue; }
+            if (DOT_MATRIX_FONT[ch]) w += 3 * ps;
+            if (i < str.length - 1) w += cg;
+        }
+        return w;
+    }
+
+    function drawGuiDotClock() {
+        const canvas = document.getElementById('clock-dot-canvas');
+        if (!canvas || mapFetchInFlight <= 0) return;
+        const timeStr = (document.getElementById('clock-text').textContent || '00:00').trim().replace(/[^0-9:]/g, '') || '00:00';
+        const ps = 4;
+        const cg = 3;
+        const pad = 5;
+        const rowH = 5 * ps;
+        const cssW = dotMatrixLineWidth(timeStr, ps, cg) + pad * 2;
+        const cssH = rowH + pad * 2;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cssW, cssH);
+        const lw = dotMatrixLineWidth(timeStr, ps, cg);
+        let x = Math.floor((cssW - lw) / 2);
+        const y0 = pad;
+        for (let i = 0; i < timeStr.length; i++) {
+            const ch = timeStr[i];
+            const pat = DOT_MATRIX_FONT[ch];
+            if (!pat) continue;
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 3; col++) {
+                    if (pat[row][col] === '#') {
+                        ctx.fillStyle = '#f2f2f2';
+                        ctx.fillRect(x + col * ps, y0 + row * ps, ps, ps);
+                    }
+                }
+            }
+            x += 3 * ps;
+            if (i < timeStr.length - 1) x += cg;
+        }
     }
 
     const skyColors = [
@@ -114,15 +268,10 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.set(0, 80, 120);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2.2; 
 
         roadLayer = new THREE.Group(); scene.add(roadLayer);
         mapLayer = new THREE.Group(); scene.add(mapLayer);
@@ -161,16 +310,29 @@
         slimeGroup.position.y = 3; 
         scene.add(slimeGroup);
 
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2.2;
+        controls.minDistance = CAMERA_ORBIT_DISTANCE;
+        controls.maxDistance = CAMERA_ORBIT_DISTANCE;
+        controls.enableZoom = false;
+        controls.target.copy(slimeGroup.position);
+        const camOffset = new THREE.Vector3(0, 77, 120).normalize().multiplyScalar(CAMERA_ORBIT_DISTANCE);
+        camera.position.copy(slimeGroup.position).add(camOffset);
+        controls.update();
+
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
         sunBall = new THREE.Mesh(new THREE.SphereGeometry(20, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
         scene.add(sunBall);
+        scene.add(sunLight);
 
         createStars(); 
         createRainlines();
         createClouds();
         updateRealTime(); 
         startTracking();
+        setInterval(() => { fetchLiveWeather(centerPos.lat, centerPos.lon); }, 15 * 60 * 1000);
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('resize', onWindowResize);
         animate();
@@ -197,32 +359,50 @@
         const latScale = (2 * Math.PI * R) / 360;
 
         elements.forEach(el => {
-            if (!el.geometry || el.geometry.length < 2) return;
-            const pts3D = el.geometry.map(p => new THREE.Vector3((p.lon - cLon) * lonScale, 0, -(p.lat - cLat) * latScale));
-            const pts2D = el.geometry.map(p => new THREE.Vector2((p.lon - cLon) * lonScale, -(p.lat - cLat) * latScale));
-            const curve = new THREE.CatmullRomCurve3(pts3D);
+            try {
+                if (!el.geometry || el.geometry.length < 2 || !el.tags) return;
+                const pts3D = el.geometry.map(p => new THREE.Vector3((p.lon - cLon) * lonScale, 0, -(p.lat - cLat) * latScale));
+                const curve = new THREE.CatmullRomCurve3(pts3D);
+                const segs = Math.max(8, Math.min(200, pts3D.length * 2));
 
-            if (el.tags.building) {
-                // 2. 建物：灰色の面に白い太枠
-                // 外枠（白い枠線）を TubeGeometry で表現
-                const bTubeGeo = new THREE.TubeGeometry(curve, pts3D.length, 0.8, 8, true); 
-                const bOutline = new THREE.Mesh(bTubeGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-                bOutline.position.y = 1.0; 
-                mapLayer.add(bOutline);
+                if (el.tags.building) {
+                    // Shape の Y は ExtrudeGeometry を rotation.x=-π/2 したあとワールド Z に写る（Tube の曲線と符号を合わせる）
+                    const pts2D = el.geometry.map(p => new THREE.Vector2((p.lon - cLon) * lonScale, (p.lat - cLat) * latScale));
+                    const shape = new THREE.Shape(pts2D);
+                    let wallH = 10;
+                    const lv = parseFloat(el.tags['building:levels']);
+                    if (!isNaN(lv)) wallH = Math.max(4, Math.min(50, lv * 3.2));
+                    else {
+                        const ht = parseFloat(String(el.tags.height || '').replace(/,/g, '').replace(/m/gi, '').trim());
+                        if (!isNaN(ht)) wallH = Math.max(4, Math.min(80, ht));
+                    }
+                    const extrudeSettings = { depth: wallH, bevelEnabled: false };
+                    const solidGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                    const bSolid = new THREE.Mesh(solidGeo, new THREE.MeshLambertMaterial({
+                        color: 0x6e6e6e, side: THREE.DoubleSide, flatShading: true,
+                        polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
+                    }));
+                    bSolid.rotation.x = -Math.PI / 2;
+                    const baseY = 0.06;
+                    bSolid.position.y = baseY;
+                    mapLayer.add(bSolid);
 
-                // 塗りつぶし（灰色）
-                const shape = new THREE.Shape(pts2D);
-                const bFill = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshLambertMaterial({ 
-                    color: 0x888888, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1.0 
-                }));
-                bFill.rotation.x = -Math.PI / 2; bFill.position.y = 0.8;
-                mapLayer.add(bFill);
-            } else if (el.tags.highway) {
-                // 3. 道路：純白（Unlit）
-                const rGeo = new THREE.TubeGeometry(curve, pts3D.length * 2, 4, 8, false);
-                const rMesh = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-                rMesh.position.y = 0.2; rMesh.scale.set(1, 0.01, 1); // 地面に密着させる
-                roadLayer.add(rMesh);
+                    const rimGeo = new THREE.TubeGeometry(curve, segs, 0.5, 8, true);
+                    const rimMat = new THREE.MeshBasicMaterial({ color: 0x989898 });
+                    const bRimTop = new THREE.Mesh(rimGeo, rimMat);
+                    bRimTop.position.y = baseY + wallH;
+                    mapLayer.add(bRimTop);
+                    const bRimBot = new THREE.Mesh(rimGeo, rimMat);
+                    bRimBot.position.y = baseY;
+                    mapLayer.add(bRimBot);
+                } else if (el.tags.highway) {
+                    const rGeo = new THREE.TubeGeometry(curve, segs, 4, 8, false);
+                    const rMesh = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                    rMesh.position.y = 0.2; rMesh.scale.set(1, 0.01, 1);
+                    roadLayer.add(rMesh);
+                }
+            } catch (err) {
+                console.warn("地図要素の描画をスキップしました", err);
             }
         });
         updateWeatherVisuals();
@@ -247,7 +427,7 @@
     function applyTimeEffect(totalMinutes) {
         const h = Math.floor(totalMinutes / 60); const m = totalMinutes % 60;
         const timeStr = h.toString().padStart(2, '0') + ":" + m.toString().padStart(2, '0');
-        document.getElementById('clock-display').innerText = timeStr;
+        document.getElementById('clock-text').textContent = timeStr;
         document.getElementById('v-time').innerText = timeStr;
         let s, e;
         for (let i = 0; i < skyColors.length - 1; i++) {
@@ -264,13 +444,45 @@
         sunBall.position.set(Math.cos(sunAngle) * 2000, Math.sin(sunAngle) * 1000, 300); 
         sunLight.position.copy(sunBall.position);
         updateWeatherVisuals();
+        if (mapFetchInFlight > 0) drawGuiDotClock();
+    }
+
+    function setWeatherUIAndApply(t, btn) {
+        currentWeather = t;
+        document.querySelectorAll('#env-panel .ctrl-group button').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        else {
+            const id = t === 'sunny' ? 'btn-sunny' : t === 'cloudy' ? 'btn-cloudy' : 'btn-rainy';
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+        applyTimeEffect(parseInt(document.getElementById('r-time').value));
     }
 
     function setWeather(t, btn) {
-        currentWeather = t;
-        document.querySelectorAll('.ctrl-group button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyTimeEffect(parseInt(document.getElementById('r-time').value));
+        setWeatherUIAndApply(t, btn);
+    }
+
+    function wmoCodeToWeatherKind(code) {
+        const c = Number(code);
+        if (c === 0) return 'sunny';
+        if ([1, 2, 3, 45, 48, 71, 73, 75, 77, 85, 86].includes(c)) return 'cloudy';
+        return 'rainy';
+    }
+
+    async function fetchLiveWeather(lat, lon) {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true`;
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            const cw = data.current_weather;
+            if (!cw || cw.weathercode === undefined) return;
+            const kind = wmoCodeToWeatherKind(cw.weathercode);
+            setWeatherUIAndApply(kind, null);
+        } catch (e) {
+            console.warn('天気APIの取得に失敗しました（Open-Meteo）', e);
+        }
     }
 
     function updateWeatherVisuals() {
@@ -310,15 +522,38 @@
         }
         scene.add(clouds);
     }
+    const OVERPASS_ENDPOINTS = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.openstreetmap.fr/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter"
+    ];
+
+    async function fetchOverpassJson(query) {
+        let lastErr;
+        for (const base of OVERPASS_ENDPOINTS) {
+            try {
+                const url = `${base}?data=${encodeURIComponent(query)}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.remark) console.warn("Overpass:", data.remark);
+                return data;
+            } catch (e) {
+                lastErr = e;
+                console.warn("Overpass 接続失敗、別サーバーを試します:", e.message || e);
+            }
+        }
+        throw lastErr;
+    }
+
     async function fetchMapData(lat, lon) {
         mapFetchInFlight++;
         updateMapLoadingUI();
-        const q = `[out:json];(way["highway"](around:600,${lat},${lon});way["building"](around:600,${lat},${lon}););out geom;`;
+        const q = `[out:json][timeout:25];(way["highway"](around:${MAP_QUERY_RADIUS_M},${lat},${lon});way["building"](around:${MAP_QUERY_RADIUS_M},${lat},${lon}););out geom;`;
         try {
-            const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(q)}`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            renderMap(data.elements, lat, lon);
+            const data = await fetchOverpassJson(q);
+            const elements = Array.isArray(data.elements) ? data.elements : [];
+            renderMap(elements, lat, lon);
         } catch (e) {
             console.error("Map Error", e);
         } finally {
@@ -326,12 +561,99 @@
             updateMapLoadingUI();
         }
     }
+    function resetPlayerToMapOrigin() {
+        playerOffset = { x: 0, z: 0 };
+        if (slimeGroup) slimeGroup.position.set(0, 3, 0);
+    }
+
+    const GEO_OPTIONS_HIGH = { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 };
+    const GEO_OPTIONS_LOW = { enableHighAccuracy: false, maximumAge: 300000, timeout: 25000 };
+
+    function onGeolocationSuccess(p) {
+        const lat = p.coords.latitude;
+        const lon = p.coords.longitude;
+        if (typeof lat !== 'number' || typeof lon !== 'number' || Number.isNaN(lat) || Number.isNaN(lon)) {
+            tryIpFallbackLocation();
+            return;
+        }
+        centerPos = { lat, lon };
+        resetPlayerToMapOrigin();
+        fetchMapData(centerPos.lat, centerPos.lon);
+        fetchLiveWeather(centerPos.lat, centerPos.lon);
+    }
+
+    async function tryIpFallbackLocation() {
+        const tryOne = async (url, parse) => {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(String(res.status));
+            const data = await res.json();
+            const { lat, lon } = parse(data);
+            if (typeof lat === 'number' && typeof lon === 'number' && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+                centerPos = { lat, lon };
+                resetPlayerToMapOrigin();
+                fetchMapData(centerPos.lat, centerPos.lon);
+                fetchLiveWeather(centerPos.lat, centerPos.lon);
+                console.info('ブラウザの位置情報が使えないため、IPから推定したおおよその位置を表示しています。HTTPSまたはlocalhostで開くとGPSにより正確になります。');
+                return true;
+            }
+            return false;
+        };
+        try {
+            if (await tryOne('https://ipapi.co/json/', d => {
+                if (d.error) return { lat: NaN, lon: NaN };
+                return {
+                    lat: typeof d.latitude === 'number' ? d.latitude : parseFloat(d.latitude),
+                    lon: typeof d.longitude === 'number' ? d.longitude : parseFloat(d.longitude)
+                };
+            })) return;
+        } catch (e) { console.warn('ipapi.co:', e); }
+        try {
+            if (await tryOne('https://ipwho.is/', d => {
+                if (d.success === false) return { lat: NaN, lon: NaN };
+                return {
+                    lat: parseFloat(d.latitude),
+                    lon: parseFloat(d.longitude)
+                };
+            })) return;
+        } catch (e) { console.warn('ipwho.is:', e); }
+        console.warn('位置を特定できません。初期地点（仙台付近）を表示します。ブラウザの位置の許可、または https:// または http://localhost での利用を確認してください。');
+        resetPlayerToMapOrigin();
+        fetchMapData(centerPos.lat, centerPos.lon);
+        fetchLiveWeather(centerPos.lat, centerPos.lon);
+    }
+
     function manualUpdate() {
         centerPos.lat -= (playerOffset.z / (2 * Math.PI * R / 360));
         centerPos.lon += (playerOffset.x / ((Math.PI * R * Math.cos(centerPos.lat * Math.PI / 180)) / 180));
-        playerOffset = { x: 0, z: 0 }; slimeGroup.position.set(0, 3, 0); fetchMapData(centerPos.lat, centerPos.lon);
+        resetPlayerToMapOrigin();
+        fetchMapData(centerPos.lat, centerPos.lon);
+        fetchLiveWeather(centerPos.lat, centerPos.lon);
     }
-    function startTracking() { navigator.geolocation.getCurrentPosition(p => { centerPos = { lat: p.coords.latitude, lon: p.coords.longitude }; fetchMapData(centerPos.lat, centerPos.lon); }, () => fetchMapData(centerPos.lat, centerPos.lon)); }
+    function startTracking() {
+        if (!navigator.geolocation) {
+            console.warn('このブラウザは位置情報APIに対応していません。');
+            tryIpFallbackLocation();
+            return;
+        }
+        if (!window.isSecureContext) {
+            console.warn('安全なコンテキストではありません（HTTPS または localhost 推奨）。位置の許可が出ない場合があります。');
+        }
+        navigator.geolocation.getCurrentPosition(
+            onGeolocationSuccess,
+            err => {
+                console.warn('高精度の位置取得に失敗、標準精度で再試行します:', err && err.message);
+                navigator.geolocation.getCurrentPosition(
+                    onGeolocationSuccess,
+                    err2 => {
+                        console.warn('ブラウザ位置情報が使えません:', err2 && err2.message);
+                        tryIpFallbackLocation();
+                    },
+                    GEO_OPTIONS_LOW
+                );
+            },
+            GEO_OPTIONS_HIGH
+        );
+    }
     function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
     init();
 </script>
