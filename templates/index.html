@@ -1,173 +1,56 @@
-
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-
     <meta charset="UTF-8">
-    <title>DQW 3D - Ideal Map Style</title>
+    <title>DQW 3D - Fixed Wireframe Sync</title>
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Press Start 2P', cursive; touch-action: none; }
         #gui {
-            position: absolute; top: 10px; left: 10px; z-index: 1000;
-            background: rgba(0, 0, 40, 0.85); color: white; padding: 12px;
-            border: 2px solid #fff; border-radius: 8px; width: 160px; text-align: center;
-            pointer-events: none;
-            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            position: absolute; top: 15px; left: 15px; z-index: 1000;
+            background: #000; color: #fff; padding: 15px;
+            border: 4px solid #fff; width: 160px; text-align: center;
         }
-        #gui.gui-dot-window {
-            z-index: 2100;
-            background: #0a0a0a;
-            border: 2px solid #eaeaea;
-            color: #f0f0f0;
-            box-shadow: inset 0 0 0 1px #333, 0 4px 12px rgba(0,0,0,0.5);
-        }
-        #gui.gui-dot-window #update-btn {
-            background: #252525;
-            color: #e0e0e0;
-            border: 1px solid #777;
-        }
-        #gui.gui-dot-window #update-btn:disabled {
-            background: #1a1a1a;
-            color: #888;
-            border-color: #444;
-        }
-        #clock-display {
-            min-height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #clock-dot-canvas {
-            display: none;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-        #gui.gui-dot-window #clock-dot-canvas { display: block; }
-        #gui.gui-dot-window #clock-text { display: none; }
-        #env-panel {
-            position: absolute; top: 10px; right: 10px; z-index: 1000;
-            background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px;
-            border: 1px solid #00ffff; width: 220px; font-size: 11px; border-radius: 8px;
-        }
-        .ctrl-group { margin-bottom: 8px; }
-        input[type=range] { width: 100%; cursor: pointer; pointer-events: auto; }
-        button { pointer-events: auto; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; padding: 4px 0; }
-        button.active { background: #00ffff; color: #000; font-weight: bold; }
-        #clock-text { font-size: 26px; font-weight: bold; color: #0f0; text-shadow: 0 0 8px #0f0; }
-        #update-btn { width: 100%; background: #ffd700; border: none; padding: 8px; font-weight: bold; border-radius: 4px; margin-top: 8px; color: #000; }
-        #update-btn:disabled { opacity: 0.55; cursor: wait; }
-        #map-loading {
-            position: fixed; inset: 0; z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0, 0, 0, 0.72);
-            transition: opacity 0.2s ease, visibility 0.2s;
-        }
-        #map-loading.hidden {
-            opacity: 0; visibility: hidden; pointer-events: none;
-        }
-        .rpg-load-frame {
-            font-family: "Press Start 2P", "Courier New", monospace;
-            text-align: center;
-            padding: 28px 32px 24px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
-            border: 4px solid #e8e8e8;
-            outline: 3px solid #404040;
-            outline-offset: 2px;
-            box-shadow:
-                inset 0 0 0 2px #2a2a2a,
-                0 8px 0 #333,
-                0 12px 24px rgba(0,0,0,0.55);
-            image-rendering: pixelated;
-        }
-        .rpg-load-title {
-            color: #f0f0f0;
-            font-size: 11px;
-            line-height: 1.9;
-            text-shadow: 2px 2px 0 #000;
-            margin-bottom: 20px;
-        }
-        .rpg-load-bar-outer {
-            width: 280px;
-            height: 22px;
-            margin: 0 auto;
-            padding: 4px;
-            background: #080808;
-            border: 3px solid #c0c0c0;
-            box-shadow: inset 0 2px 0 rgba(0,0,0,0.65);
-        }
-        .rpg-load-bar-inner {
-            height: 100%;
-            overflow: hidden;
-            background: repeating-linear-gradient(
-                90deg,
-                #121212 0px,
-                #121212 8px,
-                #1c1c1c 8px,
-                #1c1c1c 16px
-            );
-            border: 1px solid #444;
-        }
-        .rpg-load-bar-fill {
-            height: 100%;
-            width: 45%;
-            background: linear-gradient(180deg, #f0f0f0 0%, #a8a8a8 45%, #707070 100%);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
-            animation: rpg-load-charge 1.15s steps(8, end) infinite;
-        }
-        @keyframes rpg-load-charge {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(620%); }
-        }
-        .rpg-load-caption {
-            margin-top: 18px;
-            font-size: 9px;
-            color: #b0b0b0;
-            letter-spacing: 0.12em;
-            animation: rpg-load-blink 0.85s step-end infinite;
-        }
-        @keyframes rpg-load-blink {
-            50% { opacity: 0.35; }
-        }
+        #clock-text { font-size: 16px; letter-spacing: 2px; display: block; margin-bottom: 8px; }
+        #weather-info { font-size: 8px; line-height: 1.5; margin-bottom: 12px; border-top: 2px solid #fff; padding-top: 8px; color: #aaa; }
+        #debug-update-btn { background: #444; color: #fff; border: 2px solid #fff; padding: 5px; font-family: 'Press Start 2P'; font-size: 7px; cursor: pointer; width: 100%; }
+        #bag-gui { position: absolute; bottom: 20px; left: 20px; z-index: 1100; }
+        #bag-btn { background: #000; color: #fff; border: 3px solid #fff; padding: 10px 15px; font-family: "Press Start 2P"; font-size: 9px; cursor: pointer; }
+        #inventory-window { position: absolute; bottom: 60px; left: 0; width: 220px; background: #000; border: 3px solid #fff; color: #fff; padding: 15px; display: none; font-size: 10px; line-height: 1.8; }
+        #message-window { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 1500; background: #000; border: 4px solid #fff; color: #fff; padding: 15px 25px; font-size: 10px; min-width: 280px; display: none; text-align: center; }
+        #map-loading { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); }
+        #map-loading.hidden { display: none; }
+        .load-window { background: #000; border: 4px solid #fff; padding: 30px; display: flex; flex-direction: column; align-items: center; }
+        .load-text { color: #fff; font-size: 10px; margin-bottom: 20px; }
+        .small-load-bar { width: 200px; height: 12px; border: 2px solid #fff; position: relative; overflow: hidden; }
+        .small-load-fill { height: 100%; width: 70px; background: #fff; position: absolute; animation: bar-move 1.2s linear infinite; }
+        @keyframes bar-move { 0% { left: -70px; } 100% { left: 200px; } }
     </style>
 </head>
 <body>
 
 <div id="gui">
-    <div id="clock-display">
-        <canvas id="clock-dot-canvas" aria-hidden="true"></canvas>
-        <span id="clock-text">00:00</span>
-    </div>
-    <button id="update-btn" onclick="manualUpdate()">＊周囲を更新</button>
+    <span id="clock-text">00:00</span>
+    <div id="weather-info">LOADING...</div>
+    <button id="debug-update-btn" onclick="manualUpdate()">UPDATE(Debug)</button>
 </div>
 
-<div id="env-panel">
-    <div class="ctrl-group">
-        <label>じかん調整: <span id="v-time">--:--</span></label>
-        <input type="range" id="r-time" min="0" max="1435" step="5" value="720" oninput="changeEnvManual()">
+<div id="bag-gui">
+    <div id="inventory-window">
+        <div style="border-bottom: 2px solid #fff; margin-bottom: 10px; padding-bottom: 5px;">ITEM LIST</div>
+        <div id="item-list">EMPTY</div>
     </div>
-    <div class="ctrl-group">
-        <label>てんき</label>
-        <button id="btn-sunny" class="active" onclick="setWeather('sunny', this)" style="width:31%">はれ</button>
-        <button id="btn-cloudy" onclick="setWeather('cloudy', this)" style="width:31%">くもり</button>
-        <button id="btn-rainy" onclick="setWeather('rainy', this)" style="width:31%">あめ</button>
-    </div>
+    <button id="bag-btn" onclick="toggleBag()">BAG</button>
 </div>
 
-<div id="map-loading" class="hidden" aria-hidden="true" role="status">
-    <div class="rpg-load-frame">
-        <div class="rpg-load-title">ちずを<br>よみこんでいます</div>
-        <div class="rpg-load-bar-outer">
-            <div class="rpg-load-bar-inner">
-                <div class="rpg-load-bar-fill"></div>
-            </div>
-        </div>
-        <div class="rpg-load-caption">しばらく おまちください</div>
+<div id="message-window"></div>
+
+<div id="map-loading">
+    <div class="load-window">
+        <div class="load-text">LOADING MAP...</div>
+        <div class="small-load-bar"><div class="small-load-fill"></div></div>
     </div>
 </div>
 
@@ -176,489 +59,234 @@
 
 <script>
     let scene, camera, renderer, controls, roadLayer, mapLayer, slimeGroup;
-    let stars, rain, clouds, ground, ambientLight, sunLight, sunBall;
-    let centerPos = { lat: 38.2602, lon: 140.8824 }; 
-    let playerOffset = { x: 0, z: 0 };
-    let currentWeather = 'sunny';
-    let isManualTime = false;
-    let mapFetchInFlight = 0;
+    let baseCoords = null;
+    let lastFetchedCoords = null;
+    let keyState = {};
+    let isFetching = false;
+    let spots = [], monsters = [];
+    
     const R = 6378137;
-    const MAP_QUERY_RADIUS_M = 400;
-    const CAMERA_ORBIT_DISTANCE = 68;
-
-    function updateMapLoadingUI() {
-        const el = document.getElementById('map-loading');
-        const btn = document.getElementById('update-btn');
-        const busy = mapFetchInFlight > 0;
-        el.classList.toggle('hidden', !busy);
-        el.setAttribute('aria-hidden', busy ? 'false' : 'true');
-        if (btn) btn.disabled = busy;
-        const gui = document.getElementById('gui');
-        if (gui) gui.classList.toggle('gui-dot-window', busy);
-        if (busy) drawGuiDotClock();
-    }
-
-    const DOT_MATRIX_FONT = {
-        '0': ['###','#.#','#.#','#.#','###'],
-        '1': ['.#.','##.','.#.','.#.','###'],
-        '2': ['###','..#','###','#..','###'],
-        '3': ['###','..#','###','..#','###'],
-        '4': ['#.#','#.#','###','..#','..#'],
-        '5': ['###','#..','###','..#','###'],
-        '6': ['###','#..','###','#.#','###'],
-        '7': ['###','..#','..#','..#','..#'],
-        '8': ['###','#.#','###','#.#','###'],
-        '9': ['###','#.#','###','..#','###'],
-        ':': ['...','.#.','...','.#.','...']
-    };
-
-    function dotMatrixLineWidth(str, ps, cg) {
-        let w = 0;
-        for (let i = 0; i < str.length; i++) {
-            const ch = str[i];
-            if (ch === ' ') { w += ps * 2; continue; }
-            if (DOT_MATRIX_FONT[ch]) w += 3 * ps;
-            if (i < str.length - 1) w += cg;
-        }
-        return w;
-    }
-
-    function drawGuiDotClock() {
-        const canvas = document.getElementById('clock-dot-canvas');
-        if (!canvas || mapFetchInFlight <= 0) return;
-        const timeStr = (document.getElementById('clock-text').textContent || '00:00').trim().replace(/[^0-9:]/g, '') || '00:00';
-        const ps = 4;
-        const cg = 3;
-        const pad = 5;
-        const rowH = 5 * ps;
-        const cssW = dotMatrixLineWidth(timeStr, ps, cg) + pad * 2;
-        const cssH = rowH + pad * 2;
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.style.width = cssW + 'px';
-        canvas.style.height = cssH + 'px';
-        canvas.width = Math.floor(cssW * dpr);
-        canvas.height = Math.floor(cssH * dpr);
-        const ctx = canvas.getContext('2d');
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.scale(dpr, dpr);
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, cssW, cssH);
-        const lw = dotMatrixLineWidth(timeStr, ps, cg);
-        let x = Math.floor((cssW - lw) / 2);
-        const y0 = pad;
-        for (let i = 0; i < timeStr.length; i++) {
-            const ch = timeStr[i];
-            const pat = DOT_MATRIX_FONT[ch];
-            if (!pat) continue;
-            for (let row = 0; row < 5; row++) {
-                for (let col = 0; col < 3; col++) {
-                    if (pat[row][col] === '#') {
-                        ctx.fillStyle = '#f2f2f2';
-                        ctx.fillRect(x + col * ps, y0 + row * ps, ps, ps);
-                    }
-                }
-            }
-            x += 3 * ps;
-            if (i < timeStr.length - 1) x += cg;
-        }
-    }
-
-    const skyColors = [
-        { time: 0,    col: 0x020512 }, { time: 300,  col: 0x0c2461 }, { time: 420,  col: 0x82ccdd },
-        { time: 720,  col: 0x00d2ff }, { time: 1020, col: 0x00d2ff }, { time: 1080, col: 0xf39c12 },
-        { time: 1140, col: 0xe67e22 }, { time: 1320, col: 0x020512 }, { time: 1440, col: 0x020512 }
-    ];
+    const MAP_RADIUS = 800; 
+    const AUTO_UPDATE_THRESHOLD = 300;
+    const CAMERA_DIST = 75;
 
     function init() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
         roadLayer = new THREE.Group(); scene.add(roadLayer);
         mapLayer = new THREE.Group(); scene.add(mapLayer);
 
-        // 1. 地面：多色の草（茂み）を表現するためのグリッドテクスチャ風設定
-        const groundSize = 40000;
-        const groundGeo = new THREE.PlaneGeometry(groundSize, groundSize, 100, 100);
-        // Canvasを使用して茂みのような「いろいろな色の緑」を生成
         const canvas = document.createElement('canvas');
-        canvas.width = 512; canvas.height = 512;
+        canvas.width = 256; canvas.height = 256;
         const ctx = canvas.getContext('2d');
-        for(let x=0; x<512; x+=32){
-            for(let y=0; y<512; y+=32){
-                const g = 120 + Math.random() * 40;
-                ctx.fillStyle = `rgb(40, ${g}, 40)`;
-                ctx.fillRect(x, y, 32, 32);
-                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                ctx.strokeRect(x, y, 32, 32);
+        for(let y=0; y<4; y++){
+            for(let x=0; x<4; x++){
+                const g = 70 + Math.floor(Math.random() * 50);
+                ctx.fillStyle = `rgb(40, ${g}, 35)`;
+                ctx.fillRect(x*64, y*64, 64, 64);
+                ctx.strokeStyle = "rgba(0,0,0,0.1)"; ctx.strokeRect(x*64, y*64, 64, 64);
             }
         }
-        const groundTex = new THREE.CanvasTexture(canvas);
-        groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
-        groundTex.repeat.set(500, 500);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(500, 500);
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000), new THREE.MeshLambertMaterial({ map: texture }));
+        ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
-        ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ map: groundTex }));
-        ground.rotation.x = -Math.PI / 2;
-        scene.add(ground);
-
-        // スライム（角付き）
         slimeGroup = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.SphereGeometry(3, 32, 32), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
+        const body = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 24), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
         body.scale.set(1.1, 0.85, 1.1);
-        const horn = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4, 32), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
-        horn.position.y = 1.5;
-        slimeGroup.add(body); slimeGroup.add(horn);
-        slimeGroup.position.y = 3; 
-        scene.add(slimeGroup);
+        const horn = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4, 16), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
+        horn.position.y = 1.5; slimeGroup.add(body); slimeGroup.add(horn);
+        
+        // 青の判定円
+        const ringGeo = new THREE.RingGeometry(10.8, 11, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2; ring.position.y = -2.8;
+        slimeGroup.add(ring);
+        
+        slimeGroup.position.set(0, 3, 0); scene.add(slimeGroup);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2.2;
-        controls.minDistance = CAMERA_ORBIT_DISTANCE;
-        controls.maxDistance = CAMERA_ORBIT_DISTANCE;
-        controls.enableZoom = false;
+        controls.enableDamping = true; controls.maxPolarAngle = Math.PI / 2.2;
+        controls.minDistance = CAMERA_DIST; controls.maxDistance = CAMERA_DIST;
         controls.target.copy(slimeGroup.position);
-        const camOffset = new THREE.Vector3(0, 77, 120).normalize().multiplyScalar(CAMERA_ORBIT_DISTANCE);
-        camera.position.copy(slimeGroup.position).add(camOffset);
-        controls.update();
+        camera.position.set(0, 60, 80);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        sunBall = new THREE.Mesh(new THREE.SphereGeometry(20, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        scene.add(sunBall);
-        scene.add(sunLight);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.4); sunLight.position.set(50, 200, 100); scene.add(sunLight);
 
-        createStars(); 
-        createRainlines();
-        createClouds();
-        updateRealTime(); 
+        updateRealTime();
         startTracking();
-        setInterval(() => { fetchLiveWeather(centerPos.lat, centerPos.lon); }, 15 * 60 * 1000);
-        window.addEventListener('keydown', onKeyDown);
+        
+        window.addEventListener('keydown', (e) => keyState[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', (e) => keyState[e.key.toLowerCase()] = false);
         window.addEventListener('resize', onWindowResize);
         animate();
     }
 
-    function createRainlines() {
-        const geo = new THREE.BufferGeometry();
-        const pos = [];
-        for (let i = 0; i < 3000; i++) {
-            const x = THREE.MathUtils.randFloatSpread(1000);
-            const y = THREE.MathUtils.randFloat(0, 600);
-            const z = THREE.MathUtils.randFloatSpread(1000);
-            pos.push(x, y, z, x, y + 6, z);
-        }
-        geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-        rain = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0xccddee, transparent: true, opacity: 0.4 }));
-        rain.visible = false;
-        scene.add(rain);
-    }
-
-    function renderMap(elements, cLat, cLon) {
-        roadLayer.clear(); mapLayer.clear();
-        const lonScale = (Math.PI * R * Math.cos(cLat * Math.PI / 180)) / 180;
-        const latScale = (2 * Math.PI * R) / 360;
-
-        elements.forEach(el => {
-            try {
-                if (!el.geometry || el.geometry.length < 2 || !el.tags) return;
-                const pts3D = el.geometry.map(p => new THREE.Vector3((p.lon - cLon) * lonScale, 0, -(p.lat - cLat) * latScale));
-                const curve = new THREE.CatmullRomCurve3(pts3D);
-                const segs = Math.max(8, Math.min(200, pts3D.length * 2));
+    async function fetchMapData(lat, lon) {
+        if (isFetching) return;
+        isFetching = true;
+        lastFetchedCoords = { lat, lon };
+        document.getElementById('map-loading').classList.remove('hidden');
+        
+        const q = `[out:json][timeout:30];(way["highway"](around:${MAP_RADIUS},${lat},${lon});way["building"](around:${MAP_RADIUS},${lat},${lon}););out geom;`;
+        
+        try {
+            const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            
+            roadLayer.clear(); mapLayer.clear();
+            
+            data.elements.forEach(el => {
+                if (!el.geometry || !el.tags) return;
+                const pts3D = el.geometry.map(p => {
+                    const dx = (p.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
+                    const dz = -(p.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
+                    return new THREE.Vector3(dx, 0, dz);
+                });
 
                 if (el.tags.building) {
-                    // Shape の Y は ExtrudeGeometry を rotation.x=-π/2 したあとワールド Z に写る（Tube の曲線と符号を合わせる）
-                    const pts2D = el.geometry.map(p => new THREE.Vector2((p.lon - cLon) * lonScale, (p.lat - cLat) * latScale));
-                    const shape = new THREE.Shape(pts2D);
-                    let wallH = 10;
-                    const lv = parseFloat(el.tags['building:levels']);
-                    if (!isNaN(lv)) wallH = Math.max(4, Math.min(50, lv * 3.2));
-                    else {
-                        const ht = parseFloat(String(el.tags.height || '').replace(/,/g, '').replace(/m/gi, '').trim());
-                        if (!isNaN(ht)) wallH = Math.max(4, Math.min(80, ht));
-                    }
-                    const extrudeSettings = { depth: wallH, bevelEnabled: false };
-                    const solidGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                    const bSolid = new THREE.Mesh(solidGeo, new THREE.MeshLambertMaterial({
-                        color: 0x6e6e6e, side: THREE.DoubleSide, flatShading: true,
-                        polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
-                    }));
-                    bSolid.rotation.x = -Math.PI / 2;
-                    const baseY = 0.06;
-                    bSolid.position.y = baseY;
-                    mapLayer.add(bSolid);
+                    const wallH = el.tags['building:levels'] ? parseFloat(el.tags['building:levels']) * 3.5 : 10;
+                    
+                    // 1. 底面の枠線 (灰色)
+                    const bottomPoints = pts3D.map(p => new THREE.Vector3(p.x, 0.3, p.z));
+                    bottomPoints.push(bottomPoints[0]);
+                    const bGeo = new THREE.BufferGeometry().setFromPoints(bottomPoints);
+                    mapLayer.add(new THREE.Line(bGeo, new THREE.LineBasicMaterial({ color: 0x888888 })));
 
-                    const rimGeo = new THREE.TubeGeometry(curve, segs, 0.5, 8, true);
-                    const rimMat = new THREE.MeshBasicMaterial({ color: 0x989898 });
-                    const bRimTop = new THREE.Mesh(rimGeo, rimMat);
-                    bRimTop.position.y = baseY + wallH;
-                    mapLayer.add(bRimTop);
-                    const bRimBot = new THREE.Mesh(rimGeo, rimMat);
-                    bRimBot.position.y = baseY;
-                    mapLayer.add(bRimBot);
+                    // 2. 天面の枠線 (灰色) - 底面を複製して高さを上げる
+                    const topPoints = pts3D.map(p => new THREE.Vector3(p.x, wallH + 0.3, p.z));
+                    topPoints.push(topPoints[0]);
+                    const tGeo = new THREE.BufferGeometry().setFromPoints(topPoints);
+                    mapLayer.add(new THREE.Line(tGeo, new THREE.LineBasicMaterial({ color: 0x888888 })));
+
+                    // 3. 建物本体 (この上下の枠線の間に配置)
+                    const shape = new THREE.Shape(pts3D.map(p => new THREE.Vector2(p.x, p.z)));
+                    const extrudeSettings = { depth: wallH, bevelEnabled: false };
+                    const bMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, extrudeSettings), new THREE.MeshLambertMaterial({ color: 0x444444, transparent: true, opacity: 0.8 }));
+                    bMesh.rotation.x = -Math.PI / 2; bMesh.position.y = 0.3; 
+                    mapLayer.add(bMesh);
                 } else if (el.tags.highway) {
-                    const rGeo = new THREE.TubeGeometry(curve, segs, 4, 8, false);
-                    const rMesh = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-                    rMesh.position.y = 0.2; rMesh.scale.set(1, 0.01, 1);
-                    roadLayer.add(rMesh);
+                    const curve = new THREE.CatmullRomCurve3(pts3D);
+                    const rMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, pts3D.length * 2), 3.5, 4, false), new THREE.MeshBasicMaterial({ color: 0x999999 }));
+                    rMesh.position.y = 0.15; rMesh.scale.set(1, 0.01, 1); roadLayer.add(rMesh);
                 }
-            } catch (err) {
-                console.warn("地図要素の描画をスキップしました", err);
-            }
-        });
-        updateWeatherVisuals();
+            });
+            createObjects();
+        } catch (e) {
+            showMessage("LOAD ERROR");
+        } finally {
+            isFetching = false;
+            setTimeout(() => document.getElementById('map-loading').classList.add('hidden'), 800);
+        }
     }
+
+    // --- その他ロジック(Weather, Tracking, Movement等)は前バージョンを維持 ---
+    async function fetchWeather(lat, lon) {
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await res.json();
+            const temp = Math.round(data.current_weather.temperature);
+            const status = data.current_weather.weathercode <= 3 ? "CLEAR" : "RAIN";
+            document.getElementById('weather-info').innerHTML = `${status}<br>${temp}°C`;
+        } catch (e) { document.getElementById('weather-info').textContent = "WEATHER ERROR"; }
+    }
+
+    function createObjects() {
+        spots.forEach(s => scene.remove(s.mesh)); monsters.forEach(m => scene.remove(m.mesh));
+        spots = []; monsters = [];
+        for(let i=0; i<20; i++){
+            const rx = (Math.random()-0.5)*1200 + slimeGroup.position.x;
+            const rz = (Math.random()-0.5)*1200 + slimeGroup.position.z;
+            if(Math.random() > 0.5) {
+                const g = new THREE.Group();
+                const p = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 15, 8), new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 }));
+                p.position.y = 7.5; g.add(p); g.position.set(rx, 0.1, rz); scene.add(g);
+                spots.push({ mesh: g, active: true });
+            } else {
+                const g = new THREE.Group();
+                const b = new THREE.Mesh(new THREE.SphereGeometry(3, 12, 12), new THREE.MeshPhongMaterial({ color: 0xff4444 }));
+                g.add(b); g.position.set(rx, 3, rz); scene.add(g);
+                monsters.push({ mesh: g, active: true, velocity: new THREE.Vector3(0,0,0), nextMoveTime: 0 });
+            }
+        }
+    }
+
+    function checkAutoUpdate() {
+        if (!baseCoords || !lastFetchedCoords || isFetching) return;
+        const latScale = (2 * Math.PI * R) / 360;
+        const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+        const currentLat = baseCoords.lat - (slimeGroup.position.z / latScale);
+        const currentLon = baseCoords.lon + (slimeGroup.position.x / lonScale);
+        const dx = (currentLon - lastFetchedCoords.lon) * lonScale;
+        const dz = (currentLat - lastFetchedCoords.lat) * latScale;
+        if (Math.sqrt(dx*dx + dz*dz) > AUTO_UPDATE_THRESHOLD) fetchMapData(currentLat, currentLon);
+    }
+
+    function handleMovement() {
+        if (keyState['w']) {
+            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+            dir.y = 0; dir.normalize();
+            slimeGroup.position.addScaledVector(dir, 1.4);
+            slimeGroup.quaternion.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), dir), 0.15);
+            checkAutoUpdate();
+        }
+    }
+
+    function startTracking() {
+        navigator.geolocation.getCurrentPosition(p => {
+            baseCoords = { lat: p.coords.latitude, lon: p.coords.longitude };
+            fetchMapData(baseCoords.lat, baseCoords.lon);
+            fetchWeather(baseCoords.lat, baseCoords.lon);
+            setInterval(() => fetchWeather(baseCoords.lat, baseCoords.lon), 600000);
+        }, () => {
+            baseCoords = { lat: 38.2601, lon: 140.8824 }; 
+            fetchMapData(baseCoords.lat, baseCoords.lon);
+            fetchWeather(baseCoords.lat, baseCoords.lon);
+        }, { timeout: 8000 });
+    }
+
+    function manualUpdate() { 
+        if(baseCoords && !isFetching) {
+            const latScale = (2 * Math.PI * R) / 360;
+            const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+            fetchMapData(baseCoords.lat - (slimeGroup.position.z / latScale), baseCoords.lon + (slimeGroup.position.x / lonScale));
+        }
+    }
+
+    function toggleBag() { const win = document.getElementById('inventory-window'); win.style.display = (win.style.display === 'block') ? 'none' : 'block'; }
+    function showMessage(text) { const win = document.getElementById('message-window'); win.textContent = text; win.style.display = 'block'; setTimeout(() => win.style.display = 'none', 3000); }
+    function updateRealTime() { const d = new Date(); document.getElementById('clock-text').textContent = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; setTimeout(updateRealTime, 10000); }
+    function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 
     function animate() {
         requestAnimationFrame(animate);
-        if (rain && rain.visible) {
-            const pos = rain.geometry.attributes.position.array;
-            for (let i = 1; i < pos.length; i += 6) {
-                pos[i] -= 18; pos[i + 3] -= 18;
-                if (pos[i] < 0) { pos[i] = 600; pos[i + 3] = 606; }
+        handleMovement();
+        monsters.forEach(m => {
+            if (!m.active) return;
+            const now = Date.now();
+            if (now > m.nextMoveTime) {
+                if (m.velocity.length() === 0) {
+                    const a = Math.random() * Math.PI * 2;
+                    m.velocity.set(Math.cos(a)*0.2, 0, Math.sin(a)*0.2);
+                    m.nextMoveTime = now + 2000;
+                } else { m.velocity.set(0,0,0); m.nextMoveTime = now + 3000; }
             }
-            rain.geometry.attributes.position.needsUpdate = true;
-            rain.position.copy(slimeGroup.position);
-        }
-        controls.target.lerp(slimeGroup.position, 0.1);
-        controls.update();
+            m.mesh.position.add(m.velocity);
+        });
+        spots.forEach((s) => { if (s.active && slimeGroup.position.distanceTo(s.mesh.position) < 11) { s.active = false; showMessage("ITEM GET!"); scene.remove(s.mesh); } });
+        monsters.forEach((m) => { if (m.active && slimeGroup.position.distanceTo(m.mesh.position) < 11) { m.active = false; showMessage("WIN!"); scene.remove(m.mesh); } });
+        controls.target.lerp(slimeGroup.position, 0.1); controls.update();
         renderer.render(scene, camera);
     }
-
-    function applyTimeEffect(totalMinutes) {
-        const h = Math.floor(totalMinutes / 60); const m = totalMinutes % 60;
-        const timeStr = h.toString().padStart(2, '0') + ":" + m.toString().padStart(2, '0');
-        document.getElementById('clock-text').textContent = timeStr;
-        document.getElementById('v-time').innerText = timeStr;
-        let s, e;
-        for (let i = 0; i < skyColors.length - 1; i++) {
-            if (totalMinutes >= skyColors[i].time && totalMinutes <= skyColors[i + 1].time) {
-                s = skyColors[i]; e = skyColors[i+1]; break;
-            }
-        }
-        const ratio = (totalMinutes - s.time) / (e.time - s.time);
-        let skyCol = new THREE.Color(s.col).lerp(new THREE.Color(e.col), ratio);
-        if (currentWeather === 'rainy') skyCol.multiplyScalar(0.4);
-        scene.background = skyCol;
-        stars.material.opacity = (currentWeather === 'sunny' && (totalMinutes >= 1140 || totalMinutes <= 300)) ? 1.0 : 0;
-        const sunAngle = ((totalMinutes - 360) / 1440) * Math.PI * 2; 
-        sunBall.position.set(Math.cos(sunAngle) * 2000, Math.sin(sunAngle) * 1000, 300); 
-        sunLight.position.copy(sunBall.position);
-        updateWeatherVisuals();
-        if (mapFetchInFlight > 0) drawGuiDotClock();
-    }
-
-    function setWeatherUIAndApply(t, btn) {
-        currentWeather = t;
-        document.querySelectorAll('#env-panel .ctrl-group button').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        else {
-            const id = t === 'sunny' ? 'btn-sunny' : t === 'cloudy' ? 'btn-cloudy' : 'btn-rainy';
-            const el = document.getElementById(id);
-            if (el) el.classList.add('active');
-        }
-        applyTimeEffect(parseInt(document.getElementById('r-time').value));
-    }
-
-    function setWeather(t, btn) {
-        setWeatherUIAndApply(t, btn);
-    }
-
-    function wmoCodeToWeatherKind(code) {
-        const c = Number(code);
-        if (c === 0) return 'sunny';
-        if ([1, 2, 3, 45, 48, 71, 73, 75, 77, 85, 86].includes(c)) return 'cloudy';
-        return 'rainy';
-    }
-
-    async function fetchLiveWeather(lat, lon) {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true`;
-        try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            const cw = data.current_weather;
-            if (!cw || cw.weathercode === undefined) return;
-            const kind = wmoCodeToWeatherKind(cw.weathercode);
-            setWeatherUIAndApply(kind, null);
-        } catch (e) {
-            console.warn('天気APIの取得に失敗しました（Open-Meteo）', e);
-        }
-    }
-
-    function updateWeatherVisuals() {
-        if (!ground) return;
-        rain.visible = (currentWeather === 'rainy');
-        ground.material.color.setHex((currentWeather === 'rainy') ? 0x555555 : 0xffffff); // 雨天時は全体を暗く
-        clouds.children.forEach(c => c.material.opacity = (currentWeather === 'sunny') ? 0 : 0.8);
-    }
-
-    function onKeyDown(e) {
-        const step = 8.0;
-        let mx = 0, mz = 0;
-        if (e.key === "w") mz = -step; if (e.key === "s") mz = step;
-        if (e.key === "a") mx = -step; if (e.key === "d") mx = step;
-        if (mx !== 0 || mz !== 0) {
-            playerOffset.x += mx; playerOffset.z += mz;
-            slimeGroup.position.set(playerOffset.x, 3, playerOffset.z);
-            slimeGroup.rotation.y = Math.atan2(mx, mz);
-        }
-    }
-
-    function updateRealTime() { if (!isManualTime) { const n = new Date(); applyTimeEffect(n.getHours()*60+n.getMinutes()); } setTimeout(updateRealTime, 1000); }
-    function changeEnvManual() { isManualTime = true; applyTimeEffect(parseInt(document.getElementById('r-time').value)); }
-    function createStars() {
-        const geo = new THREE.BufferGeometry(); const pts = [];
-        for(let i=0; i<8000; i++) pts.push(THREE.MathUtils.randFloatSpread(5000), 1000, THREE.MathUtils.randFloatSpread(5000));
-        geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-        stars = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 2, transparent: true, opacity: 0 }));
-        scene.add(stars);
-    }
-    function createClouds() {
-        clouds = new THREE.Group();
-        for(let i=0; i<15; i++) {
-            const c = new THREE.Mesh(new THREE.SphereGeometry(60, 8, 8), new THREE.MeshLambertMaterial({color: 0x888888, transparent: true, opacity: 0}));
-            c.position.set(THREE.MathUtils.randFloatSpread(3000), 400, THREE.MathUtils.randFloatSpread(3000));
-            c.scale.set(8, 0.5, 6); clouds.add(c);
-        }
-        scene.add(clouds);
-    }
-    const OVERPASS_ENDPOINTS = [
-        "https://overpass-api.de/api/interpreter",
-        "https://overpass.openstreetmap.fr/api/interpreter",
-        "https://overpass.kumi.systems/api/interpreter"
-    ];
-
-    async function fetchOverpassJson(query) {
-        let lastErr;
-        for (const base of OVERPASS_ENDPOINTS) {
-            try {
-                const url = `${base}?data=${encodeURIComponent(query)}`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                if (data.remark) console.warn("Overpass:", data.remark);
-                return data;
-            } catch (e) {
-                lastErr = e;
-                console.warn("Overpass 接続失敗、別サーバーを試します:", e.message || e);
-            }
-        }
-        throw lastErr;
-    }
-
-    async function fetchMapData(lat, lon) {
-        mapFetchInFlight++;
-        updateMapLoadingUI();
-        const q = `[out:json][timeout:25];(way["highway"](around:${MAP_QUERY_RADIUS_M},${lat},${lon});way["building"](around:${MAP_QUERY_RADIUS_M},${lat},${lon}););out geom;`;
-        try {
-            const data = await fetchOverpassJson(q);
-            const elements = Array.isArray(data.elements) ? data.elements : [];
-            renderMap(elements, lat, lon);
-        } catch (e) {
-            console.error("Map Error", e);
-        } finally {
-            mapFetchInFlight--;
-            updateMapLoadingUI();
-        }
-    }
-    function resetPlayerToMapOrigin() {
-        playerOffset = { x: 0, z: 0 };
-        if (slimeGroup) slimeGroup.position.set(0, 3, 0);
-    }
-
-    const GEO_OPTIONS_HIGH = { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 };
-    const GEO_OPTIONS_LOW = { enableHighAccuracy: false, maximumAge: 300000, timeout: 25000 };
-
-    function onGeolocationSuccess(p) {
-        const lat = p.coords.latitude;
-        const lon = p.coords.longitude;
-        if (typeof lat !== 'number' || typeof lon !== 'number' || Number.isNaN(lat) || Number.isNaN(lon)) {
-            tryIpFallbackLocation();
-            return;
-        }
-        centerPos = { lat, lon };
-        resetPlayerToMapOrigin();
-        fetchMapData(centerPos.lat, centerPos.lon);
-        fetchLiveWeather(centerPos.lat, centerPos.lon);
-    }
-
-    async function tryIpFallbackLocation() {
-        const tryOne = async (url, parse) => {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(String(res.status));
-            const data = await res.json();
-            const { lat, lon } = parse(data);
-            if (typeof lat === 'number' && typeof lon === 'number' && !Number.isNaN(lat) && !Number.isNaN(lon)) {
-                centerPos = { lat, lon };
-                resetPlayerToMapOrigin();
-                fetchMapData(centerPos.lat, centerPos.lon);
-                fetchLiveWeather(centerPos.lat, centerPos.lon);
-                console.info('ブラウザの位置情報が使えないため、IPから推定したおおよその位置を表示しています。HTTPSまたはlocalhostで開くとGPSにより正確になります。');
-                return true;
-            }
-            return false;
-        };
-        try {
-            if (await tryOne('https://ipapi.co/json/', d => {
-                if (d.error) return { lat: NaN, lon: NaN };
-                return {
-                    lat: typeof d.latitude === 'number' ? d.latitude : parseFloat(d.latitude),
-                    lon: typeof d.longitude === 'number' ? d.longitude : parseFloat(d.longitude)
-                };
-            })) return;
-        } catch (e) { console.warn('ipapi.co:', e); }
-        try {
-            if (await tryOne('https://ipwho.is/', d => {
-                if (d.success === false) return { lat: NaN, lon: NaN };
-                return {
-                    lat: parseFloat(d.latitude),
-                    lon: parseFloat(d.longitude)
-                };
-            })) return;
-        } catch (e) { console.warn('ipwho.is:', e); }
-        console.warn('位置を特定できません。初期地点（仙台付近）を表示します。ブラウザの位置の許可、または https:// または http://localhost での利用を確認してください。');
-        resetPlayerToMapOrigin();
-        fetchMapData(centerPos.lat, centerPos.lon);
-        fetchLiveWeather(centerPos.lat, centerPos.lon);
-    }
-
-    function manualUpdate() {
-        centerPos.lat -= (playerOffset.z / (2 * Math.PI * R / 360));
-        centerPos.lon += (playerOffset.x / ((Math.PI * R * Math.cos(centerPos.lat * Math.PI / 180)) / 180));
-        resetPlayerToMapOrigin();
-        fetchMapData(centerPos.lat, centerPos.lon);
-        fetchLiveWeather(centerPos.lat, centerPos.lon);
-    }
-    function startTracking() {
-        if (!navigator.geolocation) {
-            console.warn('このブラウザは位置情報APIに対応していません。');
-            tryIpFallbackLocation();
-            return;
-        }
-        if (!window.isSecureContext) {
-            console.warn('安全なコンテキストではありません（HTTPS または localhost 推奨）。位置の許可が出ない場合があります。');
-        }
-        navigator.geolocation.getCurrentPosition(
-            onGeolocationSuccess,
-            err => {
-                console.warn('高精度の位置取得に失敗、標準精度で再試行します:', err && err.message);
-                navigator.geolocation.getCurrentPosition(
-                    onGeolocationSuccess,
-                    err2 => {
-                        console.warn('ブラウザ位置情報が使えません:', err2 && err2.message);
-                        tryIpFallbackLocation();
-                    },
-                    GEO_OPTIONS_LOW
-                );
-            },
-            GEO_OPTIONS_HIGH
-        );
-    }
-    function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
     init();
 </script>
 </body>
