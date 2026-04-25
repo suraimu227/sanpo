@@ -2,17 +2,13 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>DQW 3D - Fixed Wireframe Sync</title>
+    <title>DQW 3D - Solid Sync & Emotes</title>
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Press Start 2P', cursive; touch-action: none; }
-        #gui {
-            position: absolute; top: 15px; left: 15px; z-index: 1000;
-            background: #000; color: #fff; padding: 15px;
-            border: 4px solid #fff; width: 160px; text-align: center;
-        }
+        #gui { position: absolute; top: 15px; left: 15px; z-index: 1000; background: #000; color: #fff; padding: 15px; border: 4px solid #fff; width: 160px; text-align: center; }
         #clock-text { font-size: 16px; letter-spacing: 2px; display: block; margin-bottom: 8px; }
         #weather-info { font-size: 8px; line-height: 1.5; margin-bottom: 12px; border-top: 2px solid #fff; padding-top: 8px; color: #aaa; }
         #debug-update-btn { background: #444; color: #fff; border: 2px solid #fff; padding: 5px; font-family: 'Press Start 2P'; font-size: 7px; cursor: pointer; width: 100%; }
@@ -59,12 +55,13 @@
 
 <script>
     let scene, camera, renderer, controls, roadLayer, mapLayer, slimeGroup;
-    let baseCoords = null;
-    let lastFetchedCoords = null;
+    let baseCoords = null, lastFetchedCoords = null;
     let keyState = {};
     let isFetching = false;
     let spots = [], monsters = [];
-    
+    const inventory = [];
+    const ITEM_POOL = ["E-Core", "Herb", "Bronze Sword", "Copper Shield", "Antidote", "Slime Coin"];
+
     const R = 6378137;
     const MAP_RADIUS = 800; 
     const AUTO_UPDATE_THRESHOLD = 300;
@@ -81,6 +78,7 @@
         roadLayer = new THREE.Group(); scene.add(roadLayer);
         mapLayer = new THREE.Group(); scene.add(mapLayer);
 
+        // Ground
         const canvas = document.createElement('canvas');
         canvas.width = 256; canvas.height = 256;
         const ctx = canvas.getContext('2d');
@@ -89,7 +87,6 @@
                 const g = 70 + Math.floor(Math.random() * 50);
                 ctx.fillStyle = `rgb(40, ${g}, 35)`;
                 ctx.fillRect(x*64, y*64, 64, 64);
-                ctx.strokeStyle = "rgba(0,0,0,0.1)"; ctx.strokeRect(x*64, y*64, 64, 64);
             }
         }
         const texture = new THREE.CanvasTexture(canvas);
@@ -98,19 +95,14 @@
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000), new THREE.MeshLambertMaterial({ map: texture }));
         ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
+        // Slime Player
         slimeGroup = new THREE.Group();
         const body = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 24), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
         body.scale.set(1.1, 0.85, 1.1);
         const horn = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4, 16), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
         horn.position.y = 1.5; slimeGroup.add(body); slimeGroup.add(horn);
-        
-        // 青の判定円
-        const ringGeo = new THREE.RingGeometry(10.8, 11, 32);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2; ring.position.y = -2.8;
-        slimeGroup.add(ring);
-        
+        const ring = new THREE.Mesh(new THREE.RingGeometry(10.8, 11, 32), new THREE.MeshBasicMaterial({ color: 0x0000FF, side: THREE.DoubleSide }));
+        ring.rotation.x = Math.PI / 2; ring.position.y = -2.8; slimeGroup.add(ring);
         slimeGroup.position.set(0, 3, 0); scene.add(slimeGroup);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -142,103 +134,116 @@
         try {
             const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(q)}`);
             const data = await res.json();
-            
             roadLayer.clear(); mapLayer.clear();
             
             data.elements.forEach(el => {
                 if (!el.geometry || !el.tags) return;
-                const pts3D = el.geometry.map(p => {
+
+                // 地球の曲率を考慮した正確な投影計算
+                const pts2D = el.geometry.map(p => {
                     const dx = (p.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
                     const dz = -(p.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
-                    return new THREE.Vector3(dx, 0, dz);
+                    return new THREE.Vector2(dx, dz);
                 });
 
                 if (el.tags.building) {
                     const wallH = el.tags['building:levels'] ? parseFloat(el.tags['building:levels']) * 3.5 : 10;
+                    const shape = new THREE.Shape(pts2D);
                     
-                    // 1. 底面の枠線 (灰色)
-                    const bottomPoints = pts3D.map(p => new THREE.Vector3(p.x, 0.3, p.z));
-                    bottomPoints.push(bottomPoints[0]);
-                    const bGeo = new THREE.BufferGeometry().setFromPoints(bottomPoints);
-                    mapLayer.add(new THREE.Line(bGeo, new THREE.LineBasicMaterial({ color: 0x888888 })));
+                    // 1. 3D塗りつぶし本体
+                    const buildingGeom = new THREE.ExtrudeGeometry(shape, { depth: wallH, bevelEnabled: false });
+                    const buildingMesh = new THREE.Mesh(buildingGeom, new THREE.MeshLambertMaterial({ color: 0x444444 }));
+                    buildingMesh.rotation.x = -Math.PI / 2;
+                    buildingMesh.position.y = 0.3;
+                    mapLayer.add(buildingMesh);
 
-                    // 2. 天面の枠線 (灰色) - 底面を複製して高さを上げる
-                    const topPoints = pts3D.map(p => new THREE.Vector3(p.x, wallH + 0.3, p.z));
-                    topPoints.push(topPoints[0]);
-                    const tGeo = new THREE.BufferGeometry().setFromPoints(topPoints);
-                    mapLayer.add(new THREE.Line(tGeo, new THREE.LineBasicMaterial({ color: 0x888888 })));
+                    // 2. 枠線を建物メッシュから直接生成して同期
+                    const edges = new THREE.EdgesGeometry(buildingGeom);
+                    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x888888 }));
+                    line.rotation.x = -Math.PI / 2;
+                    line.position.y = 0.3;
+                    mapLayer.add(line);
 
-                    // 3. 建物本体 (この上下の枠線の間に配置)
-                    const shape = new THREE.Shape(pts3D.map(p => new THREE.Vector2(p.x, p.z)));
-                    const extrudeSettings = { depth: wallH, bevelEnabled: false };
-                    const bMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, extrudeSettings), new THREE.MeshLambertMaterial({ color: 0x444444, transparent: true, opacity: 0.8 }));
-                    bMesh.rotation.x = -Math.PI / 2; bMesh.position.y = 0.3; 
-                    mapLayer.add(bMesh);
                 } else if (el.tags.highway) {
-                    const curve = new THREE.CatmullRomCurve3(pts3D);
-                    const rMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, pts3D.length * 2), 3.5, 4, false), new THREE.MeshBasicMaterial({ color: 0x999999 }));
-                    rMesh.position.y = 0.15; rMesh.scale.set(1, 0.01, 1); roadLayer.add(rMesh);
+                    // 道路も同じ投影ロジックで描画
+                    const curve = new THREE.CatmullRomCurve3(pts2D.map(p => new THREE.Vector3(p.x, 0.15, p.y)));
+                    const rMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, pts2D.length * 2), 3.5, 4, false), new THREE.MeshBasicMaterial({ color: 0x999999 }));
+                    rMesh.scale.set(1, 0.01, 1); roadLayer.add(rMesh);
                 }
             });
             createObjects();
-        } catch (e) {
-            showMessage("LOAD ERROR");
-        } finally {
+        } catch (e) { showMessage("LOAD ERROR"); } finally {
             isFetching = false;
             setTimeout(() => document.getElementById('map-loading').classList.add('hidden'), 800);
         }
     }
 
-    // --- その他ロジック(Weather, Tracking, Movement等)は前バージョンを維持 ---
-    async function fetchWeather(lat, lon) {
-        try {
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-            const data = await res.json();
-            const temp = Math.round(data.current_weather.temperature);
-            const status = data.current_weather.weathercode <= 3 ? "CLEAR" : "RAIN";
-            document.getElementById('weather-info').innerHTML = `${status}<br>${temp}°C`;
-        } catch (e) { document.getElementById('weather-info').textContent = "WEATHER ERROR"; }
-    }
-
     function createObjects() {
-        spots.forEach(s => scene.remove(s.mesh)); monsters.forEach(m => scene.remove(m.mesh));
+        spots.forEach(s => scene.remove(s.group)); monsters.forEach(m => scene.remove(m.group));
         spots = []; monsters = [];
-        for(let i=0; i<20; i++){
+        for(let i=0; i<15; i++){
             const rx = (Math.random()-0.5)*1200 + slimeGroup.position.x;
             const rz = (Math.random()-0.5)*1200 + slimeGroup.position.z;
+            const group = new THREE.Group();
+            group.position.set(rx, 0, rz);
+            
             if(Math.random() > 0.5) {
-                const g = new THREE.Group();
                 const p = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 15, 8), new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 }));
-                p.position.y = 7.5; g.add(p); g.position.set(rx, 0.1, rz); scene.add(g);
-                spots.push({ mesh: g, active: true });
+                p.position.y = 7.5; group.add(p); scene.add(group);
+                spots.push({ group, active: true });
             } else {
-                const g = new THREE.Group();
                 const b = new THREE.Mesh(new THREE.SphereGeometry(3, 12, 12), new THREE.MeshPhongMaterial({ color: 0xff4444 }));
-                g.add(b); g.position.set(rx, 3, rz); scene.add(g);
-                monsters.push({ mesh: g, active: true, velocity: new THREE.Vector3(0,0,0), nextMoveTime: 0 });
+                b.position.y = 3; group.add(b);
+                const mark = createEmoteMark();
+                mark.position.y = 10; mark.visible = false;
+                group.add(mark);
+                scene.add(group);
+                monsters.push({ group, mark, active: true, velocity: new THREE.Vector3(0,0,0), nextMoveTime: 0 });
             }
         }
     }
 
-    function checkAutoUpdate() {
-        if (!baseCoords || !lastFetchedCoords || isFetching) return;
-        const latScale = (2 * Math.PI * R) / 360;
-        const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
-        const currentLat = baseCoords.lat - (slimeGroup.position.z / latScale);
-        const currentLon = baseCoords.lon + (slimeGroup.position.x / lonScale);
-        const dx = (currentLon - lastFetchedCoords.lon) * lonScale;
-        const dz = (currentLat - lastFetchedCoords.lat) * latScale;
-        if (Math.sqrt(dx*dx + dz*dz) > AUTO_UPDATE_THRESHOLD) fetchMapData(currentLat, currentLon);
+    function createEmoteMark() {
+        const group = new THREE.Group();
+        const top = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        const dot = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        dot.position.y = -3; group.add(top); group.add(dot);
+        return group;
     }
 
-    function handleMovement() {
-        if (keyState['w']) {
-            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-            dir.y = 0; dir.normalize();
-            slimeGroup.position.addScaledVector(dir, 1.4);
-            slimeGroup.quaternion.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), dir), 0.15);
-            checkAutoUpdate();
-        }
+    function handleInteraction() {
+        spots.forEach(s => {
+            if (s.active && slimeGroup.position.distanceTo(s.group.position) < 11) {
+                s.active = false;
+                const item = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
+                inventory.push(item);
+                updateInventoryUI();
+                showMessage(`Found ${item}!`);
+                scene.remove(s.group);
+            }
+        });
+        monsters.forEach(m => {
+            if (m.active && slimeGroup.position.distanceTo(m.group.position) < 11) {
+                m.active = false;
+                m.mark.visible = true;
+                showMessage("BATTLE START!");
+                setTimeout(() => { scene.remove(m.group); }, 600);
+            }
+        });
+    }
+
+    function updateInventoryUI() {
+        const list = document.getElementById('item-list');
+        list.innerHTML = inventory.length ? inventory.join("<br>") : "EMPTY";
+    }
+
+    async function fetchWeather(lat, lon) {
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await res.json();
+            const status = data.current_weather.weathercode <= 3 ? "CLEAR" : "CLOUDY";
+            document.getElementById('weather-info').innerHTML = `${status}<br>${Math.round(data.current_weather.temperature)}°C`;
+        } catch (e) { document.getElementById('weather-info').textContent = "ERROR"; }
     }
 
     function startTracking() {
@@ -246,30 +251,39 @@
             baseCoords = { lat: p.coords.latitude, lon: p.coords.longitude };
             fetchMapData(baseCoords.lat, baseCoords.lon);
             fetchWeather(baseCoords.lat, baseCoords.lon);
-            setInterval(() => fetchWeather(baseCoords.lat, baseCoords.lon), 600000);
         }, () => {
             baseCoords = { lat: 38.2601, lon: 140.8824 }; 
             fetchMapData(baseCoords.lat, baseCoords.lon);
             fetchWeather(baseCoords.lat, baseCoords.lon);
-        }, { timeout: 8000 });
+        });
     }
 
     function manualUpdate() { 
-        if(baseCoords && !isFetching) {
-            const latScale = (2 * Math.PI * R) / 360;
-            const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
-            fetchMapData(baseCoords.lat - (slimeGroup.position.z / latScale), baseCoords.lon + (slimeGroup.position.x / lonScale));
-        }
+        if(!baseCoords || isFetching) return;
+        const latScale = (2 * Math.PI * R) / 360, lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+        fetchMapData(baseCoords.lat - (slimeGroup.position.z / latScale), baseCoords.lon + (slimeGroup.position.x / lonScale));
     }
 
     function toggleBag() { const win = document.getElementById('inventory-window'); win.style.display = (win.style.display === 'block') ? 'none' : 'block'; }
-    function showMessage(text) { const win = document.getElementById('message-window'); win.textContent = text; win.style.display = 'block'; setTimeout(() => win.style.display = 'none', 3000); }
+    function showMessage(text) { const win = document.getElementById('message-window'); win.textContent = text; win.style.display = 'block'; setTimeout(() => win.style.display = 'none', 2500); }
     function updateRealTime() { const d = new Date(); document.getElementById('clock-text').textContent = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; setTimeout(updateRealTime, 10000); }
     function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 
     function animate() {
         requestAnimationFrame(animate);
-        handleMovement();
+        if (keyState['w']) {
+            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+            dir.y = 0; dir.normalize();
+            slimeGroup.position.addScaledVector(dir, 1.4);
+            slimeGroup.quaternion.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), dir), 0.15);
+            if(lastFetchedCoords) {
+                const latScale = (2 * Math.PI * R) / 360, lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+                const dx = ( (baseCoords.lon + (slimeGroup.position.x / lonScale)) - lastFetchedCoords.lon) * lonScale;
+                const dz = ( (baseCoords.lat - (slimeGroup.position.z / latScale)) - lastFetchedCoords.lat) * latScale;
+                if(Math.sqrt(dx*dx + dz*dz) > AUTO_UPDATE_THRESHOLD) manualUpdate();
+            }
+        }
+        handleInteraction();
         monsters.forEach(m => {
             if (!m.active) return;
             const now = Date.now();
@@ -280,10 +294,9 @@
                     m.nextMoveTime = now + 2000;
                 } else { m.velocity.set(0,0,0); m.nextMoveTime = now + 3000; }
             }
-            m.mesh.position.add(m.velocity);
+            m.group.position.add(m.velocity);
+            m.mark.lookAt(camera.position);
         });
-        spots.forEach((s) => { if (s.active && slimeGroup.position.distanceTo(s.mesh.position) < 11) { s.active = false; showMessage("ITEM GET!"); scene.remove(s.mesh); } });
-        monsters.forEach((m) => { if (m.active && slimeGroup.position.distanceTo(m.mesh.position) < 11) { m.active = false; showMessage("WIN!"); scene.remove(m.mesh); } });
         controls.target.lerp(slimeGroup.position, 0.1); controls.update();
         renderer.render(scene, camera);
     }
