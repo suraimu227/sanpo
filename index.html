@@ -5,16 +5,25 @@
     <title>DQW 3D - Solid Sync & Emotes</title>
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Press Start 2P', cursive; touch-action: none; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'DotGothic16', 'Press Start 2P', cursive; touch-action: none; }
         #gui { position: absolute; top: 15px; left: 15px; z-index: 1000; background: #000; color: #fff; padding: 15px; border: 4px solid #fff; width: 160px; text-align: center; }
         #clock-text { font-size: 16px; letter-spacing: 2px; display: block; margin-bottom: 8px; }
-        #weather-info { font-size: 8px; line-height: 1.5; margin-bottom: 12px; border-top: 2px solid #fff; padding-top: 8px; color: #aaa; }
-        #debug-update-btn { background: #444; color: #fff; border: 2px solid #fff; padding: 5px; font-family: 'Press Start 2P'; font-size: 7px; cursor: pointer; width: 100%; }
-        #bag-gui { position: absolute; bottom: 20px; left: 20px; z-index: 1100; }
-        #bag-btn { background: #000; color: #fff; border: 3px solid #fff; padding: 10px 15px; font-family: "Press Start 2P"; font-size: 9px; cursor: pointer; }
+        #weather-info { font-size: 12px; line-height: 1.45; margin-bottom: 12px; border-top: 2px solid #fff; padding-top: 8px; color: #ddd; }
+        #debug-update-btn { background: #444; color: #fff; border: 2px solid #fff; padding: 5px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 9px; cursor: pointer; width: 100%; }
+        #bag-gui { position: absolute; bottom: 20px; left: 20px; z-index: 1100; display: flex; gap: 8px; }
+        #bag-btn { background: #000; color: #fff; border: 3px solid #fff; padding: 10px 15px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 12px; cursor: pointer; }
+        #player-btn, #quest-btn { background: #000; color: #fff; border: 3px solid #fff; padding: 10px 12px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 12px; cursor: pointer; }
         #inventory-window { position: absolute; bottom: 60px; left: 0; width: 220px; background: #000; border: 3px solid #fff; color: #fff; padding: 15px; display: none; font-size: 10px; line-height: 1.8; }
+        #player-window { position: absolute; bottom: 60px; left: 230px; width: 280px; background: #000; border: 3px solid #fff; color: #fff; padding: 12px; display: none; font-size: 12px; line-height: 1.55; }
+        #quest-window { position: absolute; bottom: 60px; left: 520px; width: 280px; background: #000; border: 3px solid #fff; color: #fff; padding: 12px; display: none; font-size: 12px; line-height: 1.5; }
+        #player-info { border-top: 2px solid #fff; margin-top: 8px; padding-top: 8px; }
+        #player-items { max-height: 140px; overflow-y: auto; border-top: 2px solid #fff; margin-top: 8px; padding-top: 8px; }
+        #quest-list { border-top: 2px solid #fff; margin-top: 8px; padding-top: 8px; max-height: 170px; overflow-y: auto; }
+        .item-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .item-act { background: #111; color: #fff; border: 1px solid #fff; font-size: 11px; cursor: pointer; }
+        .save-btn { background: #111; color: #fff; border: 1px solid #fff; font-size: 11px; padding: 4px 8px; cursor: pointer; margin-top: 6px; }
         #message-window { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 1500; background: #000; border: 4px solid #fff; color: #fff; padding: 15px 25px; font-size: 10px; min-width: 280px; display: none; text-align: center; }
         #map-loading { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); }
         #map-loading.hidden { display: none; }
@@ -22,6 +31,14 @@
         .load-text { color: #fff; font-size: 10px; margin-bottom: 20px; }
         .small-load-bar { width: 200px; height: 12px; border: 2px solid #fff; position: relative; overflow: hidden; }
         .small-load-fill { height: 100%; width: 70px; background: #fff; position: absolute; animation: bar-move 1.2s linear infinite; }
+        .battle-window { position: fixed; z-index: 2200; background: #000; border: 4px solid #fff; color: #fff; padding: 10px; display: none; }
+        #battle-status-window { left: 20px; bottom: 20px; width: 320px; }
+        #battle-command-window { right: 20px; bottom: 20px; width: 260px; }
+        #battle-title { font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; }
+        .battle-hp { font-size: 14px; line-height: 1.6; margin-bottom: 8px; border-top: 2px solid #fff; border-bottom: 2px solid #fff; padding: 6px 0; }
+        #battle-log { min-height: 44px; font-size: 14px; line-height: 1.5; color: #fff; white-space: pre-line; }
+        .battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .battle-btn { background: #101010; color: #fff; border: 2px solid #fff; padding: 8px 6px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 14px; cursor: pointer; }
         @keyframes bar-move { 0% { left: -70px; } 100% { left: 200px; } }
     </style>
 </head>
@@ -30,23 +47,54 @@
 <div id="gui">
     <span id="clock-text">00:00</span>
     <div id="weather-info">LOADING...</div>
-    <button id="debug-update-btn" onclick="manualUpdate()">UPDATE(Debug)</button>
+    <button id="debug-update-btn" onclick="manualUpdate()">更新(デバッグ)</button>
 </div>
 
 <div id="bag-gui">
     <div id="inventory-window">
-        <div style="border-bottom: 2px solid #fff; margin-bottom: 10px; padding-bottom: 5px;">ITEM LIST</div>
-        <div id="item-list">EMPTY</div>
+        <div style="border-bottom: 2px solid #fff; margin-bottom: 10px; padding-bottom: 5px;">どうぐ</div>
+        <div id="item-list">なし</div>
     </div>
-    <button id="bag-btn" onclick="toggleBag()">BAG</button>
+    <div id="player-window">
+        <div>ゆうしゃ じょうほう</div>
+        <div id="player-info"></div>
+        <div id="player-items"></div>
+        <button class="save-btn" onclick="saveGame()">セーブ</button>
+    </div>
+    <div id="quest-window">
+        <div>クエスト</div>
+        <div id="quest-list"></div>
+    </div>
+    <button id="bag-btn" onclick="toggleBag()">ふくろ</button>
+    <button id="player-btn" onclick="togglePlayerWindow()">ステータス</button>
+    <button id="quest-btn" onclick="toggleQuestWindow()">クエスト</button>
 </div>
 
 <div id="message-window"></div>
 
 <div id="map-loading">
     <div class="load-window">
-        <div class="load-text">LOADING MAP...</div>
+        <div class="load-text">ちず よみこみちゅう...</div>
         <div class="small-load-bar"><div class="small-load-fill"></div></div>
+    </div>
+</div>
+
+<div id="battle-status-window" class="battle-window">
+    <div id="battle-title">たたかい</div>
+    <div class="battle-hp">
+        <div id="battle-player-hp">ゆうしゃ Lv1 HP: 24/24</div>
+        <div id="battle-enemy-hp">まもの Lv1 HP: 16/16</div>
+    </div>
+    <div id="battle-log">まものが あらわれた！</div>
+</div>
+
+<div id="battle-command-window" class="battle-window">
+    <div class="battle-actions">
+        <button class="battle-btn" id="battle-attack-btn">たたかう</button>
+        <button class="battle-btn" id="battle-skill-btn">スキル</button>
+        <button class="battle-btn" id="battle-run-btn">にげる</button>
+        <button class="battle-btn" id="battle-guard-btn">ぼうぎょ</button>
+        <button class="battle-btn" id="battle-item-btn">どうぐ</button>
     </div>
 </div>
 
@@ -60,19 +108,64 @@
     let isFetching = false;
     let spots = [], monsters = [];
     const inventory = [];
-    const ITEM_POOL = ["E-Core", "Herb", "Bronze Sword", "Copper Shield", "Antidote", "Slime Coin"];
+    const ITEM_POOL = ["やくそう", "どうのつるぎ", "かわのたて", "どくけしそう", "スライムゼリー", "スライムコイン"];
+    const ITEM_DEFS = {
+        "やくそう": { type: "consumable", heal: 10 },
+        "どくけしそう": { type: "consumable", heal: 6 },
+        "スライムゼリー": { type: "consumable", heal: 8 },
+        "どうのつるぎ": { type: "weapon", atk: 4 },
+        "ブロンズソード": { type: "weapon", atk: 5 },
+        "かわのたて": { type: "shield", def: 3 },
+        "コッパーシールド": { type: "shield", def: 4 },
+        "スライムのこころ": { type: "heart", atk: 1, def: 1, hp: 3 },
+        "ドラキーのこころ": { type: "heart", atk: 2, def: 1, hp: 4 },
+        "おおがらすのこころ": { type: "heart", atk: 2, def: 2, hp: 5 },
+        "スライムコイン": { type: "misc" }
+    };
+    const ENEMY_TYPES = [
+        { name: "スライム", baseHp: 12, baseAtk: 4, baseDef: 2, exp: 5, drops: ["やくそう", "スライムゼリー", "スライムのこころ"] },
+        { name: "ドラキー", baseHp: 16, baseAtk: 6, baseDef: 3, exp: 8, drops: ["やくそう", "どくけしそう", "かわのたて", "ドラキーのこころ"] },
+        { name: "おおがらす", baseHp: 20, baseAtk: 8, baseDef: 4, exp: 12, drops: ["やくそう", "どうのつるぎ", "スライムコイン", "おおがらすのこころ"] }
+    ];
+    const LV_UP_TABLE = { hp: 4, atk: 2, def: 1 };
+    const QUEST_MASTER = [
+        { id: "walk_300", name: "あるいてぼうけん", type: "walk", target: 300, rewardGold: 80, rewardItem: "やくそう" },
+        { id: "battle_3", name: "まものたいじ", type: "battle", target: 3, rewardGold: 120, rewardItem: "どくけしそう" },
+        { id: "pickup_5", name: "素材あつめ", type: "pickup", target: 5, rewardGold: 90, rewardItem: "スライムゼリー" }
+    ];
+    let isInBattle = false;
+    let currentBattleMonster = null;
+    const playerState = { lv: 1, exp: 0, nextExp: 16, maxHp: 24, hp: 24, maxMp: 10, mp: 10, atk: 10, def: 5, gold: 0, equipment: { weapon: null, shield: null, heart: null } };
+    const battleState = {
+        enemy: null,
+        playerTurn: true,
+        busy: false,
+        guardRate: 1.0,
+        cameraBackup: null,
+        center: null,
+        animation: null
+    };
+    const buildingOutlineLines = [];
+    const BUILDING_OUTLINE_HIDE_DISTANCE = 420;
+    let lastFrameAt = performance.now();
+    let fpsAccum = 0;
+    let fpsFrames = 0;
+    let buildingOutlineVisible = true;
+    let walkedDistance = 0;
+    let questProgress = {};
+    let questDone = {};
 
     const R = 6378137;
-    const MAP_RADIUS = 800; 
+    const MAP_RADIUS = 560; 
     const AUTO_UPDATE_THRESHOLD = 300;
-    const CAMERA_DIST = 75;
+    const CAMERA_DIST = 58;
 
     function init() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
+        camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 2600);
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         document.body.appendChild(renderer.domElement);
 
         roadLayer = new THREE.Group(); scene.add(roadLayer);
@@ -106,21 +199,64 @@
         slimeGroup.position.set(0, 3, 0); scene.add(slimeGroup);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; controls.maxPolarAngle = Math.PI / 2.2;
-        controls.minDistance = CAMERA_DIST; controls.maxDistance = CAMERA_DIST;
+        controls.enableDamping = true; controls.maxPolarAngle = Math.PI / 2.35;
+        controls.minDistance = CAMERA_DIST - 8; controls.maxDistance = CAMERA_DIST + 4;
         controls.target.copy(slimeGroup.position);
-        camera.position.set(0, 60, 80);
+        camera.position.set(0, 47, 60);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         const sunLight = new THREE.DirectionalLight(0xffffff, 0.4); sunLight.position.set(50, 200, 100); scene.add(sunLight);
 
+        loadGame();
+        initQuestState();
+        applyLoginBonus();
         updateRealTime();
         startTracking();
         
         window.addEventListener('keydown', (e) => keyState[e.key.toLowerCase()] = true);
         window.addEventListener('keyup', (e) => keyState[e.key.toLowerCase()] = false);
         window.addEventListener('resize', onWindowResize);
+        window.addEventListener('beforeunload', () => saveGame(true));
+        setupBattleUI();
+        updatePlayerWindow();
+        updateQuestWindow();
+        updateInventoryUI();
         animate();
+    }
+
+    function buildRoadStrip(points, halfWidth = 3.6) {
+        if (points.length < 2) return null;
+        const left = [];
+        const right = [];
+        for (let i = 0; i < points.length; i++) {
+            const prev = points[Math.max(0, i - 1)];
+            const next = points[Math.min(points.length - 1, i + 1)];
+            const dir = new THREE.Vector2(next.x - prev.x, next.y - prev.y);
+            if (dir.lengthSq() === 0) continue;
+            dir.normalize();
+            const normal = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(halfWidth);
+            left.push(new THREE.Vector3(points[i].x + normal.x, 0.24, points[i].y + normal.y));
+            right.push(new THREE.Vector3(points[i].x - normal.x, 0.24, points[i].y - normal.y));
+        }
+        if (left.length < 2 || right.length < 2) return null;
+        const vertices = [];
+        const indices = [];
+        for (let i = 0; i < left.length; i++) {
+            vertices.push(left[i].x, left[i].y, left[i].z);
+            vertices.push(right[i].x, right[i].y, right[i].z);
+            if (i < left.length - 1) {
+                const a = i * 2;
+                const b = a + 1;
+                const c = a + 2;
+                const d = a + 3;
+                indices.push(a, b, c, b, d, c);
+            }
+        }
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+        geom.setIndex(indices);
+        geom.computeVertexNormals();
+        return geom;
     }
 
     async function fetchMapData(lat, lon) {
@@ -136,6 +272,19 @@
             const data = await res.json();
             roadLayer.clear(); mapLayer.clear();
             
+            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x858a92 });
+            const buildingFillMaterial = new THREE.MeshLambertMaterial({
+                color: 0x5b6672,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.88,
+                polygonOffset: true,
+                polygonOffsetFactor: -1,
+                polygonOffsetUnits: -2
+            });
+            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xbfc6cf });
+            buildingOutlineLines.length = 0;
+
             data.elements.forEach(el => {
                 if (!el.geometry || !el.tags) return;
 
@@ -147,32 +296,39 @@
                 });
 
                 if (el.tags.building) {
-                    const wallH = el.tags['building:levels'] ? parseFloat(el.tags['building:levels']) * 3.5 : 10;
+                    if (pts2D.length < 3) return;
                     const shape = new THREE.Shape(pts2D);
-                    
-                    // 1. 3D塗りつぶし本体
-                    const buildingGeom = new THREE.ExtrudeGeometry(shape, { depth: wallH, bevelEnabled: false });
-                    const buildingMesh = new THREE.Mesh(buildingGeom, new THREE.MeshLambertMaterial({ color: 0x444444 }));
-                    buildingMesh.rotation.x = -Math.PI / 2;
-                    buildingMesh.position.y = 0.3;
+
+                    // 道路と同じ地表系の見え方で、建物の内側を塗る
+                    const buildingGeom = new THREE.ShapeGeometry(shape);
+                    const buildingMesh = new THREE.Mesh(buildingGeom, buildingFillMaterial);
+                    // +PI/2 にすることで、枠線用のXZ座標と同じ向きに揃える
+                    buildingMesh.rotation.x = Math.PI / 2;
+                    buildingMesh.position.y = 0.26;
                     mapLayer.add(buildingMesh);
 
-                    // 2. 枠線を建物メッシュから直接生成して同期
-                    const edges = new THREE.EdgesGeometry(buildingGeom);
-                    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x888888 }));
-                    line.rotation.x = -Math.PI / 2;
-                    line.position.y = 0.3;
+                    // 枠線は軽めの1本線で重すぎない見た目にする
+                    const outlinePts = [...pts2D, pts2D[0]];
+                    const lineGeom = new THREE.BufferGeometry().setFromPoints(
+                        outlinePts.map(p => new THREE.Vector3(p.x, 0.28, p.y))
+                    );
+                    const line = new THREE.Line(lineGeom, buildingLineMaterial);
+                    const centerX = pts2D.reduce((sum, p) => sum + p.x, 0) / pts2D.length;
+                    const centerZ = pts2D.reduce((sum, p) => sum + p.y, 0) / pts2D.length;
+                    line.userData.center = { x: centerX, z: centerZ };
                     mapLayer.add(line);
+                    buildingOutlineLines.push(line);
 
                 } else if (el.tags.highway) {
-                    // 道路も同じ投影ロジックで描画
-                    const curve = new THREE.CatmullRomCurve3(pts2D.map(p => new THREE.Vector3(p.x, 0.15, p.y)));
-                    const rMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, pts2D.length * 2), 3.5, 4, false), new THREE.MeshBasicMaterial({ color: 0x999999 }));
-                    rMesh.scale.set(1, 0.01, 1); roadLayer.add(rMesh);
+                    // 立体ではなく、平面の道路帯でリアル寄りに描く
+                    if (pts2D.length < 2) return;
+                    const roadGeom = buildRoadStrip(pts2D, 3.8);
+                    if (!roadGeom) return;
+                    roadLayer.add(new THREE.Mesh(roadGeom, roadMaterial));
                 }
             });
-            createObjects();
-        } catch (e) { showMessage("LOAD ERROR"); } finally {
+            if (spots.length === 0 && monsters.length === 0) createObjects();
+        } catch (e) { showMessage("ちずの よみこみに しっぱい"); } finally {
             isFetching = false;
             setTimeout(() => document.getElementById('map-loading').classList.add('hidden'), 800);
         }
@@ -192,13 +348,25 @@
                 p.position.y = 7.5; group.add(p); scene.add(group);
                 spots.push({ group, active: true });
             } else {
+                const enemyType = ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
+                const enemyLv = 1 + Math.floor(Math.random() * Math.max(1, playerState.lv + 1));
+                const enemyStats = {
+                    name: enemyType.name,
+                    lv: enemyLv,
+                    maxHp: enemyType.baseHp + enemyLv * 3,
+                    hp: enemyType.baseHp + enemyLv * 3,
+                    atk: enemyType.baseAtk + enemyLv * 2,
+                    def: enemyType.baseDef + enemyLv,
+                    exp: enemyType.exp + enemyLv * 2,
+                    drops: enemyType.drops
+                };
                 const b = new THREE.Mesh(new THREE.SphereGeometry(3, 12, 12), new THREE.MeshPhongMaterial({ color: 0xff4444 }));
                 b.position.y = 3; group.add(b);
                 const mark = createEmoteMark();
                 mark.position.y = 10; mark.visible = false;
                 group.add(mark);
                 scene.add(group);
-                monsters.push({ group, mark, active: true, velocity: new THREE.Vector3(0,0,0), nextMoveTime: 0 });
+                monsters.push({ group, mark, active: true, velocity: new THREE.Vector3(0,0,0), nextMoveTime: 0, stats: enemyStats });
             }
         }
     }
@@ -218,23 +386,508 @@
                 const item = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
                 inventory.push(item);
                 updateInventoryUI();
-                showMessage(`Found ${item}!`);
+                addQuestProgress("pickup", 1);
+                showMessage(`${item}を みつけた！`);
                 scene.remove(s.group);
             }
         });
         monsters.forEach(m => {
             if (m.active && slimeGroup.position.distanceTo(m.group.position) < 11) {
-                m.active = false;
-                m.mark.visible = true;
-                showMessage("BATTLE START!");
-                setTimeout(() => { scene.remove(m.group); }, 600);
+                beginBattle(m);
             }
         });
     }
 
+    function setupBattleUI() {
+        document.getElementById('battle-attack-btn').addEventListener('click', onBattleAttack);
+        document.getElementById('battle-skill-btn').addEventListener('click', onBattleSkill);
+        document.getElementById('battle-run-btn').addEventListener('click', onBattleRun);
+        document.getElementById('battle-guard-btn').addEventListener('click', onBattleGuard);
+        document.getElementById('battle-item-btn').addEventListener('click', onBattleItem);
+        document.getElementById('player-items').addEventListener('click', onPlayerItemAction);
+    }
+
+    function initQuestState() {
+        QUEST_MASTER.forEach(q => {
+            if (questProgress[q.id] == null) questProgress[q.id] = 0;
+            if (questDone[q.id] == null) questDone[q.id] = false;
+        });
+    }
+
+    function addQuestProgress(type, amount) {
+        let anyComplete = false;
+        for (const q of QUEST_MASTER) {
+            if (q.type !== type || questDone[q.id]) continue;
+            questProgress[q.id] += amount;
+            if (questProgress[q.id] >= q.target) {
+                questDone[q.id] = true;
+                playerState.gold += q.rewardGold;
+                if (q.rewardItem) inventory.push(q.rewardItem);
+                showMessage(`クエスト達成: ${q.name}\n${q.rewardGold}G かくとく`);
+                anyComplete = true;
+            }
+        }
+        if (anyComplete) updateInventoryUI();
+        updateQuestWindow();
+    }
+
+    function toggleQuestWindow() {
+        const win = document.getElementById('quest-window');
+        const visible = win.style.display === 'block';
+        win.style.display = visible ? 'none' : 'block';
+        if (!visible) updateQuestWindow();
+    }
+
+    function updateQuestWindow() {
+        const el = document.getElementById('quest-list');
+        const rows = QUEST_MASTER.map(q => {
+            const progress = Math.min(q.target, questProgress[q.id] || 0);
+            const done = questDone[q.id];
+            const state = done ? "達成" : `${progress}/${q.target}`;
+            return `<div style="margin-bottom:8px;">${q.name}<br><span style="color:${done ? "#7fffa5" : "#ddd"}">${state}</span></div>`;
+        });
+        el.innerHTML = rows.join("");
+    }
+
+    function saveGame(silent = false) {
+        const payload = {
+            playerState,
+            inventory,
+            questProgress,
+            questDone,
+            walkedDistance
+        };
+        localStorage.setItem("dqw_like_save", JSON.stringify(payload));
+        if (!silent) showMessage("セーブしました");
+    }
+
+    function loadGame() {
+        const raw = localStorage.getItem("dqw_like_save");
+        if (!raw) return;
+        try {
+            const data = JSON.parse(raw);
+            if (data.playerState) Object.assign(playerState, data.playerState);
+            if (Array.isArray(data.inventory)) {
+                inventory.length = 0;
+                data.inventory.forEach(i => inventory.push(i));
+            }
+            if (data.questProgress) questProgress = data.questProgress;
+            if (data.questDone) questDone = data.questDone;
+            if (typeof data.walkedDistance === "number") walkedDistance = data.walkedDistance;
+        } catch (e) {
+            // ignore broken save
+        }
+    }
+
+    function applyLoginBonus() {
+        const today = new Date().toISOString().slice(0, 10);
+        const last = localStorage.getItem("dqw_login_last");
+        if (last === today) return;
+        localStorage.setItem("dqw_login_last", today);
+        playerState.gold += 50;
+        inventory.push("やくそう");
+        showMessage("ログインボーナス: 50G と やくそう");
+    }
+
+    function getEquippedBonus() {
+        const weapon = playerState.equipment.weapon ? ITEM_DEFS[playerState.equipment.weapon] : null;
+        const shield = playerState.equipment.shield ? ITEM_DEFS[playerState.equipment.shield] : null;
+        const heart = playerState.equipment.heart ? ITEM_DEFS[playerState.equipment.heart] : null;
+        return {
+            atk: (weapon?.atk || 0) + (heart?.atk || 0),
+            def: (shield?.def || 0) + (heart?.def || 0),
+            hp: (heart?.hp || 0)
+        };
+    }
+
+    function getPlayerBattleStats() {
+        const bonus = getEquippedBonus();
+        return {
+            atk: playerState.atk + bonus.atk,
+            def: playerState.def + bonus.def,
+            maxHp: playerState.maxHp + bonus.hp
+        };
+    }
+
+    function togglePlayerWindow() {
+        const win = document.getElementById('player-window');
+        const visible = win.style.display === 'block';
+        win.style.display = visible ? 'none' : 'block';
+        if (!visible) updatePlayerWindow();
+    }
+
+    function updatePlayerWindow() {
+        const bonus = getEquippedBonus();
+        const info = document.getElementById('player-info');
+        info.innerHTML = [
+            `Lv ${playerState.lv}`,
+            `HP ${playerState.hp}/${playerState.maxHp + bonus.hp}`,
+            `MP ${playerState.mp}/${playerState.maxMp}`,
+            `EXP ${playerState.exp}/${playerState.nextExp}`,
+            `GOLD ${playerState.gold}`,
+            `歩行 ${Math.floor(walkedDistance)}m`,
+            `こうげき ${playerState.atk + bonus.atk} (基礎${playerState.atk})`,
+            `しゅび ${playerState.def + bonus.def} (基礎${playerState.def})`,
+            `ぶき: ${playerState.equipment.weapon || "なし"}`,
+            `たて: ${playerState.equipment.shield || "なし"}`,
+            `こころ: ${playerState.equipment.heart || "なし"}`
+        ].join("<br>");
+
+        const items = document.getElementById('player-items');
+        if (inventory.length === 0) {
+            items.innerHTML = "もちもの: なし";
+            return;
+        }
+        const rows = inventory.map((item, idx) => {
+            const def = ITEM_DEFS[item] || { type: "misc" };
+            const action = def.type === "weapon" || def.type === "shield" || def.type === "heart" ? "そうび" : (def.type === "consumable" ? "つかう" : "みる");
+            return `<div class="item-row"><span>${item}</span><button class="item-act" data-idx="${idx}">${action}</button></div>`;
+        });
+        items.innerHTML = rows.join("");
+    }
+
+    function onPlayerItemAction(e) {
+        const btn = e.target;
+        if (!btn.classList.contains('item-act')) return;
+        const idx = Number(btn.dataset.idx);
+        const item = inventory[idx];
+        if (!item) return;
+        const def = ITEM_DEFS[item] || { type: "misc" };
+        if (def.type === "weapon") {
+            if (playerState.equipment.weapon) inventory.push(playerState.equipment.weapon);
+            playerState.equipment.weapon = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を そうびした`);
+        } else if (def.type === "shield") {
+            if (playerState.equipment.shield) inventory.push(playerState.equipment.shield);
+            playerState.equipment.shield = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を そうびした`);
+        } else if (def.type === "heart") {
+            if (playerState.equipment.heart) inventory.push(playerState.equipment.heart);
+            playerState.equipment.heart = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を こころそうびした`);
+        } else if (def.type === "consumable") {
+            const maxHp = playerState.maxHp + getEquippedBonus().hp;
+            playerState.hp = Math.min(maxHp, playerState.hp + (def.heal || 6));
+            inventory.splice(idx, 1);
+            showMessage(`${item}で HPかいふく`);
+        } else {
+            showMessage(`${item}は まだつかえない`);
+        }
+        playerState.hp = Math.min(playerState.hp, getPlayerBattleStats().maxHp);
+        updateInventoryUI();
+        updatePlayerWindow();
+    }
+
+    function setBattleButtonsEnabled(enabled) {
+        ["battle-attack-btn", "battle-skill-btn", "battle-run-btn", "battle-guard-btn", "battle-item-btn"].forEach(id => {
+            document.getElementById(id).disabled = !enabled;
+        });
+    }
+
+    function enterBattleCamera(center) {
+        battleState.cameraBackup = {
+            position: camera.position.clone(),
+            target: controls.target.clone(),
+            enabled: controls.enabled
+        };
+        controls.enabled = false;
+        battleState.center = center.clone();
+        camera.position.set(center.x, center.y + 28, center.z + 40);
+        camera.lookAt(center.x, center.y + 4, center.z);
+    }
+
+    function leaveBattleCamera() {
+        if (!battleState.cameraBackup) return;
+        camera.position.copy(battleState.cameraBackup.position);
+        controls.target.copy(battleState.cameraBackup.target);
+        controls.enabled = battleState.cameraBackup.enabled;
+        battleState.cameraBackup = null;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function startBattleMotion(attackerGroup, targetGroup, variant = null) {
+        const v = variant || [
+            { dashMs: 260, holdMs: 100, backMs: 280, reach: 6.5 },
+            { dashMs: 220, holdMs: 150, backMs: 300, reach: 5.8 },
+            { dashMs: 300, holdMs: 80, backMs: 240, reach: 7.2 }
+        ][Math.floor(Math.random() * 3)];
+        const origin = attackerGroup.position.clone();
+        const targetFlat = targetGroup.position.clone().sub(attackerGroup.position).setY(0);
+        const distance = targetFlat.length();
+        const travel = Math.max(3.8, Math.min(v.reach, distance - 2.4));
+        const toward = targetFlat.normalize().multiplyScalar(travel);
+        battleState.animation = {
+            actor: attackerGroup,
+            origin,
+            dashPos: origin.clone().add(toward),
+            phase: "dash",
+            startedAt: performance.now(),
+            dashMs: v.dashMs,
+            holdMs: v.holdMs,
+            backMs: v.backMs
+        };
+        return { hitMs: v.dashMs + Math.floor(v.holdMs * 0.6), totalMs: v.dashMs + v.holdMs + v.backMs };
+    }
+
+    function updateBattleMotion(now) {
+        const anim = battleState.animation;
+        if (!anim) return;
+        if (anim.phase === "dash") {
+            const t = Math.min(1, (now - anim.startedAt) / anim.dashMs);
+            anim.actor.position.lerpVectors(anim.origin, anim.dashPos, t);
+            if (t >= 1) {
+                anim.phase = "hold";
+                anim.startedAt = now;
+            }
+            return;
+        }
+        if (anim.phase === "hold") {
+            const t = (now - anim.startedAt) / anim.holdMs;
+            anim.actor.position.copy(anim.dashPos);
+            if (t >= 1) {
+                anim.phase = "back";
+                anim.startedAt = now;
+            }
+            return;
+        }
+        const t = Math.min(1, (now - anim.startedAt) / anim.backMs);
+        anim.actor.position.lerpVectors(anim.dashPos, anim.origin, t);
+        if (t >= 1) battleState.animation = null;
+    }
+
+    function beginBattle(monster) {
+        if (isInBattle || !monster.active) return;
+        isInBattle = true;
+        currentBattleMonster = monster;
+        monster.active = false;
+        monster.mark.visible = true;
+
+        const center = slimeGroup.position.clone();
+        const playerPos = center.clone().add(new THREE.Vector3(-11, 0, 8));
+        const enemyPos = center.clone().add(new THREE.Vector3(11, 0, -8));
+        slimeGroup.position.copy(playerPos);
+        monster.group.position.copy(enemyPos);
+        slimeGroup.lookAt(enemyPos);
+        monster.group.lookAt(playerPos);
+        enterBattleCamera(center);
+
+        battleState.enemy = { ...monster.stats };
+        battleState.playerTurn = true;
+        battleState.busy = false;
+        battleState.guardRate = 1.0;
+        updateBattleUI(`${battleState.enemy.name} が あらわれた！`);
+        setBattleButtonsEnabled(true);
+        document.getElementById('battle-status-window').style.display = 'block';
+        document.getElementById('battle-command-window').style.display = 'block';
+    }
+
+    function updateBattleUI(logText) {
+        const enemy = battleState.enemy || { name: "まもの", lv: 1, hp: 0, maxHp: 0 };
+        const pStats = getPlayerBattleStats();
+        document.getElementById('battle-player-hp').textContent = `ゆうしゃ Lv${playerState.lv} HP: ${Math.max(0, playerState.hp)}/${pStats.maxHp} MP:${playerState.mp}/${playerState.maxMp}`;
+        document.getElementById('battle-enemy-hp').textContent = `${enemy.name} Lv${enemy.lv} HP: ${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
+        document.getElementById('battle-log').textContent = logText;
+    }
+
+    function grantExp(exp) {
+        playerState.exp += exp;
+        let lvupCount = 0;
+        while (playerState.exp >= playerState.nextExp) {
+            playerState.exp -= playerState.nextExp;
+            playerState.lv += 1;
+            playerState.nextExp = Math.floor(playerState.nextExp * 1.35);
+            playerState.maxHp += LV_UP_TABLE.hp;
+            playerState.maxMp += 1;
+            playerState.atk += LV_UP_TABLE.atk;
+            playerState.def += LV_UP_TABLE.def;
+            playerState.hp = playerState.maxHp;
+            playerState.mp = playerState.maxMp;
+            lvupCount += 1;
+        }
+        return lvupCount;
+    }
+
+    function enemyDrop(enemy) {
+        if (!enemy || !enemy.drops || enemy.drops.length === 0) return null;
+        if (Math.random() > 0.72) return null;
+        return enemy.drops[Math.floor(Math.random() * enemy.drops.length)];
+    }
+
+    function endBattle(isWin, logText, options = {}) {
+        updateBattleUI(logText);
+        setTimeout(() => {
+            if (isWin && battleState.enemy) {
+                const gained = battleState.enemy.exp;
+                const gainedGold = 8 + battleState.enemy.lv * 5;
+                const lvups = grantExp(gained);
+                const dropped = enemyDrop(battleState.enemy);
+                playerState.gold += gainedGold;
+                if (dropped) inventory.push(dropped);
+                addQuestProgress("battle", 1);
+                updateInventoryUI();
+                const lvText = lvups > 0 ? `\nLvが ${lvups} あがった！` : "";
+                const dropText = dropped ? `\n${dropped} を てにいれた！` : "";
+                showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}${dropText}`);
+            }
+            if (currentBattleMonster) {
+                if (options.keepEnemy) {
+                    currentBattleMonster.active = true;
+                    currentBattleMonster.mark.visible = false;
+                } else {
+                    scene.remove(currentBattleMonster.group);
+                }
+                currentBattleMonster = null;
+            }
+            document.getElementById('battle-status-window').style.display = 'none';
+            document.getElementById('battle-command-window').style.display = 'none';
+            isInBattle = false;
+            battleState.enemy = null;
+            battleState.animation = null;
+            battleState.busy = false;
+            battleState.playerTurn = true;
+            leaveBattleCamera();
+            updatePlayerWindow();
+        }, 600);
+    }
+
+    async function onBattleAttack() {
+        if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+        const enemy = battleState.enemy;
+        if (!enemy) return;
+        battleState.busy = true;
+        setBattleButtonsEnabled(false);
+        const motion = startBattleMotion(slimeGroup, currentBattleMonster.group);
+        const pStats = getPlayerBattleStats();
+        const base = pStats.atk - enemy.def * 0.45;
+        const playerDmg = Math.max(2, Math.floor(base + Math.random() * 5));
+        await sleep(motion.hitMs);
+        enemy.hp -= playerDmg;
+        if (enemy.hp <= 0) {
+            updateBattleUI(`${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}を たおした！`);
+            await sleep(Math.max(0, motion.totalMs - motion.hitMs + 120));
+            showMessage(`${enemy.name}を たおした！`);
+            endBattle(true, `${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}を たおした！`);
+            return;
+        }
+        updateBattleUI(`${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}の こうげき...`);
+        await sleep(Math.max(0, motion.totalMs - motion.hitMs + 140));
+        await enemyTurn();
+    }
+
+    async function onBattleSkill() {
+        if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+        const enemy = battleState.enemy;
+        if (!enemy) return;
+        const mpCost = 4;
+        if (playerState.mp < mpCost) {
+            updateBattleUI("MPが たりない！");
+            return;
+        }
+        playerState.mp -= mpCost;
+        battleState.busy = true;
+        setBattleButtonsEnabled(false);
+        const motion = startBattleMotion(slimeGroup, currentBattleMonster.group, { dashMs: 210, holdMs: 170, backMs: 280, reach: 7.5 });
+        const pStats = getPlayerBattleStats();
+        const dmg = Math.max(5, Math.floor((pStats.atk * 1.35) - enemy.def * 0.35 + Math.random() * 6));
+        await sleep(motion.hitMs);
+        enemy.hp -= dmg;
+        if (enemy.hp <= 0) {
+            updateBattleUI(`ギガスラッシュ！ ${dmg} ダメージ！\n${enemy.name}を たおした！`);
+            await sleep(Math.max(0, motion.totalMs - motion.hitMs + 140));
+            showMessage(`${enemy.name}を たおした！`);
+            endBattle(true, `ギガスラッシュ！ ${dmg} ダメージ！\n${enemy.name}を たおした！`);
+            return;
+        }
+        updateBattleUI(`ギガスラッシュ！ ${dmg} ダメージ！\n${enemy.name}の こうげき...`);
+        await sleep(Math.max(0, motion.totalMs - motion.hitMs + 150));
+        await enemyTurn();
+    }
+
+    async function onBattleRun() {
+        if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+        battleState.busy = true;
+        setBattleButtonsEnabled(false);
+        if (Math.random() > 0.4) {
+            endBattle(false, "うまく にげきれた！", { keepEnemy: true });
+        } else {
+            updateBattleUI("にげられない！");
+            await sleep(260);
+            await enemyTurn();
+        }
+    }
+
+    async function onBattleGuard() {
+        if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+        battleState.busy = true;
+        battleState.guardRate = 0.45;
+        setBattleButtonsEnabled(false);
+        updateBattleUI("みを まもっている...");
+        await sleep(300);
+        await enemyTurn();
+    }
+
+    async function onBattleItem() {
+        if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+        battleState.busy = true;
+        setBattleButtonsEnabled(false);
+        if (inventory.length === 0) {
+            updateBattleUI("どうぐが ない！");
+            battleState.busy = false;
+            setBattleButtonsEnabled(true);
+            return;
+        }
+        const itemIndex = inventory.findIndex(name => (ITEM_DEFS[name]?.type) === "consumable");
+        if (itemIndex < 0) {
+            updateBattleUI("せんとうで つかえるどうぐが ない！");
+            battleState.busy = false;
+            setBattleButtonsEnabled(true);
+            return;
+        }
+        const itemName = inventory.splice(itemIndex, 1)[0];
+        const heal = ITEM_DEFS[itemName]?.heal || 8;
+        playerState.hp = Math.min(getPlayerBattleStats().maxHp, playerState.hp + heal);
+        updateInventoryUI();
+        updatePlayerWindow();
+        updateBattleUI(`${itemName}を つかった！\nHPが かいふくした`);
+        await sleep(420);
+        await enemyTurn();
+    }
+
+    async function enemyTurn() {
+        if (!isInBattle || !battleState.enemy || !currentBattleMonster) return;
+        battleState.playerTurn = false;
+        const motion = startBattleMotion(currentBattleMonster.group, slimeGroup);
+        const enemy = battleState.enemy;
+        const pStats = getPlayerBattleStats();
+        const base = enemy.atk - pStats.def * 0.35;
+        const enemyDmg = Math.max(1, Math.floor((base + Math.random() * 4) * battleState.guardRate));
+        battleState.guardRate = 1.0;
+        await sleep(motion.hitMs);
+        playerState.hp -= enemyDmg;
+        if (playerState.hp <= 0) {
+            playerState.hp = Math.floor(getPlayerBattleStats().maxHp * 0.6);
+            await sleep(Math.max(0, motion.totalMs - motion.hitMs + 120));
+            endBattle(false, `${enemy.name}の こうげき！ ${enemyDmg} ダメージ\nぜんめつを まぬがれた...`, { keepEnemy: true });
+            return;
+        }
+        updateBattleUI(`${enemy.name}の こうげき！ ${enemyDmg} ダメージ`);
+        await sleep(Math.max(0, motion.totalMs - motion.hitMs + 150));
+        battleState.playerTurn = true;
+        battleState.busy = false;
+        setBattleButtonsEnabled(true);
+        updateBattleUI(`${enemy.name}の こうげき！ ${enemyDmg} ダメージ\nどうする？`);
+    }
+
     function updateInventoryUI() {
         const list = document.getElementById('item-list');
-        list.innerHTML = inventory.length ? inventory.join("<br>") : "EMPTY";
+        list.innerHTML = inventory.length ? inventory.join("<br>") : "なし";
+        updatePlayerWindow();
     }
 
     async function fetchWeather(lat, lon) {
@@ -260,8 +913,17 @@
 
     function manualUpdate() { 
         if(!baseCoords || isFetching) return;
+        if (isInBattle || isMonsterNearbyForUpdate()) return;
         const latScale = (2 * Math.PI * R) / 360, lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
         fetchMapData(baseCoords.lat - (slimeGroup.position.z / latScale), baseCoords.lon + (slimeGroup.position.x / lonScale));
+    }
+
+    function isMonsterNearbyForUpdate() {
+        for (const m of monsters) {
+            if (!m.active) continue;
+            if (slimeGroup.position.distanceTo(m.group.position) < 150) return true;
+        }
+        return false;
     }
 
     function toggleBag() { const win = document.getElementById('inventory-window'); win.style.display = (win.style.display === 'block') ? 'none' : 'block'; }
@@ -271,16 +933,46 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        if (keyState['w']) {
+        const now = performance.now();
+        updateBattleMotion(now);
+        const dt = now - lastFrameAt;
+        lastFrameAt = now;
+        fpsAccum += dt;
+        fpsFrames += 1;
+        if (fpsAccum >= 600) {
+            const fps = (fpsFrames * 1000) / fpsAccum;
+            // 低FPS時は建物枠線を消して負荷を下げる
+            const shouldShow = fps > 30;
+            if (buildingOutlineVisible !== shouldShow) {
+                buildingOutlineVisible = shouldShow;
+            }
+            fpsAccum = 0;
+            fpsFrames = 0;
+        }
+        // 低FPS時に加えて、プレイヤーから遠い建物枠線は隠して軽量化
+        for (const line of buildingOutlineLines) {
+            if (!buildingOutlineVisible) {
+                line.visible = false;
+                continue;
+            }
+            const center = line.userData.center || { x: 0, z: 0 };
+            const dx = center.x - slimeGroup.position.x;
+            const dz = center.z - slimeGroup.position.z;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+            line.visible = distance <= BUILDING_OUTLINE_HIDE_DISTANCE;
+        }
+        if (!isInBattle && keyState['w']) {
             const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
             dir.y = 0; dir.normalize();
+            walkedDistance += 1.4;
+            addQuestProgress("walk", 1.4);
             slimeGroup.position.addScaledVector(dir, 1.4);
             slimeGroup.quaternion.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), dir), 0.15);
             if(lastFetchedCoords) {
                 const latScale = (2 * Math.PI * R) / 360, lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
                 const dx = ( (baseCoords.lon + (slimeGroup.position.x / lonScale)) - lastFetchedCoords.lon) * lonScale;
                 const dz = ( (baseCoords.lat - (slimeGroup.position.z / latScale)) - lastFetchedCoords.lat) * latScale;
-                if(Math.sqrt(dx*dx + dz*dz) > AUTO_UPDATE_THRESHOLD) manualUpdate();
+                if(Math.sqrt(dx*dx + dz*dz) > AUTO_UPDATE_THRESHOLD && !isMonsterNearbyForUpdate()) manualUpdate();
             }
         }
         handleInteraction();
@@ -297,7 +989,13 @@
             m.group.position.add(m.velocity);
             m.mark.lookAt(camera.position);
         });
-        controls.target.lerp(slimeGroup.position, 0.1); controls.update();
+        if (isInBattle && battleState.center) {
+            controls.target.lerp(battleState.center, 0.2);
+            camera.lookAt(battleState.center.x, battleState.center.y + 4, battleState.center.z);
+        } else {
+            controls.target.lerp(slimeGroup.position, 0.1);
+            controls.update();
+        }
         renderer.render(scene, camera);
     }
     init();

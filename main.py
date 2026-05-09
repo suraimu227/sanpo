@@ -12,6 +12,8 @@ app = FastAPI()
 current_dir = os.path.dirname(os.path.abspath(__file__))
 static_path = os.path.join(current_dir, "static")
 templates_path = os.path.join(current_dir, "templates")
+if not os.path.exists(templates_path):
+    templates_path = current_dir
 
 # staticフォルダの設定
 if os.path.exists(static_path):
