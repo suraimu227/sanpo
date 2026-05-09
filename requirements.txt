@@ -1,0 +1,4 @@
+fastapi
+requests
+jinja2
+uvicorn
