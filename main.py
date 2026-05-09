@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, Request
+import httpx
+from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -27,3 +28,29 @@ async def favicon():
     if os.path.exists(target):
         return FileResponse(target)
     return HTMLResponse(status_code=404)
+
+@app.get("/api/overpass")
+async def proxy_overpass(data: str = Query(...)):
+    """
+    Overpass API へのプロキシ。CORS 回避用。
+    """
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://z.overpass-api.de/api/interpreter",
+        "https://overpass.nchc.org.tw/api/interpreter"
+    ]
+    
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        for url in endpoints:
+            try:
+                # GET または POST でデータを送信
+                # 長いクエリの場合は本来 POST が望ましいが、一旦フロントエンドに合わせて GET で試行
+                response = await client.get(url, params={"data": data})
+                if response.status_code == 200:
+                    return response.json()
+            except Exception as e:
+                print(f"Proxy error for {url}: {e}")
+                continue
+                
+    return {"error": "All Overpass endpoints failed or timed out"}

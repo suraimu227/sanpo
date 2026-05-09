@@ -1,10 +1,17 @@
 import requests
 import json
+import time
+
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://z.overpass-api.de/api/interpreter",
+    "https://overpass.nchc.org.tw/api/interpreter"
+]
 
 def get_map_data(lat, lon):
     # 現在地から半径500m以内を検索するクエリ
     # highway(道), leisure=park(公園), natural=water(水辺)を取得
-    overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
     (
@@ -17,13 +24,25 @@ def get_map_data(lat, lon):
     """
     
     print(f"座標 ({lat}, {lon}) の周辺データを取得中...")
-    response = requests.get(overpass_url, params={'data': overpass_query})
     
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print("エラーが発生しました")
-        return None
+    headers = {
+        "User-Agent": "SanpoApp/1.0 (https://github.com/yourusername/sanpo)"
+    }
+
+    for url in OVERPASS_ENDPOINTS:
+        try:
+            print(f"Trying {url} ...")
+            response = requests.get(url, params={'data': overpass_query}, headers=headers, timeout=30)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"Error {response.status_code} from {url}")
+        except Exception as e:
+            print(f"Failed to fetch from {url}: {e}")
+            continue
+            
+    print("全エンドポイントで失敗しました")
+    return None
 # 仙台駅の座標でテスト
 data = get_map_data(38.2601, 140.8822)
 

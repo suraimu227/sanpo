@@ -9,7 +9,12 @@ import urllib.parse
 import json
 
 # Overpass API エンドポイント（公開サーバー）
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://z.overpass-api.de/api/interpreter",
+    "https://overpass.nchc.org.tw/api/interpreter"
+]
 
 # 例: 仙台駅周辺
 SENDAI_STATION_LAT = 38.2600
@@ -37,25 +42,32 @@ out skel qt;
 def fetch_osm_around(lat: float, lon: float, radius_m: int = 500) -> dict:
     """
     指定した緯度・経度の周辺（半径 radius_m メートル）の OSM データを取得する。
-
-    Args:
-        lat: 緯度
-        lon: 経度
-        radius_m: 検索半径（メートル）。設計図では 500m を想定。
-
-    Returns:
-        Overpass API の JSON レスポンス（elements に nodes/ways が含まれる）
+    複数のミラーサーバーを順次試行する。
     """
     query = build_overpass_query(lat, lon, radius_m)
     data = urllib.parse.urlencode({"data": query}).encode("utf-8")
-    req = urllib.request.Request(
-        OVERPASS_URL,
-        data=data,
-        method="POST",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    
+    last_error = None
+    for url in OVERPASS_ENDPOINTS:
+        try:
+            print(f"Trying {url} ...")
+            req = urllib.request.Request(
+                url,
+                data=data,
+                method="POST",
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "User-Agent": "SanpoApp/1.0 (https://github.com/yourusername/sanpo)"
+                },
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            print(f"Failed to fetch from {url}: {e}")
+            last_error = e
+            continue
+    
+    raise last_error or Exception("All Overpass endpoints failed")
 
 
 def classify_elements(response: dict) -> dict:
