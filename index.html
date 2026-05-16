@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'DotGothic16', 'Press Start 2P', cursive; touch-action: none; }
-        #gui { position: absolute; top: 15px; left: 15px; z-index: 1000; background: #000; color: #fff; padding: 15px; border: 4px solid #fff; width: 160px; text-align: center; }
+        #gui { position: absolute; top: 15px; right: 15px; z-index: 1000; background: #000; color: #fff; padding: 15px; border: 4px solid #fff; width: 160px; text-align: center; }
         #clock-text { font-size: 16px; letter-spacing: 2px; display: block; margin-bottom: 8px; }
         #weather-info { font-size: 12px; line-height: 1.45; margin-bottom: 12px; border-top: 2px solid #fff; padding-top: 8px; color: #ddd; }
         #debug-update-btn { background: #444; color: #fff; border: 2px solid #fff; padding: 5px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 9px; cursor: pointer; width: 100%; }
@@ -307,6 +307,7 @@
         updatePlayerWindow();
         updateQuestWindow();
         updateInventoryUI();
+        addLog("Init Done");
         animate();
     }
 
@@ -376,12 +377,13 @@
         try {
             if (!success) throw new Error("Proxy fetch failed");
             
-            if (!data.elements || data.elements.length === 0) {
+            if (!data || !data.elements || data.elements.length === 0) {
                 addLog("Warn: No Data Found");
             } else {
                 addLog(`Got ${data.elements.length} items`);
             }
             roadLayer.clear(); mapLayer.clear();
+            buildingOutlineLines.length = 0;
             
             // 道路の視認性を向上（復活）
             const roadMaterial = new THREE.MeshLambertMaterial({ 
@@ -701,15 +703,31 @@
     }
 
     function updateStatusBar() {
-        const pStats = getPlayerBattleStats();
-        document.getElementById('status-lv').textContent = `Lv ${playerState.lv} ${playerState.job}`;
-        document.getElementById('status-hp-text').textContent = `HP ${Math.max(0, playerState.hp)}/${pStats.maxHp}`;
-        document.getElementById('status-mp-text').textContent = `MP ${playerState.mp}/${pStats.maxMp}`;
-        const hpPct = (playerState.hp / pStats.maxHp) * 100;
-        const mpPct = (playerState.mp / pStats.maxMp) * 100;
-        document.getElementById('status-hp-fill').style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
-        document.getElementById('status-mp-fill').style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
-        document.getElementById('status-hp-fill').style.background = hpPct < 25 ? '#f00' : '#0f0';
+        try {
+            const pStats = getPlayerBattleStats();
+            const lvEl = document.getElementById('status-lv');
+            const hpT = document.getElementById('status-hp-text');
+            const mpT = document.getElementById('status-mp-text');
+            const hpF = document.getElementById('status-hp-fill');
+            const mpF = document.getElementById('status-mp-fill');
+            
+            if (lvEl) lvEl.textContent = `Lv ${playerState.lv} ${playerState.job}`;
+            if (hpT) hpT.textContent = `HP ${Math.max(0, playerState.hp)}/${pStats.maxHp}`;
+            if (mpT) mpT.textContent = `MP ${playerState.mp}/${pStats.maxMp}`;
+            
+            const hpPct = (playerState.hp / pStats.maxHp) * 100;
+            const mpPct = (playerState.mp / pStats.maxMp) * 100;
+            
+            if (hpF) {
+                hpF.style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
+                hpF.style.background = hpPct < 25 ? '#f00' : '#0f0';
+            }
+            if (mpF) {
+                mpF.style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
+            }
+        } catch (e) {
+            console.error("StatusBar Error:", e);
+        }
     }
 
     function updatePlayerWindow() {
