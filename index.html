@@ -40,9 +40,59 @@
         .battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .battle-btn { background: #101010; color: #fff; border: 2px solid #fff; padding: 8px 6px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 14px; cursor: pointer; }
         @keyframes bar-move { 0% { left: -70px; } 100% { left: 200px; } }
+
+        #status-bar { position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(0,0,0,0.8); color: #fff; padding: 10px; border: 3px solid #fff; font-size: 14px; min-width: 120px; pointer-events: none; }
+        #status-lv { font-size: 12px; color: #ff0; margin-bottom: 4px; }
+        #status-hp-text, #status-mp-text { position: relative; z-index: 2; }
+        #status-hp-bar, #status-mp-bar { background: #444; height: 16px; position: relative; margin-bottom: 4px; border: 1px solid #888; overflow: hidden; }
+        #status-hp-fill { background: #0f0; height: 100%; position: absolute; top: 0; left: 0; transition: width 0.3s; }
+        #status-mp-fill { background: #00f; height: 100%; position: absolute; top: 0; left: 0; transition: width 0.3s; }
+
+        /* Mobile adjustments */
+        @media (max-width: 600px) {
+            #status-bar { top: 10px; left: 10px; padding: 6px; font-size: 11px; min-width: 100px; border-width: 2px; }
+            #status-hp-bar, #status-mp-bar { height: 12px; }
+            #gui { 
+                top: 10px; right: 10px; left: auto; width: 130px; padding: 8px; border-width: 3px; font-size: 9px; 
+            }
+            #clock-text { font-size: 14px; }
+            #weather-info { font-size: 10px; margin-bottom: 8px; }
+            #debug-update-btn { padding: 4px; font-size: 8px; }
+            
+            #bag-gui { 
+                bottom: 10px; left: 50%; transform: translateX(-50%); width: 95%; justify-content: center; gap: 4px; 
+            }
+            #bag-btn, #player-btn, #quest-btn { 
+                padding: 12px 5px; font-size: 11px; flex: 1; text-align: center; border-width: 3px;
+            }
+            
+            #inventory-window, #player-window, #quest-window { 
+                bottom: 70px; left: 5% !important; width: 90% !important; max-height: 60vh; overflow-y: auto; z-index: 1200;
+                touch-action: auto;
+            }
+            
+            #battle-status-window { 
+                top: 10px; left: 5%; width: 90%; bottom: auto; padding: 8px;
+            }
+            #battle-command-window { 
+                bottom: 10px; left: 5%; width: 90%; right: auto; padding: 8px;
+            }
+            #battle-log { font-size: 12px; min-height: 36px; }
+            .battle-btn { padding: 12px 4px; font-size: 12px; }
+            
+            #message-window { 
+                bottom: 80px; width: 85%; font-size: 12px; padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
+
+<div id="status-bar">
+    <div id="status-lv">Lv 1</div>
+    <div id="status-hp-bar"><div id="status-hp-fill"></div><div id="status-hp-text">HP 30/30</div></div>
+    <div id="status-mp-bar"><div id="status-mp-fill"></div><div id="status-mp-text">MP 10/10</div></div>
+</div>
 
 <div id="gui">
     <span id="clock-text">00:00</span>
@@ -650,7 +700,20 @@
         if (!visible) updatePlayerWindow();
     }
 
+    function updateStatusBar() {
+        const pStats = getPlayerBattleStats();
+        document.getElementById('status-lv').textContent = `Lv ${playerState.lv} ${playerState.job}`;
+        document.getElementById('status-hp-text').textContent = `HP ${Math.max(0, playerState.hp)}/${pStats.maxHp}`;
+        document.getElementById('status-mp-text').textContent = `MP ${playerState.mp}/${pStats.maxMp}`;
+        const hpPct = (playerState.hp / pStats.maxHp) * 100;
+        const mpPct = (playerState.mp / pStats.maxMp) * 100;
+        document.getElementById('status-hp-fill').style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
+        document.getElementById('status-mp-fill').style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
+        document.getElementById('status-hp-fill').style.background = hpPct < 25 ? '#f00' : '#0f0';
+    }
+
     function updatePlayerWindow() {
+        updateStatusBar();
         const bonus = getEquippedBonus();
         const pStats = getPlayerBattleStats();
         const info = document.getElementById('player-info');
@@ -831,6 +894,7 @@
     }
 
     function updateBattleUI(logText) {
+        updateStatusBar();
         const enemy = battleState.enemy || { name: "まもの", lv: 1, hp: 0, maxHp: 0 };
         const pStats = getPlayerBattleStats();
         document.getElementById('battle-player-hp').textContent = `ゆうしゃ Lv${playerState.lv} HP: ${Math.max(0, playerState.hp)}/${pStats.maxHp} MP:${playerState.mp}/${playerState.maxMp}`;
