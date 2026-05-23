@@ -98,7 +98,7 @@
     <span id="clock-text">00:00</span>
     <div id="weather-info">LOADING...</div>
     <button id="debug-update-btn" onclick="manualUpdate()">更新(デバッグ)</button>
-    <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="setManualPos()">位置リセット(仙台)</button>
+    <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="setManualPos()">位置を手入力する</button>
     <div id="debug-log" style="font-size:8px; color:#0f0; margin-top:4px; text-align:left; border-top:1px solid #555;">Log: Wait GPS</div>
 </div>
 
@@ -1144,24 +1144,66 @@
     }
 
     function setManualPos() {
-        baseCoords = { lat: 38.2601, lon: 140.8824 };
-        addLog("Set Sendai Pos");
+        const input = prompt("緯度,経度 を入力してください (例: 35.6812,139.7671)", `${baseCoords ? baseCoords.lat : 38.2601},${baseCoords ? baseCoords.lon : 140.8824}`);
+        if (!input) return;
+        const [lat, lon] = input.split(',').map(s => parseFloat(s.trim()));
+        if (isNaN(lat) || isNaN(lon)) {
+            alert("無効な入力です");
+            return;
+        }
+        baseCoords = { lat, lon };
+        addLog(`Manual Set: ${lat},${lon}`);
         fetchMapData(baseCoords.lat, baseCoords.lon);
+        fetchWeather(baseCoords.lat, baseCoords.lon);
     }
 
     function startTracking() {
         addLog("Req GPS...");
+        if (!navigator.geolocation) {
+            addLog("GPS Not Supported");
+            useFallbackLocation();
+            return;
+        }
+
+        const options = {
+            timeout: 10000,
+            enableHighAccuracy: true,
+            maximumAge: 0
+        };
+
         navigator.geolocation.getCurrentPosition(p => {
             addLog("GPS OK");
             baseCoords = { lat: p.coords.latitude, lon: p.coords.longitude };
+            localStorage.setItem("dqw_last_coords", JSON.stringify(baseCoords));
             fetchMapData(baseCoords.lat, baseCoords.lon);
             fetchWeather(baseCoords.lat, baseCoords.lon);
         }, (err) => {
-            addLog("GPS Fail: " + err.code);
-            baseCoords = { lat: 38.2601, lon: 140.8824 }; 
-            fetchMapData(baseCoords.lat, baseCoords.lon);
-            fetchWeather(baseCoords.lat, baseCoords.lon);
-        }, { timeout: 8000 });
+            addLog("GPS Fail: " + err.code + " (" + err.message + ")");
+            useFallbackLocation();
+        }, options);
+    }
+
+    function useFallbackLocation() {
+        if (playerState && playerState.homeCoords) {
+            addLog("Using Home Pos");
+            baseCoords = { ...playerState.homeCoords };
+        } else {
+            const saved = localStorage.getItem("dqw_last_coords");
+            if (saved) {
+                try {
+                    baseCoords = JSON.parse(saved);
+                    addLog("Using Last Pos");
+                } catch(e) {
+                    baseCoords = { lat: 38.2601, lon: 140.8824 };
+                    addLog("Default: Sendai");
+                }
+            } else {
+                baseCoords = { lat: 38.2601, lon: 140.8824 };
+                addLog("Default: Sendai");
+            }
+        }
+        fetchMapData(baseCoords.lat, baseCoords.lon);
+        fetchWeather(baseCoords.lat, baseCoords.lon);
     }
 
     function manualUpdate() { 

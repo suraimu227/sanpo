@@ -1,20 +1,20 @@
 import requests
 import matplotlib.pyplot as plt
+import sys
 
-# 仙台駅の座標（最初に成功した地点）
-current_lat = 38.2601
-current_lon = 140.8822
+# デフォルト: 仙台駅
+DEFAULT_LAT = 38.2601
+DEFAULT_LON = 140.8822
 
-def draw_sendai_map():
-    print(f"仙台駅 ({current_lat}, {current_lon}) の地図データを取得しています...")
+def draw_map(lat, lon):
+    print(f"位置 ({lat}, {lon}) の地図データを取得しています...")
     
     overpass_url = "http://overpass-api.de/api/interpreter"
-    # シンプルなクエリにして、エラーを防ぎます
     query = f"""
     [out:json][timeout:30];
     (
-      way["highway"](around:800,{current_lat},{current_lon});
-      way["leisure"="park"](around:800,{current_lat},{current_lon});
+      way["highway"](around:800,{lat},{lon});
+      way["leisure"="park"](around:800,{lat},{lon});
     );
     out geom;
     """
@@ -31,7 +31,7 @@ def draw_sendai_map():
 
     # 描画の準備
     fig, ax = plt.subplots(figsize=(10, 10))
-    ax.set_facecolor('#222222') # 暗い背景
+    ax.set_facecolor('#222222') 
     
     elements = data.get('elements', [])
     print(f"取得完了。要素数: {len(elements)}")
@@ -42,26 +42,33 @@ def draw_sendai_map():
         y = [point['lat'] for point in el['geometry']]
         
         tags = el.get('tags', {})
-        # 道
         if 'highway' in tags:
             ax.plot(x, y, color='white', linewidth=0.8, alpha=0.7)
-        # 公園
         elif 'leisure' in tags and tags['leisure'] == 'park':
             ax.fill(x, y, color='#4CAF50', alpha=0.5)
 
-    # 現在地（仙台駅）を大きな赤い点で表示
-    ax.plot(current_lon, current_lat, 'ro', markersize=15, label="Monster")
+    # 現在地を大きな赤い点で表示
+    ax.plot(lon, lat, 'ro', markersize=15, label="Current")
     
-    # 範囲を固定（約1.2km四方）
     delta = 0.006
-    ax.set_xlim(current_lon - delta, current_lon + delta)
-    ax.set_ylim(current_lat - delta, current_lat + delta)
+    ax.set_xlim(lon - delta, lon + delta)
+    ax.set_ylim(lat - delta, lat + delta)
     
     ax.set_aspect('equal')
-    ax.set_title(f"SENDAI STATION MAP", color='white', fontsize=15)
+    ax.set_title(f"MAP at {lat}, {lon}", color='white', fontsize=15)
     
     print("地図を表示します...")
     plt.show()
 
-# 実行
-draw_sendai_map()
+if __name__ == "__main__":
+    lat = DEFAULT_LAT
+    lon = DEFAULT_LON
+    if len(sys.argv) >= 3:
+        try:
+            lat = float(sys.argv[1])
+            lon = float(sys.argv[2])
+        except ValueError:
+            print("引数は 緯度 経度 の順で数値で入力してください。")
+            sys.exit(1)
+    
+    draw_map(lat, lon)
