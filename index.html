@@ -164,6 +164,9 @@
     let keyState = {};
     let isFetching = false;
     let spots = [], monsters = [];
+    const ripples = [];
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
     const inventory = [];
     const ITEM_POOL = ["やくそう", "どうのつるぎ", "かわのたて", "どくけしそう", "スライムゼリー", "スライムコイン"];
     const ITEM_DEFS = {
@@ -303,6 +306,18 @@
         window.addEventListener('keyup', (e) => keyState[e.key.toLowerCase()] = false);
         window.addEventListener('resize', onWindowResize);
         window.addEventListener('beforeunload', () => saveGame(true));
+        
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const intersectPoint = new THREE.Vector3();
+            if (raycaster.ray.intersectPlane(plane, intersectPoint)) {
+                createRipple(intersectPoint);
+            }
+        });
+
         setupBattleUI();
         updatePlayerWindow();
         updateQuestWindow();
@@ -1222,6 +1237,17 @@
         return false;
     }
 
+    function createRipple(pos) {
+        const geom = new THREE.RingGeometry(0.1, 0.2, 32);
+        const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.copy(pos);
+        mesh.position.y = 0.2; // 少し浮かせ
+        scene.add(mesh);
+        ripples.push({ mesh, life: 1.0 });
+    }
+
     function toggleBag() { const win = document.getElementById('inventory-window'); win.style.display = (win.style.display === 'block') ? 'none' : 'block'; }
     function showMessage(text) { const win = document.getElementById('message-window'); win.textContent = text; win.style.display = 'block'; setTimeout(() => win.style.display = 'none', 2500); }
     function updateRealTime() { const d = new Date(); document.getElementById('clock-text').textContent = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; setTimeout(updateRealTime, 10000); }
@@ -1233,6 +1259,22 @@
         updateBattleMotion(now);
         const dt = now - lastFrameAt;
         lastFrameAt = now;
+
+        // Ripple processing
+        for (let i = ripples.length - 1; i >= 0; i--) {
+            const r = ripples[i];
+            r.life -= 0.02;
+            const s = 1 + (1 - r.life) * 15;
+            r.mesh.scale.set(s, s, 1);
+            r.mesh.material.opacity = r.life;
+            if (r.life <= 0) {
+                scene.remove(r.mesh);
+                r.mesh.geometry.dispose();
+                r.mesh.material.dispose();
+                ripples.splice(i, 1);
+            }
+        }
+
         fpsAccum += dt;
         fpsFrames += 1;
         if (fpsAccum >= 600) {
