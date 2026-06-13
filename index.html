@@ -2176,40 +2176,85 @@ function spawnTargetDestination(type, name = "もくてきち") {
 
 // --- プレイヤー追従・リアルタイム距離トラッカー ---
 
+// プレイヤーが目的地に接近しているかを記録するフラグ
+let playerAtTestDestination = false;
+
+/**
+ * プレイヤー追従・リアルタイム距離トラッカー（バグ修正版）
+ * 触れただけでクリアになるのを防ぎ、接近中にクリック（タップ）した時のみ進行します。
+ */
 function updateDestinationDistanceTracker() {
-    if (!window.activeDestinations || window.activeDestinations.length === 0) return;
+    let playerAtTestDestination = false;
+    if (!window.activeDestinations || window.activeDestinations.length === 0) {
+        playerAtTestDestination = false;
+        return;
+    }
     if (typeof slimeGroup === "undefined" || !slimeGroup) return;
 
-    for (let i = window.activeDestinations.length - 1; i >= 0; i--) {
-        const dest = window.activeDestinations[i];
-        if (!dest) continue;
+    // 配列の先頭にある有効な目的地を取得
+    const dest = window.activeDestinations[0];
+    if (!dest) {
+        playerAtTestDestination = false;
+        return;
+    }
 
-        const dx = dest.position.x - slimeGroup.position.x;
-        const dz = dest.position.z - slimeGroup.position.z;
-        const currentDistance = Math.sqrt(dx * dx + dz * dz);
+    // 3D空間上のプレイヤーとの直線距離を計算
+    const dx = dest.position.x - slimeGroup.position.x;
+    const dz = dest.position.z - slimeGroup.position.z;
+    const currentDistance = Math.sqrt(dx * dx + dz * dz);
 
-        // 40m以内に入ったらクリア・到達判定
-        if (currentDistance <= 40) {
-            if (typeof showMessage === "function") {
-                showMessage(`${dest.userData.name} に とうちゃくした！`);
-            }
+    // 15メートル以内に近づいた場合のみ反応（勝ちなクリアを防ぐため判定を厳格化）
+    if (currentDistance <= 15) {
+        if (!playerAtTestDestination) {
+            playerAtTestDestination = true;
             
-            if (typeof scene !== "undefined" && scene) {
-                scene.remove(dest);
+            // 安全に名前を取得（万が一不備があれば「目的地」とする）
+            const destName = (dest.userData && dest.userData.name) ? dest.userData.name : "もくてきち";
+            
+            if (typeof showMessage === "function") {
+                showMessage(`${destName} に ついた！\nこの状態で 画面を 【クリック（タップ）】 すると調査完了だ！`);
             }
-            window.activeDestinations.splice(i, 1);
-
-            // クリア時に進行度をインクリメントして記憶
-            if (typeof currentStoryChapter !== "undefined") {
-                currentStoryChapter++;
-                saveStoryProgress(currentStoryChapter);
-            }
-
-            // 次の目的地を3秒後に自動的に再セット
-            setTimeout(() => { autoSpawnNextDestination(); }, 3000);
         }
+    } else {
+        playerAtTestDestination = false;
     }
 }
+
+/**
+ * 画面クリック（タップ）時のイベントリスナー
+ * 目的地に接近している状態のときだけ、ストーリーを進行させてオブジェクトを消去します。
+ */
+window.addEventListener('click', () => {
+    let playerAtTestDestination = false;
+    if (playerAtTestDestination && window.activeDestinations && window.activeDestinations.length > 0) {
+        const dest = window.activeDestinations[0];
+        if (dest && typeof scene !== "undefined" && scene) {
+            
+            // シーンと管理配列から安全に削除
+            scene.remove(dest);
+            window.activeDestinations.shift();
+            playerAtTestDestination = false;
+
+            // 既存のストーリー進行変数（currentStoryChapter）が存在すれば安全に進める
+            if (typeof currentStoryChapter !== "undefined") {
+                currentStoryChapter++;
+                if (typeof saveStoryProgress === "function") {
+                    saveStoryProgress(currentStoryChapter);
+                }
+                console.log(`[Story Update] ストーリーが第 ${currentStoryChapter} 章に進行しました。`);
+            }
+
+            if (typeof showMessage === "function") {
+                showMessage("目的地を 調査した！\nストーリーが つぎへすすんだ！");
+            }
+            
+            // 次の目的地への自動遷移タイマー
+            if (typeof autoSpawnNextDestination === "function") {
+                setTimeout(() => { autoSpawnNextDestination(); }, 3000);
+            }
+        }
+    }
+});
 
 // ページロード時に前回のクリアセーブデータを自動ロード
 document.addEventListener("DOMContentLoaded", () => {
@@ -2326,7 +2371,7 @@ setInterval(() => {
     if (typeof slimeGroup !== "undefined" && slimeGroup) {
         forceSpawnTestDestination();
     }
-}, 2000);s
+}, 2000);
 </script>
 </body>
 </html>
