@@ -39,7 +39,24 @@
         #battle-log { min-height: 44px; font-size: 14px; line-height: 1.5; color: #fff; white-space: pre-line; }
         .battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .battle-btn { background: #101010; color: #fff; border: 2px solid #fff; padding: 8px 6px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 14px; cursor: pointer; }
-        @keyframes bar-move { 0% { left: -70px; } 100% { left: 200px; } }
+        @keyframes bar-move { 0% { left: -70px; } 100% { left: 100%; } }
+
+        #prep-btn, #story-btn { background: #000; color: #fff; border: 3px solid #fff; padding: 10px 12px; font-family: 'DotGothic16', 'Press Start 2P'; font-size: 12px; cursor: pointer; }
+        .game-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
+        .game-overlay.open { display: flex; }
+        .overlay-panel { background: #000; border: 4px solid #fff; color: #fff; width: min(520px, 96vw); max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; }
+        .overlay-title { padding: 12px 14px; border-bottom: 2px solid #fff; font-size: 16px; }
+        .overlay-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; border-bottom: 2px solid #444; }
+        .overlay-tab { flex: 1; min-width: 70px; background: #222; color: #fff; border: 2px solid #666; padding: 8px 4px; font-family: 'DotGothic16'; font-size: 11px; cursor: pointer; }
+        .overlay-tab.active { border-color: #fff; background: #444; }
+        .overlay-body { padding: 12px; overflow-y: auto; font-size: 12px; line-height: 1.6; flex: 1; touch-action: auto; }
+        .overlay-close { margin: 10px; padding: 10px; background: #333; color: #fff; border: 2px solid #fff; font-family: 'DotGothic16'; cursor: pointer; }
+        .prep-equip-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 6px; }
+        .story-goal-card { border: 2px solid #555; padding: 8px; margin-bottom: 8px; }
+        .story-goal-card.done { border-color: #7f7; opacity: 0.75; }
+        #story-goal-form input, #story-goal-form textarea { width: 100%; box-sizing: border-box; background: #111; color: #fff; border: 1px solid #fff; font-family: 'DotGothic16'; font-size: 11px; margin-bottom: 6px; padding: 6px; }
+        #story-goal-form textarea { min-height: 60px; resize: vertical; }
+        .overlay-action { background: #222; color: #fff; border: 1px solid #fff; padding: 6px 10px; font-family: 'DotGothic16'; font-size: 11px; cursor: pointer; margin-top: 4px; }
 
         #status-bar { position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(0,0,0,0.8); color: #fff; padding: 10px; border: 3px solid #fff; font-size: 14px; min-width: 120px; pointer-events: none; }
         #status-lv { font-size: 12px; color: #ff0; margin-bottom: 4px; }
@@ -62,7 +79,7 @@
             #bag-gui { 
                 bottom: 10px; left: 50%; transform: translateX(-50%); width: 95%; justify-content: center; gap: 4px; 
             }
-            #bag-btn, #player-btn, #quest-btn { 
+            #bag-btn, #player-btn, #quest-btn, #prep-btn, #story-btn {
                 padding: 12px 5px; font-size: 11px; flex: 1; text-align: center; border-width: 3px;
             }
             
@@ -99,6 +116,7 @@
     <div id="weather-info">LOADING...</div>
     <button id="debug-update-btn" onclick="manualUpdate()">更新(デバッグ)</button>
     <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="setManualPos()">位置を手入力する</button>
+    <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="retryGps()">GPS再取得</button>
     <div id="debug-log" style="font-size:8px; color:#0f0; margin-top:4px; text-align:left; border-top:1px solid #555;">Log: Wait GPS</div>
 </div>
 
@@ -122,8 +140,31 @@
         <div id="quest-list"></div>
     </div>
     <button id="bag-btn" onclick="toggleBag()">ふくろ</button>
-    <button id="player-btn" onclick="togglePlayerWindow()">ステータス</button>
+    <button id="prep-btn" onclick="openPrepMenu()">じゅんび</button>
+    <button id="story-btn" onclick="openStoryMenu()">ストーリー</button>
     <button id="quest-btn" onclick="toggleQuestWindow()">クエスト</button>
+</div>
+
+<div id="prep-overlay" class="game-overlay">
+    <div class="overlay-panel">
+        <div class="overlay-title">じゅんび</div>
+        <div class="overlay-tabs">
+            <button class="overlay-tab active" data-prep-tab="status" onclick="switchPrepTab('status')">ステータス</button>
+            <button class="overlay-tab" data-prep-tab="equip" onclick="switchPrepTab('equip')">そうび</button>
+            <button class="overlay-tab" data-prep-tab="heart" onclick="switchPrepTab('heart')">こころ</button>
+            <button class="overlay-tab" data-prep-tab="job" onclick="switchPrepTab('job')">転職</button>
+        </div>
+        <div class="overlay-body" id="prep-body"></div>
+        <button class="overlay-close" onclick="closePrepMenu()">とじる</button>
+    </div>
+</div>
+
+<div id="story-overlay" class="game-overlay">
+    <div class="overlay-panel">
+        <div class="overlay-title">ストーリー</div>
+        <div class="overlay-body" id="story-body"></div>
+        <button class="overlay-close" onclick="closeStoryMenu()">とじる</button>
+    </div>
 </div>
 
 <div id="message-window"></div>
@@ -206,6 +247,15 @@
         { id: "battle_5", name: "日課：まもの5体討伐", type: "battle", target: 5, rewardGold: 150, rewardItem: "まほうのせいすい" },
         { id: "pickup_3", name: "日課：素材を3回拾う", type: "pickup", target: 3, rewardGold: 120, rewardItem: "スライムコイン" }
     ];
+    const TUTORIAL_CHAPTERS = [
+        { id: 0, key: "start", text: "ようこそ、散歩の世界へ。\nWキーで すすもう。" },
+        { id: 1, key: "walk50", needWalk: 50, text: "よく歩いた！\nこの先に まものが うようよしている。" },
+        { id: 2, key: "win1", needWins: 1, text: "たたかいの かんじ、つかめたな。\n『じゅんび』で そうびを かえられる。" },
+        { id: 3, key: "setgoal", needGoalSet: true, text: "もくてきちを おぼえた。\nそこに ついたら 物語が ひらける。" },
+        { id: 4, key: "reach", needGoalReach: true, text: "目的地に ついた！\nきみの 足どりが 新しい 一章を うむ。" }
+    ];
+    let storyState = { tutorialDone: {}, goals: [], battleWins: 0, goalSetCount: 0, goalReachCount: 0 };
+    let prepTab = "status";
     let isInBattle = false;
     let currentBattleMonster = null;
     const playerState = { 
@@ -243,11 +293,17 @@
     let walkedDistance = 0;
     let questProgress = {};
     let questDone = {};
+    const defeatEffects = [];
+    let homeSpotGroup = null;
 
     const R = 6378137;
     const MAP_RADIUS = 560; 
     const AUTO_UPDATE_THRESHOLD = 300;
     const CAMERA_DIST = 58;
+    const DEFAULT_FALLBACK = { lat: 38.2601, lon: 140.8824 };
+    let gpsWatchId = null;
+    let gpsResolved = false;
+    let gpsRetryStage = 0;
 
     function init() {
         scene = new THREE.Scene();
@@ -323,42 +379,56 @@
         updateQuestWindow();
         updateInventoryUI();
         addLog("Init Done");
+        setTimeout(() => {
+            if (!storyState.tutorialDone.start) showTutorialChapter(TUTORIAL_CHAPTERS[0]);
+        }, 1200);
         animate();
     }
 
-    function buildRoadStrip(points, halfWidth = 3.6) {
-        if (points.length < 2) return null;
-        const left = [];
-        const right = [];
-        for (let i = 0; i < points.length; i++) {
-            const prev = points[Math.max(0, i - 1)];
-            const next = points[Math.min(points.length - 1, i + 1)];
-            const dir = new THREE.Vector2(next.x - prev.x, next.y - prev.y);
-            if (dir.lengthSq() === 0) continue;
-            dir.normalize();
-            const normal = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(halfWidth);
-            left.push(new THREE.Vector3(points[i].x + normal.x, 0.24, points[i].y + normal.y));
-            right.push(new THREE.Vector3(points[i].x - normal.x, 0.24, points[i].y - normal.y));
-        }
-        if (left.length < 2 || right.length < 2) return null;
-        const vertices = [];
-        const indices = [];
-        for (let i = 0; i < left.length; i++) {
-            vertices.push(left[i].x, left[i].y, left[i].z);
-            vertices.push(right[i].x, right[i].y, right[i].z);
-            if (i < left.length - 1) {
-                const a = i * 2;
-                const b = a + 1;
-                const c = a + 2;
-                const d = a + 3;
-                indices.push(a, b, c, b, d, c);
+    function buildBatchedRoadMesh(segments, maxWays = 130, halfWidth = 5.8) {
+        const allPos = [];
+        const allIdx = [];
+        let vOff = 0;
+        const sorted = segments.slice().sort((a, b) => b.length - a.length).slice(0, maxWays);
+        for (const pts of sorted) {
+            if (pts.length < 2) continue;
+            const segLeft = [];
+            const segRight = [];
+            for (let i = 0; i < pts.length; i++) {
+                const prev = pts[Math.max(0, i - 1)];
+                const next = pts[Math.min(pts.length - 1, i + 1)];
+                const dir = new THREE.Vector2(next.x - prev.x, next.y - prev.y);
+                if (dir.lengthSq() < 0.0001) continue;
+                dir.normalize();
+                const n = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(halfWidth);
+                segLeft.push(pts[i].x + n.x, 0.245, pts[i].y + n.y);
+                segRight.push(pts[i].x - n.x, 0.245, pts[i].y - n.y);
             }
+            const count = segLeft.length / 3;
+            if (count < 2) continue;
+            for (let i = 0; i < count - 1; i++) {
+                const a = vOff + i * 2;
+                allIdx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+            }
+            for (let i = 0; i < count; i++) {
+                allPos.push(segLeft[i * 3], segLeft[i * 3 + 1], segLeft[i * 3 + 2]);
+                allPos.push(segRight[i * 3], segRight[i * 3 + 1], segRight[i * 3 + 2]);
+            }
+            vOff += count * 2;
         }
+        if (!allPos.length) return null;
         const geom = new THREE.BufferGeometry();
-        geom.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-        geom.setIndex(indices);
-        geom.computeVertexNormals();
-        return geom;
+        geom.setAttribute("position", new THREE.Float32BufferAttribute(allPos, 3));
+        geom.setIndex(allIdx);
+        const mat = new THREE.MeshLambertMaterial({
+            color: 0x707a88,
+            emissive: 0x1a2230,
+            emissiveIntensity: 0.35,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: -1
+        });
+        return new THREE.Mesh(geom, mat);
     }
 
     async function fetchMapData(lat, lon) {
@@ -392,20 +462,15 @@
         try {
             if (!success) throw new Error("Proxy fetch failed");
             
-            if (!data || !data.elements || data.elements.length === 0) {
+            if (!data || !data.elements) {
                 addLog("Warn: No Data Found");
+                data = { elements: [] };
             } else {
                 addLog(`Got ${data.elements.length} items`);
             }
             roadLayer.clear(); mapLayer.clear();
             buildingOutlineLines.length = 0;
-            
-            // 道路の視認性を向上（復活）
-            const roadMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x4a5a6a, 
-                emissive: 0x223344,
-                emissiveIntensity: 0.2
-            });
+            const roadSegments = [];
             const buildingFillMaterial = new THREE.MeshLambertMaterial({
                 color: 0x5b6672,
                 side: THREE.DoubleSide,
@@ -449,12 +514,13 @@
 
                 } else if (el.tags.highway) {
                     if (pts2D.length < 2) return;
-                    const roadGeom = buildRoadStrip(pts2D, 4.2);
-                    if (!roadGeom) return;
-                    roadLayer.add(new THREE.Mesh(roadGeom, roadMaterial));
+                    roadSegments.push(pts2D);
                 }
             });
+            const mergedRoads = buildBatchedRoadMesh(roadSegments);
+            if (mergedRoads) roadLayer.add(mergedRoads);
             if (spots.length === 0 && monsters.length === 0) createObjects();
+            else if (playerState.homeCoords) createHomeMarker();
         } catch (e) { 
             addLog("API Error: " + e.message);
             showMessage("ちずの よみこみに しっぱい"); 
@@ -464,23 +530,38 @@
         }
     }
 
-    function createObjects() {
-        spots.forEach(s => scene.remove(s.group)); monsters.forEach(m => scene.remove(m.group));
-        spots = []; monsters = [];
-        
-        // 自宅の表示
-        if (playerState.homeCoords) {
-            const hx = (playerState.homeCoords.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
-            const hz = -(playerState.homeCoords.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
-            const homeGroup = new THREE.Group();
-            homeGroup.position.set(hx, 0, hz);
-            const house = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), new THREE.MeshPhongMaterial({ color: 0xffaa00 }));
-            house.position.y = 3; homeGroup.add(house);
-            const roof = new THREE.Mesh(new THREE.ConeGeometry(7, 5, 4), new THREE.MeshPhongMaterial({ color: 0xaa0000 }));
-            roof.position.y = 8.5; roof.rotation.y = Math.PI/4; homeGroup.add(roof);
-            scene.add(homeGroup);
-            spots.push({ group: homeGroup, type: "home", active: true });
+    function createHomeMarker() {
+        if (homeSpotGroup) {
+            scene.remove(homeSpotGroup);
+            homeSpotGroup = null;
         }
+        if (!playerState.homeCoords || !baseCoords) return;
+        const hx = (playerState.homeCoords.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
+        const hz = -(playerState.homeCoords.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
+        homeSpotGroup = new THREE.Group();
+        homeSpotGroup.position.set(hx, 0, hz);
+        const house = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), new THREE.MeshPhongMaterial({ color: 0xffaa00 }));
+        house.position.y = 3; homeSpotGroup.add(house);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(7, 5, 4), new THREE.MeshPhongMaterial({ color: 0xaa0000 }));
+        roof.position.y = 8.5; roof.rotation.y = Math.PI / 4; homeSpotGroup.add(roof);
+        const sign = new THREE.Mesh(new THREE.BoxGeometry(4, 1.5, 0.5), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        sign.position.set(0, 10, 5); homeSpotGroup.add(sign);
+        scene.add(homeSpotGroup);
+        const existing = spots.find(s => s.type === "home");
+        if (existing) {
+            existing.group = homeSpotGroup;
+            existing.active = true;
+        } else {
+            spots.push({ group: homeSpotGroup, type: "home", active: true });
+        }
+    }
+
+    function createObjects() {
+        spots.forEach(s => { if (s.type !== "home") scene.remove(s.group); });
+        monsters.forEach(m => scene.remove(m.group));
+        spots = spots.filter(s => s.type === "home");
+        monsters = [];
+        createHomeMarker();
 
         for(let i=0; i<18; i++){
             const rx = (Math.random()-0.5)*1400 + slimeGroup.position.x;
@@ -497,8 +578,8 @@
                 p.position.y = 9; group.add(p); scene.add(group);
                 spots.push({ group, type: isRecovery ? "recovery" : "item", active: true });
             } else {
-                // 通常モンスター or メガモンスター
-                const isMega = Math.random() > 0.92;
+                // 通常モンスター or メガモンスター（低確率ボス）
+                const isMega = Math.random() > 0.94;
                 const enemyType = isMega ? MEGA_MONSTER_TYPES[Math.floor(Math.random() * MEGA_MONSTER_TYPES.length)] : ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
                 const enemyLv = isMega ? 10 : (1 + Math.floor(Math.random() * Math.max(1, playerState.lv + 1)));
                 const scale = enemyType.scale || 1.0;
@@ -611,11 +692,13 @@
 
     function updateQuestWindow() {
         const el = document.getElementById('quest-list');
-        const rows = QUEST_MASTER.map(q => {
+        const today = new Date().toLocaleDateString("ja-JP");
+        const rows = [`<div style="color:#ff9;margin-bottom:8px;">今日: ${today}</div>`];
+        QUEST_MASTER.forEach(q => {
             const progress = Math.min(q.target, questProgress[q.id] || 0);
             const done = questDone[q.id];
-            const state = done ? "達成" : `${progress}/${q.target}`;
-            return `<div style="margin-bottom:8px;">${q.name}<br><span style="color:${done ? "#7fffa5" : "#ddd"}">${state}</span></div>`;
+            const state = done ? "達成" : `${Math.floor(progress)}/${q.target}`;
+            rows.push(`<div style="margin-bottom:8px;">${q.name}<br><span style="color:${done ? "#7fffa5" : "#ddd"}">${state}</span></div>`);
         });
         el.innerHTML = rows.join("");
     }
@@ -626,7 +709,8 @@
             inventory,
             questProgress,
             questDone,
-            walkedDistance
+            walkedDistance,
+            storyState
         };
         localStorage.setItem("dqw_like_save", JSON.stringify(payload));
         if (!silent) showMessage("セーブしました");
@@ -645,6 +729,7 @@
             if (data.questProgress) questProgress = data.questProgress;
             if (data.questDone) questDone = data.questDone;
             if (typeof data.walkedDistance === "number") walkedDistance = data.walkedDistance;
+            if (data.storyState) storyState = { ...storyState, ...data.storyState };
         } catch (e) {
             // ignore broken save
         }
@@ -674,7 +759,8 @@
         }
         playerState.homeCoords = { ...lastFetchedCoords };
         playerState.homeSet = true;
-        showMessage("ここを 自宅に設定しました！\n次回読込時に反映されます");
+        createHomeMarker();
+        showMessage("ここを 自宅に設定しました！\n近づくと HP・MP回復");
         saveGame(true);
     }
 
@@ -685,6 +771,207 @@
         playerState.job = jobs[nextIndex];
         showMessage(`職業を ${playerState.job} に変更した！`);
         updatePlayerWindow();
+        renderPrepBody();
+    }
+
+    function openPrepMenu() {
+        if (isInBattle) return;
+        document.getElementById('prep-overlay').classList.add('open');
+        renderPrepBody();
+    }
+
+    function closePrepMenu() {
+        document.getElementById('prep-overlay').classList.remove('open');
+    }
+
+    function switchPrepTab(tab) {
+        prepTab = tab;
+        document.querySelectorAll('.overlay-tab[data-prep-tab]').forEach(el => {
+            el.classList.toggle('active', el.dataset.prepTab === tab);
+        });
+        renderPrepBody();
+    }
+
+    function equipItemAt(idx) {
+        const item = inventory[idx];
+        if (!item) return;
+        const def = ITEM_DEFS[item] || { type: "misc" };
+        if (def.type === "heart") {
+            if (def.cost > playerState.maxCost) {
+                showMessage(`コスト不足！(必要:${def.cost}/最大:${playerState.maxCost})`);
+                return;
+            }
+            if (playerState.equipment.heart) inventory.push(playerState.equipment.heart);
+            playerState.equipment.heart = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を そうびした`);
+        } else if (def.type === "weapon") {
+            if (playerState.equipment.weapon) inventory.push(playerState.equipment.weapon);
+            playerState.equipment.weapon = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を そうびした`);
+        } else if (def.type === "shield") {
+            if (playerState.equipment.shield) inventory.push(playerState.equipment.shield);
+            playerState.equipment.shield = item;
+            inventory.splice(idx, 1);
+            showMessage(`${item}を そうびした`);
+        } else if (def.type === "consumable") {
+            const pStats = getPlayerBattleStats();
+            if (def.heal) playerState.hp = Math.min(pStats.maxHp, playerState.hp + def.heal);
+            if (def.mpHeal) playerState.mp = Math.min(pStats.maxMp, playerState.mp + def.mpHeal);
+            inventory.splice(idx, 1);
+            showMessage(`${item}を つかった`);
+        }
+        playerState.hp = Math.min(playerState.hp, getPlayerBattleStats().maxHp);
+        playerState.mp = Math.min(playerState.mp, getPlayerBattleStats().maxMp);
+        updateInventoryUI();
+        updatePlayerWindow();
+        renderPrepBody();
+    }
+
+    function renderPrepBody() {
+        const el = document.getElementById('prep-body');
+        const bonus = getEquippedBonus();
+        const pStats = getPlayerBattleStats();
+        const job = JOB_DEFS[playerState.job] || JOB_DEFS["戦士"];
+
+        if (prepTab === "status") {
+            el.innerHTML = [
+                `<span style="color:#ff9">職業: ${playerState.job}</span>`,
+                `Lv ${playerState.lv}  EXP ${playerState.exp}/${playerState.nextExp}`,
+                `HP ${playerState.hp}/${pStats.maxHp}  MP ${playerState.mp}/${pStats.maxMp}`,
+                `GOLD ${playerState.gold}`,
+                `こうげき ${pStats.atk}  しゅび ${pStats.def}`,
+                `こころコスト ${bonus.cost}/${playerState.maxCost}`,
+                `歩行 ${Math.floor(walkedDistance)}m`,
+                `戦闘勝利 ${storyState.battleWins}回`
+            ].join("<br>");
+            return;
+        }
+
+        if (prepTab === "equip") {
+            const rows = inventory.map((item, idx) => {
+                const def = ITEM_DEFS[item] || {};
+                if (def.type !== "weapon" && def.type !== "shield") return "";
+                return `<div class="prep-equip-row"><span>${item}</span><button class="overlay-action" onclick="equipItemAt(${idx})">そうび</button></div>`;
+            }).filter(Boolean).join("") || "装備できるどうぐが ない";
+            el.innerHTML = `<div>ぶき: ${playerState.equipment.weapon || "なし"}</div><div>たて: ${playerState.equipment.shield || "なし"}</div><hr style="border-color:#444">${rows}`;
+            return;
+        }
+
+        if (prepTab === "heart") {
+            const rows = inventory.map((item, idx) => {
+                const def = ITEM_DEFS[item] || {};
+                if (def.type !== "heart") return "";
+                return `<div class="prep-equip-row"><span>${item} (コスト${def.cost})</span><button class="overlay-action" onclick="equipItemAt(${idx})">そうび</button></div>`;
+            }).filter(Boolean).join("") || "こころを もっていない";
+            el.innerHTML = `<div>そうび中: ${playerState.equipment.heart || "なし"}</div><hr style="border-color:#444">${rows}`;
+            return;
+        }
+
+        if (prepTab === "job") {
+            const jobs = Object.keys(JOB_DEFS);
+            el.innerHTML = jobs.map(j => {
+                const d = JOB_DEFS[j];
+                const cur = j === playerState.job ? " ← いま" : "";
+                return `<div style="margin-bottom:10px;"><b>${j}</b>${cur}<br>スキル: ${d.skill} (MP${d.mpCost})</div>`;
+            }).join("") + `<button class="overlay-action" onclick="changeJob()">つぎの職業へ 転職</button>`;
+        }
+    }
+
+    function openStoryMenu() {
+        if (isInBattle) return;
+        document.getElementById('story-overlay').classList.add('open');
+        renderStoryBody();
+    }
+
+    function closeStoryMenu() {
+        document.getElementById('story-overlay').classList.remove('open');
+    }
+
+    function renderStoryBody() {
+        const el = document.getElementById('story-body');
+        const tutLines = TUTORIAL_CHAPTERS.map(ch => {
+            const done = storyState.tutorialDone[ch.key];
+            return `<div style="color:${done ? '#7f7' : '#aaa'};margin-bottom:4px;">${done ? "✓" : "・"} 章${ch.id}</div>`;
+        }).join("");
+
+        const goalCards = storyState.goals.map((g, i) => {
+            const st = g.reached ? "達成" : "未達";
+            return `<div class="story-goal-card ${g.reached ? 'done' : ''}"><b>${g.title}</b> [${st}]<br><span style="color:#ccc;font-size:10px;">${g.text.slice(0, 40)}...</span></div>`;
+        }).join("") || "<div style='color:#888'>目的地は まだない</div>";
+
+        el.innerHTML = `
+            <div style="margin-bottom:12px;color:#ff9;">チュートリアル進行</div>${tutLines}
+            <div style="margin:14px 0 8px;border-top:2px solid #444;padding-top:8px;color:#ff9;">あなたの物語・目的地</div>
+            ${goalCards}
+            <div id="story-goal-form" style="margin-top:12px;border-top:2px solid #444;padding-top:8px;">
+                <input id="story-title" placeholder="目的地の名前（例: かえりみちの公園）" />
+                <textarea id="story-text" placeholder="到着時に表示する物語（ひと言でもOK）"></textarea>
+                <button class="overlay-action" onclick="addStoryGoalFromCurrent()">いまの場所を 目的地にする</button>
+            </div>`;
+    }
+
+    function addStoryGoalFromCurrent() {
+        if (!baseCoords || !lastFetchedCoords) {
+            showMessage("位置が まだ取得できていません");
+            return;
+        }
+        const title = document.getElementById('story-title')?.value?.trim() || "目的地";
+        const text = document.getElementById('story-text')?.value?.trim() || `${title}に たどりついた。`;
+        const latScale = (2 * Math.PI * R) / 360;
+        const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+        const lat = baseCoords.lat - (slimeGroup.position.z / latScale);
+        const lon = baseCoords.lon + (slimeGroup.position.x / lonScale);
+        storyState.goals.push({ id: "g" + Date.now(), title, text, lat, lon, reached: false });
+        storyState.goalSetCount += 1;
+        checkTutorialProgress();
+        saveGame(true);
+        showMessage(`「${title}」を 目的地に設定した！`);
+        renderStoryBody();
+    }
+
+    function showTutorialChapter(ch) {
+        if (storyState.tutorialDone[ch.key]) return;
+        storyState.tutorialDone[ch.key] = true;
+        showMessage(ch.text);
+        saveGame(true);
+    }
+
+    function checkTutorialProgress() {
+        TUTORIAL_CHAPTERS.forEach(ch => {
+            if (storyState.tutorialDone[ch.key]) return;
+            if (ch.key === "start") return;
+            if (ch.needWalk && walkedDistance >= ch.needWalk) showTutorialChapter(ch);
+            if (ch.needWins && storyState.battleWins >= ch.needWins) showTutorialChapter(ch);
+            if (ch.needGoalSet && storyState.goalSetCount >= 1) showTutorialChapter(ch);
+            if (ch.needGoalReach && storyState.goalReachCount >= 1) showTutorialChapter(ch);
+        });
+    }
+
+    function checkStoryArrival() {
+        if (!baseCoords || isInBattle) return;
+        const latScale = (2 * Math.PI * R) / 360;
+        const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+        const playerLat = baseCoords.lat - (slimeGroup.position.z / latScale);
+        const playerLon = baseCoords.lon + (slimeGroup.position.x / lonScale);
+        let anyNew = false;
+        storyState.goals.forEach(g => {
+            if (g.reached) return;
+            const dLat = (playerLat - g.lat) * latScale;
+            const dLon = (playerLon - g.lon) * lonScale;
+            const dist = Math.sqrt(dLat * dLat + dLon * dLon);
+            if (dist < 45) {
+                g.reached = true;
+                storyState.goalReachCount += 1;
+                anyNew = true;
+                showMessage(`【${g.title}】\n\n${g.text}`);
+            }
+        });
+        if (anyNew) {
+            checkTutorialProgress();
+            saveGame(true);
+        }
     }
 
     function getEquippedBonus() {
@@ -920,6 +1207,11 @@
         battleState.playerTurn = true;
         battleState.busy = false;
         battleState.guardRate = 1.0;
+        const job = JOB_DEFS[playerState.job] || JOB_DEFS["戦士"];
+        document.getElementById('battle-skill-btn').textContent = job.skill || "スキル";
+        if (battleState.enemy.isMega) {
+            showMessage(`メガモンスター ${battleState.enemy.name}\nが あらわれた！！`);
+        }
         updateBattleUI(`${battleState.enemy.name} が あらわれた！`);
         setBattleButtonsEnabled(true);
         document.getElementById('battle-status-window').style.display = 'block';
@@ -954,10 +1246,86 @@
         return lvupCount;
     }
 
-    function enemyDrop(enemy) {
+    function enemyDrop(enemy, preferHeart = false) {
         if (!enemy || !enemy.drops || enemy.drops.length === 0) return null;
-        if (Math.random() > 0.72) return null;
+        const rate = enemy.isMega ? 0.88 : 0.62;
+        if (Math.random() > rate) return null;
+        const hearts = enemy.drops.filter(d => ITEM_DEFS[d]?.type === "heart");
+        if (preferHeart && hearts.length && Math.random() > 0.25) {
+            return hearts[Math.floor(Math.random() * hearts.length)];
+        }
         return enemy.drops[Math.floor(Math.random() * enemy.drops.length)];
+    }
+
+    function spawnPurpleMist(worldPos, scale = 1) {
+        const group = new THREE.Group();
+        group.position.copy(worldPos);
+        const parts = [];
+        for (let i = 0; i < 10; i++) {
+            const s = new THREE.Mesh(
+                new THREE.SphereGeometry((1.2 + Math.random() * 1.8) * scale, 6, 6),
+                new THREE.MeshBasicMaterial({ color: 0x9933ff, transparent: true, opacity: 0.65 })
+            );
+            s.position.set((Math.random() - 0.5) * 5 * scale, 1 + Math.random() * 4 * scale, (Math.random() - 0.5) * 5 * scale);
+            group.add(s);
+            parts.push(s);
+        }
+        scene.add(group);
+        defeatEffects.push({ group, parts, start: performance.now(), duration: 1600 });
+        return group;
+    }
+
+    function updateDefeatEffects(now) {
+        for (let i = defeatEffects.length - 1; i >= 0; i--) {
+            const eff = defeatEffects[i];
+            const t = (now - eff.start) / eff.duration;
+            if (t >= 1) {
+                scene.remove(eff.group);
+                eff.parts.forEach(p => p.geometry?.dispose());
+                defeatEffects.splice(i, 1);
+                continue;
+            }
+            eff.parts.forEach(p => {
+                p.material.opacity = 0.7 * (1 - t);
+                p.scale.setScalar(1 + t * 1.8);
+                p.position.y += 0.04;
+            });
+        }
+    }
+
+    async function handleEnemyDefeated(damageLog) {
+        const enemy = battleState.enemy;
+        if (!enemy || !currentBattleMonster) return;
+        battleState.busy = true;
+        setBattleButtonsEnabled(false);
+        document.getElementById('battle-command-window').style.display = 'none';
+        updateBattleUI(`${damageLog}\n${enemy.name}を たおした！`);
+
+        const mistPos = currentBattleMonster.group.position.clone();
+        mistPos.y += enemy.isMega ? 6 : 3;
+        spawnPurpleMist(mistPos, enemy.isMega ? 2.2 : 1.2);
+
+        currentBattleMonster.group.children.forEach(c => {
+            if (c.material) {
+                c.material.transparent = true;
+                c.material.opacity = 0.85;
+            }
+        });
+
+        await sleep(500);
+        const dropped = enemyDrop(enemy, true);
+        if (dropped) {
+            inventory.push(dropped);
+            updateInventoryUI();
+            const isHeart = ITEM_DEFS[dropped]?.type === "heart";
+            showMessage(isHeart
+                ? `紫の靄の中から\n${dropped}が 落ちてきた！`
+                : `${dropped}を てにいれた！`);
+            updateBattleUI(`${damageLog}\n${enemy.name}を たおした！\n${dropped}を おとした！`);
+        }
+
+        await sleep(1100);
+        endBattle(true, `${damageLog}\n${enemy.name}を たおした！`, { skipDrop: true, dropped });
     }
 
     function endBattle(isWin, logText, options = {}) {
@@ -965,16 +1333,22 @@
         setTimeout(() => {
             if (isWin && battleState.enemy) {
                 const gained = battleState.enemy.exp;
-                const gainedGold = 8 + battleState.enemy.lv * 5;
+                const gainedGold = battleState.enemy.isMega ? (50 + battleState.enemy.lv * 12) : (8 + battleState.enemy.lv * 5);
                 const lvups = grantExp(gained);
-                const dropped = enemyDrop(battleState.enemy);
+                const dropped = options.dropped ?? (options.skipDrop ? null : enemyDrop(battleState.enemy));
                 playerState.gold += gainedGold;
-                if (dropped) inventory.push(dropped);
+                if (dropped && !options.skipDrop) inventory.push(dropped);
                 addQuestProgress("battle", 1);
+                storyState.battleWins += 1;
+                checkTutorialProgress();
                 updateInventoryUI();
                 const lvText = lvups > 0 ? `\nLvが ${lvups} あがった！` : "";
                 const dropText = dropped ? `\n${dropped} を てにいれた！` : "";
-                showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}${dropText}`);
+                if (!options.dropped) {
+                    showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}${dropText}`);
+                } else {
+                    showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}`);
+                }
             }
             if (currentBattleMonster) {
                 if (options.keepEnemy) {
@@ -1012,8 +1386,7 @@
         if (enemy.hp <= 0) {
             updateBattleUI(`${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}を たおした！`);
             await sleep(Math.max(0, motion.totalMs - motion.hitMs + 120));
-            showMessage(`${enemy.name}を たおした！`);
-            endBattle(true, `${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}を たおした！`);
+            await handleEnemyDefeated(`${enemy.name}に ${playerDmg} ダメージ！`);
             return;
         }
         updateBattleUI(`${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}の こうげき...`);
@@ -1051,7 +1424,7 @@
             if (enemy.hp <= 0) {
                 updateBattleUI(`${job.skill}！ ${dmg} ダメージ！\n${enemy.name}を たおした！`);
                 await sleep(Math.max(0, motion.totalMs - motion.hitMs + 140));
-                endBattle(true, `${job.skill}！ ${dmg} ダメージ！\n${enemy.name}を たおした！`);
+                await handleEnemyDefeated(`${job.skill}！ ${dmg} ダメージ！`);
                 return;
             }
             logText = `${job.skill}！ ${dmg} ダメージ！\n${enemy.name}の こうげき...`;
@@ -1158,65 +1531,125 @@
         console.log("GameLog:", msg);
     }
 
+    function isDefaultSendaiCoords(coords) {
+        if (!coords) return false;
+        return Math.abs(coords.lat - DEFAULT_FALLBACK.lat) < 0.0001 &&
+               Math.abs(coords.lon - DEFAULT_FALLBACK.lon) < 0.0001;
+    }
+
+    function applyLocation(lat, lon, source) {
+        baseCoords = { lat, lon };
+        localStorage.setItem("dqw_last_gps_coords", JSON.stringify(baseCoords));
+        addLog(`${source}: ${lat.toFixed(4)},${lon.toFixed(4)}`);
+        fetchMapData(baseCoords.lat, baseCoords.lon);
+        fetchWeather(baseCoords.lat, baseCoords.lon);
+    }
+
+    function gpsErrorMessage(err) {
+        if (!err) return "不明なエラー";
+        if (err.code === 1) return "位置情報が拒否されました。アドレスバー左の🔒から「位置情報」を許可してください。";
+        if (err.code === 2) return "位置情報を取得できません。Windowsの「位置情報サービス」をオンにしてください。";
+        if (err.code === 3) return "位置情報の取得がタイムアウトしました。もう一度お試しください。";
+        return err.message || "位置情報エラー";
+    }
+
+    function startGpsWatch() {
+        if (gpsWatchId !== null) return;
+        gpsWatchId = navigator.geolocation.watchPosition(
+            (p) => {
+                if (!gpsResolved) {
+                    gpsResolved = true;
+                    applyLocation(p.coords.latitude, p.coords.longitude, "GPS OK");
+                }
+            },
+            (err) => addLog("GPS Watch: " + gpsErrorMessage(err)),
+            { enableHighAccuracy: true, maximumAge: 30000, timeout: 25000 }
+        );
+    }
+
+    function requestGpsLocation() {
+        if (!navigator.geolocation) {
+            addLog("GPS Not Supported");
+            useFallbackLocation("GPS非対応");
+            return;
+        }
+
+        addLog(`Req GPS (${gpsRetryStage + 1}/3)...`);
+        const stageOptions = [
+            { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 },
+            { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 },
+            { enableHighAccuracy: false, timeout: 25000, maximumAge: 600000 }
+        ];
+        const options = stageOptions[Math.min(gpsRetryStage, stageOptions.length - 1)];
+
+        navigator.geolocation.getCurrentPosition(
+            (p) => {
+                gpsResolved = true;
+                applyLocation(p.coords.latitude, p.coords.longitude, "GPS OK");
+                startGpsWatch();
+            },
+            (err) => {
+                addLog("GPS Fail: " + gpsErrorMessage(err));
+                if (gpsRetryStage < stageOptions.length - 1) {
+                    gpsRetryStage += 1;
+                    setTimeout(requestGpsLocation, 800);
+                    return;
+                }
+                useFallbackLocation(gpsErrorMessage(err));
+            },
+            options
+        );
+    }
+
+    function retryGps() {
+        gpsRetryStage = 0;
+        gpsResolved = false;
+        if (gpsWatchId !== null) {
+            navigator.geolocation.clearWatch(gpsWatchId);
+            gpsWatchId = null;
+        }
+        addLog("Retry GPS...");
+        showMessage("GPSを再取得しています...");
+        requestGpsLocation();
+    }
+
     function setManualPos() {
-        const input = prompt("緯度,経度 を入力してください (例: 35.6812,139.7671)", `${baseCoords ? baseCoords.lat : 38.2601},${baseCoords ? baseCoords.lon : 140.8824}`);
+        const input = prompt("緯度,経度 を入力してください (例: 35.6812,139.7671)", `${baseCoords ? baseCoords.lat : DEFAULT_FALLBACK.lat},${baseCoords ? baseCoords.lon : DEFAULT_FALLBACK.lon}`);
         if (!input) return;
         const [lat, lon] = input.split(',').map(s => parseFloat(s.trim()));
         if (isNaN(lat) || isNaN(lon)) {
             alert("無効な入力です");
             return;
         }
-        baseCoords = { lat, lon };
-        addLog(`Manual Set: ${lat},${lon}`);
-        fetchMapData(baseCoords.lat, baseCoords.lon);
-        fetchWeather(baseCoords.lat, baseCoords.lon);
+        gpsResolved = true;
+        applyLocation(lat, lon, "Manual Set");
     }
 
     function startTracking() {
         addLog("Req GPS...");
-        if (!navigator.geolocation) {
-            addLog("GPS Not Supported");
-            useFallbackLocation();
-            return;
-        }
-
-        const options = {
-            timeout: 10000,
-            enableHighAccuracy: true,
-            maximumAge: 0
-        };
-
-        navigator.geolocation.getCurrentPosition(p => {
-            addLog("GPS OK");
-            baseCoords = { lat: p.coords.latitude, lon: p.coords.longitude };
-            localStorage.setItem("dqw_last_coords", JSON.stringify(baseCoords));
-            fetchMapData(baseCoords.lat, baseCoords.lon);
-            fetchWeather(baseCoords.lat, baseCoords.lon);
-        }, (err) => {
-            addLog("GPS Fail: " + err.code + " (" + err.message + ")");
-            useFallbackLocation();
-        }, options);
+        requestGpsLocation();
     }
 
-    function useFallbackLocation() {
-        if (playerState && playerState.homeCoords) {
-            addLog("Using Home Pos");
-            baseCoords = { ...playerState.homeCoords };
-        } else {
-            const saved = localStorage.getItem("dqw_last_coords");
-            if (saved) {
-                try {
-                    baseCoords = JSON.parse(saved);
-                    addLog("Using Last Pos");
-                } catch(e) {
-                    baseCoords = { lat: 38.2601, lon: 140.8824 };
-                    addLog("Default: Sendai");
-                }
-            } else {
-                baseCoords = { lat: 38.2601, lon: 140.8824 };
-                addLog("Default: Sendai");
-            }
+    function useFallbackLocation(reason) {
+        let fallback = null;
+        const saved = localStorage.getItem("dqw_last_gps_coords") || localStorage.getItem("dqw_last_coords");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (!isDefaultSendaiCoords(parsed)) fallback = parsed;
+            } catch (e) {}
         }
+
+        if (!fallback) {
+            fallback = { ...DEFAULT_FALLBACK };
+            addLog("Default: Sendai");
+            showMessage(`${reason || "GPS未取得"}\n\n仙台駅付近で開始します。\n「GPS再取得」か「位置を手入力する」を使ってください。`);
+        } else {
+            addLog("Using Last GPS");
+            showMessage(`${reason || "GPS未取得"}\n\n前回のGPS位置で開始します。`);
+        }
+
+        baseCoords = fallback;
         fetchMapData(baseCoords.lat, baseCoords.lon);
         fetchWeather(baseCoords.lat, baseCoords.lon);
     }
@@ -1256,9 +1689,12 @@
     function animate() {
         requestAnimationFrame(animate);
         const now = performance.now();
+        updateDestinationDistanceTracker();
         updateBattleMotion(now);
+        updateDefeatEffects(now);
         const dt = now - lastFrameAt;
         lastFrameAt = now;
+
 
         // Ripple processing
         for (let i = ripples.length - 1; i >= 0; i--) {
@@ -1304,6 +1740,7 @@
             dir.y = 0; dir.normalize();
             walkedDistance += 1.4;
             addQuestProgress("walk", 1.4);
+            checkTutorialProgress();
             slimeGroup.position.addScaledVector(dir, 1.4);
             slimeGroup.quaternion.slerp(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), dir), 0.15);
             if(lastFetchedCoords) {
@@ -1314,6 +1751,7 @@
             }
         }
         handleInteraction();
+        if (!isInBattle) checkStoryArrival();
         monsters.forEach(m => {
             if (!m.active) return;
             const now = Date.now();
@@ -1337,6 +1775,558 @@
         renderer.render(scene, camera);
     }
     init();
+// =========================================================================
+// 【道路復活＆自動設置＆セーブ完全版】
+// =========================================================================
+
+// グローバル配列・変数の安全な初期化
+window.DESTINATION_DISTANCE = 150;
+if (!window.activeDestinations) {
+    window.activeDestinations = [];
+}
+
+/**
+ * 修正版：バックエンドのPOST通信に完全対応したマップ取得処理（道路復活）
+ * 既存の manualUpdate 関数を完全に上書きして正常化します
+ */
+async function manualUpdate() {
+    if (isUpdatingMap || !baseCoords || !slimeGroup) return;
+    isUpdatingMap = true;
+    
+    const btn = document.getElementById("debug-update-btn");
+    if (btn) btn.textContent = "よみこみ中...";
+
+    // スライムの現在3D位置から、ベース座標（GPS）を基準にしたリアルタイム緯度経度を逆算
+    const R = 6378137;
+    const latScale = (Math.PI * R) / 180;
+    const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+    
+    const currentLon = baseCoords.lon + (slimeGroup.position.x / lonScale);
+    const currentLat = baseCoords.lat - (slimeGroup.position.z / latScale);
+
+    // Overpass クエリの組み立て
+    const radius = 560;
+    const q = `[out:json][timeout:20];(way["highway"](around:${radius},${currentLat},${currentLon});way["leisure"="park"](around:${radius},${currentLat},${currentLon});way["natural"="water"](around:${radius},${currentLat},${currentLon}););out geom;`;
+
+    try {
+        // main.py の新しい仕様に合わせて、URLパラメータではなく、完全に「POST」メソッドとJSON形式で送信
+        const response = await fetch('/api/overpass?data=' + encodeURIComponent(q), {
+            method: 'GET'
+        });
+        
+        let data;
+        if (!response.ok) {
+            // もしGET経由で弾かれた場合の、純粋なPOST形式によるフォールバックリクエスト
+            const postResponse = await fetch('/api/overpass', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: q })
+            });
+            if (!postResponse.ok) throw new Error("Proxy fetch failed");
+            data = await postResponse.json();
+        } else {
+            data = await response.json();
+        }
+
+        // 取得したOSMデータから道路・エリアの3Dオブジェクトを再構築
+        if (data && typeof initMap3D === "function") {
+            initMap3D(data);
+            console.log("[Map Update] 道路とマップデータのレンダリングに成功しました。");
+        }
+
+        lastFetchedCoords = { lat: currentLat, lon: currentLon };
+        
+        // 【自動設置トリガー】マップが正常に読み込まれた際、目的地がなければ自動設置をキック
+        if (window.activeDestinations.length === 0) {
+            autoSpawnNextDestination();
+        }
+
+    } catch (e) {
+        console.error("API Error:", e.message);
+        if (typeof showMessage === "function") {
+            showMessage("電波が わるいようだ（マップ取得失敗）");
+        }
+    } finally {
+        isUpdatingMap = false;
+        if (btn) btn.textContent = "マップ更新";
+    }
+}
+
+// --- ストーリーのセーブ＆ロード機能（LocalStorage連動） ---
+
+function saveStoryProgress(chapterIndex) {
+    localStorage.setItem("sanpo_rpg_story_chapter", chapterIndex);
+    console.log(`[セーブ保存] ストーリーを第 ${chapterIndex} 章として保存。`);
+}
+
+function loadStoryProgress() {
+    const savedChapter = localStorage.getItem("sanpo_rpg_story_chapter");
+    if (savedChapter !== null) {
+        const chapterIndex = parseInt(savedChapter, 10);
+        console.log(`[セーブ再開] 前回のクリア状態（第 ${chapterIndex} 章）から再開します。`);
+        if (typeof currentStoryChapter !== "undefined") {
+            currentStoryChapter = chapterIndex;
+        }
+        return chapterIndex;
+    }
+    return 0; // セーブデータがなければ序章から
+}
+
+// --- 目的地の自動生成システム ---
+
+function autoSpawnNextDestination() {
+    if (window.activeDestinations.length > 0) return;
+
+    // 現在の進行度をロード（変数がない場合は0とする）
+    const currentChapter = typeof currentStoryChapter !== "undefined" ? currentStoryChapter : loadStoryProgress();
+
+    let destType = 'house';
+    let destName = 'たびびとの宿';
+
+    // 章（ストーリー）の進行状態に応じて目的地のポリゴンと名前を自動で切り替える
+    if (currentChapter === 1) {
+        destType = 'cave';
+        destName = '試練の洞窟';
+    } else if (currentChapter >= 2) {
+        destType = 'town';
+        destName = '未知の街';
+    }
+
+    console.log(`[自動目的地設定] 物語の進行（第 ${currentChapter} 章）に合わせ、150m先に【${destName}】を配置します。`);
+    spawnTargetDestination(destType, destName);
+}
+
+// --- 目的地生成・3D座標配置ロジック ---
+
+function spawnTargetDestination(type, name = "もくてきち") {
+    if (typeof baseCoords === "undefined" || !baseCoords) {
+        console.error("ベース座標が初期化されていないため設置を保留します。");
+        return;
+    }
+
+    const angle = Math.random() * Math.PI * 2;
+    const dx = Math.cos(angle) * window.DESTINATION_DISTANCE; 
+    const dz = Math.sin(angle) * window.DESTINATION_DISTANCE; 
+
+    const R = 6378137; 
+    const latScale = (Math.PI * R) / 180;
+    const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+    
+    const targetLon = baseCoords.lon + (dx / lonScale);
+    const targetLat = baseCoords.lat - (dz / latScale); 
+
+    const destGroup = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({ flatShading: true });
+
+    if (type === 'house') {
+        const bodyGeo = new THREE.BoxGeometry(4, 3, 4);
+        material.color.setHex(0xddaa77);
+        const body = new THREE.Mesh(bodyGeo, material.clone());
+        body.position.y = 1.5;
+        destGroup.add(body);
+
+        const roofGeo = new THREE.ConeGeometry(3.5, 2.5, 4); 
+        material.color.setHex(0xcc4433);
+        const roof = new THREE.Mesh(roofGeo, material.clone());
+        roof.position.y = 4.25;
+        roof.rotation.y = Math.PI / 4;
+        destGroup.add(roof);
+    } else if (type === 'town') {
+        const buildingLayouts = [
+            { x: -2, z: -2, h: 4, w: 2, c: 0x5588aa },
+            { x: 2, z: -1, h: 6, w: 2.5, c: 0x6699bb }
+        ];
+        buildingLayouts.forEach(b => {
+            const bGeo = new THREE.BoxGeometry(b.w, b.h, b.w);
+            const bMat = material.clone();
+            bMat.color.setHex(b.c);
+            const mesh = new THREE.Mesh(bGeo, bMat);
+            mesh.position.set(b.x, b.h / 2, b.z);
+            destGroup.add(mesh);
+        });
+    } else if (type === 'cave') {
+        const rockGeo = new THREE.DodecahedronGeometry(3, 0); 
+        material.color.setHex(0x666666);
+        const mainRock = new THREE.Mesh(rockGeo, material.clone());
+        mainRock.position.set(0, 1.5, 0);
+        destGroup.add(mainRock);
+    }
+
+    if (typeof slimeGroup !== "undefined" && slimeGroup) {
+        destGroup.position.set(slimeGroup.position.x + dx, 0, slimeGroup.position.z + dz);
+    } else {
+        destGroup.position.set(dx, 0, dz);
+    }
+    
+    destGroup.userData = { name: name, type: type, lat: targetLat, lon: targetLon };
+
+    if (typeof scene !== "undefined" && scene) {
+        scene.add(destGroup);
+        window.activeDestinations.push(destGroup);
+    }
+
+    if (typeof showMessage === "function") {
+        showMessage(`${name} が 150m さきに 現れた！`);
+    }
+}
+
+// =========================================================================
+// 【完全修正版】道路復活・自動目的地設置・ストーリー保存統合システム
+// =========================================================================
+
+// グローバル配列・変数の安全な初期化
+window.DESTINATION_DISTANCE = 150;
+if (!window.activeDestinations) {
+    window.activeDestinations = [];
+}
+
+/**
+ * 完全に修正されたマニュアルマップ更新（POST通信専用・道路復活版）
+ * 既存の古い manualUpdate を完全に上書きし、競合を解消します
+ */
+async function manualUpdate() {
+    if (isUpdatingMap || !baseCoords || !slimeGroup) return;
+    isUpdatingMap = true;
+    
+    const btn = document.getElementById("debug-update-btn");
+    if (btn) btn.textContent = "よみこみ中...";
+
+    // プレイヤーの現在地からリアルタイムな緯度経度を逆算
+    const R = 6378137;
+    const latScale = (Math.PI * R) / 180;
+    const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+    
+    const currentLon = baseCoords.lon + (slimeGroup.position.x / lonScale);
+    const currentLat = baseCoords.lat - (slimeGroup.position.z / latScale);
+
+    // Overpass クエリの構築
+    const radius = 560;
+    const q = `[out:json][timeout:20];(way["highway"](around:${radius},${currentLat},${currentLon});way["leisure"="park"](around:${radius},${currentLat},${currentLon});way["natural"="water"](around:${radius},${currentLat},${currentLon}););out geom;`;
+
+    try {
+        console.log("[Map Fetch] main.pyへPOSTリクエストを送信中...");
+        
+        // main.py の「@app.get("/api/overpass")」が受け取る Query(data) 形式、
+        // または純粋なPOSTリクエストの両方に完全対応する安全な送信方法
+        const response = await fetch('/api/overpass', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({ 'data': q })
+        });
+
+        // もし上記POSTでエラー(405等)になった場合の超安全なフォールバック（JSON型POST）
+        let data;
+        if (!response.ok) {
+            const fallbackResponse = await fetch('/api/overpass', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: q })
+            });
+            if (!fallbackResponse.ok) throw new Error("プロキシサーバーとの通信に失敗しました");
+            data = await fallbackResponse.json();
+        } else {
+            data = await response.json();
+        }
+
+        // 取得したOSMデータを3Dマップ描画エンジンへ直接流し込む（ここで道路が描画されます）
+        if (data && (data.elements || data.features)) {
+            if (typeof initMap3D === "function") {
+                initMap3D(data);
+                console.log("[Map Render] 道路とマップの3Dオブジェクトを正常に再描画しました！");
+            }
+        } else {
+            console.warn("[Map Warning] 取得データが空か、形式が不正です", data);
+        }
+
+        lastFetchedCoords = { lat: currentLat, lon: currentLon };
+        
+        // 【自動設置トリガー】マップ読み込み時に目的地がまだ存在しなければ自動で生やす
+        if (window.activeDestinations.length === 0) {
+            autoSpawnNextDestination();
+        }
+
+    } catch (e) {
+        console.error("[Map Error] 道路の読み込みに失敗:", e.message);
+        if (typeof showMessage === "function") {
+            showMessage("電波が わるいようだ（マップ取得失敗）");
+        }
+    } finally {
+        isUpdatingMap = false;
+        if (btn) btn.textContent = "マップ更新";
+    }
+}
+
+// --- ストーリーのセーブ＆ロード機能（LocalStorage連動） ---
+
+function saveStoryProgress(chapterIndex) {
+    localStorage.setItem("sanpo_rpg_story_chapter", chapterIndex);
+    console.log(`[セーブ保存] ストーリーを第 ${chapterIndex} 章として保存。`);
+}
+
+function loadStoryProgress() {
+    const savedChapter = localStorage.getItem("sanpo_rpg_story_chapter");
+    if (savedChapter !== null) {
+        const chapterIndex = parseInt(savedChapter, 10);
+        console.log(`[セーブ再開] 前回のクリア状態（第 ${chapterIndex} 章）から再開します。`);
+        if (typeof currentStoryChapter !== "undefined") {
+            currentStoryChapter = chapterIndex;
+        }
+        return chapterIndex;
+    }
+    return 0; 
+}
+
+// --- 目的地の自動生成システム ---
+
+function autoSpawnNextDestination() {
+    if (window.activeDestinations.length > 0) return;
+
+    const currentChapter = typeof currentStoryChapter !== "undefined" ? currentStoryChapter : loadStoryProgress();
+
+    let destType = 'house';
+    let destName = 'たびびとの宿';
+
+    if (currentChapter === 1) {
+        destType = 'cave';
+        destName = '試練の洞窟';
+    } else if (currentChapter >= 2) {
+        destType = 'town';
+        destName = '未知の街';
+    }
+
+    console.log(`[自動目的地設定] 物語の進行（第 ${currentChapter} 章）に合わせ、150m先に【${destName}】を配置します。`);
+    spawnTargetDestination(destType, destName);
+}
+
+// --- 目的地生成・3D座標配置ロジック ---
+
+function spawnTargetDestination(type, name = "もくてきち") {
+    if (typeof baseCoords === "undefined" || !baseCoords) {
+        console.error("ベース座標が初期化されていないため設置を保留します。");
+        return;
+    }
+
+    const angle = Math.random() * Math.PI * 2;
+    const dx = Math.cos(angle) * window.DESTINATION_DISTANCE; 
+    const dz = Math.sin(angle) * window.DESTINATION_DISTANCE; 
+
+    const R = 6378137; 
+    const latScale = (Math.PI * R) / 180;
+    const lonScale = (Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180;
+    
+    const targetLon = baseCoords.lon + (dx / lonScale);
+    const targetLat = baseCoords.lat - (dz / latScale); 
+
+    const destGroup = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({ flatShading: true });
+
+    if (type === 'house') {
+        const bodyGeo = new THREE.BoxGeometry(4, 3, 4);
+        material.color.setHex(0xddaa77);
+        const body = new THREE.Mesh(bodyGeo, material.clone());
+        body.position.y = 1.5;
+        destGroup.add(body);
+
+        const roofGeo = new THREE.ConeGeometry(3.5, 2.5, 4); 
+        material.color.setHex(0xcc4433);
+        const roof = new THREE.Mesh(roofGeo, material.clone());
+        roof.position.y = 4.25;
+        roof.rotation.y = Math.PI / 4;
+        destGroup.add(roof);
+    } else if (type === 'town') {
+        const buildingLayouts = [
+            { x: -2, z: -2, h: 4, w: 2, c: 0x5588aa },
+            { x: 2, z: -1, h: 6, w: 2.5, c: 0x6699bb }
+        ];
+        buildingLayouts.forEach(b => {
+            const bGeo = new THREE.BoxGeometry(b.w, b.h, b.w);
+            const bMat = material.clone();
+            bMat.color.setHex(b.c);
+            const mesh = new THREE.Mesh(bGeo, bMat);
+            mesh.position.set(b.x, b.h / 2, b.z);
+            destGroup.add(mesh);
+        });
+    } else if (type === 'cave') {
+        const rockGeo = new THREE.DodecahedronGeometry(3, 0); 
+        material.color.setHex(0x666666);
+        const mainRock = new THREE.Mesh(rockGeo, material.clone());
+        mainRock.position.set(0, 1.5, 0);
+        destGroup.add(mainRock);
+    }
+
+    if (typeof slimeGroup !== "undefined" && slimeGroup) {
+        destGroup.position.set(slimeGroup.position.x + dx, 0, slimeGroup.position.z + dz);
+    } else {
+        destGroup.position.set(dx, 0, dz);
+    }
+    
+    destGroup.userData = { name: name, type: type, lat: targetLat, lon: targetLon };
+
+    if (typeof scene !== "undefined" && scene) {
+        scene.add(destGroup);
+        window.activeDestinations.push(destGroup);
+    }
+
+    if (typeof showMessage === "function") {
+        showMessage(`${name} が 150m さきに 現れた！`);
+    }
+}
+
+// --- プレイヤー追従・リアルタイム距離トラッカー ---
+
+function updateDestinationDistanceTracker() {
+    if (!window.activeDestinations || window.activeDestinations.length === 0) return;
+    if (typeof slimeGroup === "undefined" || !slimeGroup) return;
+
+    for (let i = window.activeDestinations.length - 1; i >= 0; i--) {
+        const dest = window.activeDestinations[i];
+        if (!dest) continue;
+
+        const dx = dest.position.x - slimeGroup.position.x;
+        const dz = dest.position.z - slimeGroup.position.z;
+        const currentDistance = Math.sqrt(dx * dx + dz * dz);
+
+        // 40m以内に入ったらクリア・到達判定
+        if (currentDistance <= 40) {
+            if (typeof showMessage === "function") {
+                showMessage(`${dest.userData.name} に とうちゃくした！`);
+            }
+            
+            if (typeof scene !== "undefined" && scene) {
+                scene.remove(dest);
+            }
+            window.activeDestinations.splice(i, 1);
+
+            // クリア時に進行度をインクリメントして記憶
+            if (typeof currentStoryChapter !== "undefined") {
+                currentStoryChapter++;
+                saveStoryProgress(currentStoryChapter);
+            }
+
+            // 次の目的地を3秒後に自動的に再セット
+            setTimeout(() => { autoSpawnNextDestination(); }, 3000);
+        }
+    }
+}
+
+// ページロード時に前回のクリアセーブデータを自動ロード
+document.addEventListener("DOMContentLoaded", () => {
+    loadStoryProgress();
+});
+/**
+ * 150m先（またはプレイヤーの目の前）に目的地オブジェクトを生成してシーンに追加する関数
+ */
+function spawnTargetDestination(type = 'house', name = "もくてきち") {
+    if (typeof scene === "undefined" || !scene) {
+        console.error("sceneが定義されていません。");
+        return;
+    }
+    if (typeof slimeGroup === "undefined" || !slimeGroup) {
+        console.error("プレイヤー（slimeGroup）が見つかりません。");
+        return;
+    }
+
+    // 150m先のオフセット位置を計算（ランダムな方向）
+    const distance = 150;
+    const angle = Math.random() * Math.PI * 2;
+    const dx = Math.cos(angle) * distance;
+    const dz = Math.sin(angle) * distance;
+
+    // 目的地の3Dグループを作成
+    const destGroup = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({ color: 0xcc4433, flatShading: true });
+
+    // 土台（家）のポリゴン
+    const bodyGeo = new THREE.BoxGeometry(4, 3, 4);
+    const body = new THREE.Mesh(bodyGeo, material);
+    body.position.y = 1.5;
+    destGroup.add(body);
+
+    // 屋根のポリゴン
+    const roofGeo = new THREE.ConeGeometry(3.5, 2.5, 4);
+    const roof = new THREE.Mesh(roofGeo, new THREE.MeshStandardMaterial({ color: 0xddaa77, flatShading: true }));
+    roof.position.y = 4.25;
+    roof.rotation.y = Math.PI / 4;
+    destGroup.add(roof);
+
+    // プレイヤーの位置を基準にして座標を設定
+    destGroup.position.set(slimeGroup.position.x + dx, 0, slimeGroup.position.z + dz);
+    
+    // データの保持
+    destGroup.userData = { name: name, type: type };
+
+    // シーンと管理配列（window.activeDestinations）に追加
+    scene.add(destGroup);
+    if (!window.activeDestinations) window.activeDestinations = [];
+    window.activeDestinations.push(destGroup);
+
+    console.log(`[目的地配置] ${name} を3D空間（X:${destGroup.position.x.toFixed(1)}, Z:${destGroup.position.z.toFixed(1)}）に配置しました。`);
+    
+    if (typeof showMessage === "function") {
+        showMessage(`${name} が 150m さきに 現れた！`);
+    }
+}
+// =========================================================================
+// 【デバッグ用】オブジェクト強制出現システム（追加専用）
+// =========================================================================
+
+/**
+ * 起動時やマップ更新時に、プレイヤーのすぐ近くにポリゴンを強制出現させる
+ */
+function forceSpawnTestDestination() {
+    if (typeof scene === "undefined" || !scene) return;
+    if (typeof slimeGroup === "undefined" || !slimeGroup) return;
+
+    // すでにテストオブジェクトが存在していれば二重に作らない
+    if (scene.getObjectByName("debug_test_house")) return;
+
+    console.log("[Debug] 2963個のデータは届いているため、描画テスト用のポリゴンを生成します。");
+
+    // 3Dグループの作成
+    const testGroup = new THREE.Group();
+    testGroup.name = "debug_test_house";
+    
+    // フラットシェーディング（ローポリ感）のマテリアル
+    const material = new THREE.MeshStandardMaterial({ color: 0xeeaa66, flatShading: true });
+
+    // 1. 家の土台（ボックス）
+    const bodyGeo = new THREE.BoxGeometry(5, 4, 5);
+    const body = new THREE.Mesh(bodyGeo, material);
+    body.position.y = 2; // 地面の上にのせる
+    testGroup.add(body);
+
+    // 2. 屋根（コーン）
+    const roofGeo = new THREE.ConeGeometry(4.5, 3, 4);
+    const roofMat = new THREE.MeshStandardMaterial({ color: 0xdd4433, flatShading: true });
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 5.5;
+    roof.rotation.y = Math.PI / 4; // 向きを少し傾ける
+    testGroup.add(roof);
+
+    // 3. 配置場所（プレイヤーの目の前：Xに+15、Zに-15ずらした位置）
+    testGroup.position.set(slimeGroup.position.x + 15, 0, slimeGroup.position.z - 15);
+
+    // シーンに追加
+    scene.add(testGroup);
+    
+    // 管理用配列が存在すればそこにも入れておく
+    if (window.activeDestinations) {
+        window.activeDestinations.push(testGroup);
+    }
+
+    if (typeof showMessage === "function") {
+        showMessage("2963この データをたよりに\nテストオブジェクトを 生成した！");
+    }
+}
+
+// プレイヤーが動いた時や、1秒ごとに強制配置チェックを掛ける安全弁
+setInterval(() => {
+    if (typeof slimeGroup !== "undefined" && slimeGroup) {
+        forceSpawnTestDestination();
+    }
+}, 2000);s
 </script>
 </body>
 </html>
