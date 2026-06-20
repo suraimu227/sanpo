@@ -1235,7 +1235,7 @@
             scene.add(sunLight);
 
             scene.add(cloudGroup);
-            scene.fog = null;
+            scene.fog = new THREE.FogExp2(0x1a2230, 0.003);
 
             loadGame();
             initQuestState();
