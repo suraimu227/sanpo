@@ -1246,18 +1246,6 @@
                 if (!storyState.tutorialDone.start) showTutorialChapter(TUTORIAL_CHAPTERS[0]);
             }, 1200);
             animate();
-            pollPing();
-        }
-
-        async function pollPing() {
-            try {
-                const t0 = performance.now();
-                await fetch('/api/ping');
-                lastPingMs = Math.round(performance.now() - t0);
-            } catch (e) {
-                lastPingMs = '?';
-            }
-            setTimeout(pollPing, 5000);
         }
 
         // 道路を細いクァッドリボンで描画（LineSegmentsより太く・前回リボンより軽量）
