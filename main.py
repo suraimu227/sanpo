@@ -17,6 +17,8 @@ if os.path.exists(static_path):
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
     index_path = os.path.join(current_dir, "index.html")
+    if not os.path.exists(index_path):
+        index_path = os.path.join(current_dir, "main", "index.html")
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
             return f.read()
@@ -28,6 +30,11 @@ async def favicon():
     if os.path.exists(target):
         return FileResponse(target)
     return HTMLResponse(status_code=404)
+
+@app.get("/api/ping")
+async def ping():
+    """超高速 ping エンドポイント（レイテンシー計測用）"""
+    return {"status": "ok"}
 
 @app.get("/api/overpass")
 async def proxy_overpass(data: str = Query(...)):

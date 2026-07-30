@@ -75,6 +75,17 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
+        #perf-display {
+            font-size: 9px;
+            color: #0ff;
+            margin-top: 5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding-top: 4px;
+            text-align: left;
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+        }
+
         #bag-gui {
             position: absolute;
             bottom: 24px;
@@ -623,12 +634,13 @@
     <div id="gui" class="glass-panel">
         <span id="clock-text">00:00</span>
         <div id="weather-info">LOADING...</div>
-        <button id="debug-update-btn" onclick="manualUpdate()">更新(デバッグ)</button>
-        <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="setManualPos()">位置を手入力する</button>
-        <button id="debug-update-btn" style="font-size:8px; margin-top:4px;" onclick="retryGps()">GPS再取得</button>
+        <button id="debug-update-btn" style="display:none;" onclick="manualUpdate()">更新(デバッグ)</button>
+        <button id="debug-update-btn" style="display:none; font-size:8px; margin-top:4px;" onclick="setManualPos()">位置を手入力する</button>
+        <button id="debug-update-btn" style="display:none; font-size:8px; margin-top:4px;" onclick="retryGps()">GPS再取得</button>
         <div id="debug-log"
-            style="font-size:8px; color:#0f0; margin-top:4px; text-align:left; border-top:1px solid rgba(255,255,255,0.15); padding-top:4px;">
+            style="display:none; font-size:8px; color:#0f0; margin-top:4px; text-align:left; border-top:1px solid rgba(255,255,255,0.15); padding-top:4px;">
             Log: Wait GPS</div>
+        <div id="perf-display">FPS: --</div>
     </div>
 
     <div id="bag-gui">
@@ -784,16 +796,16 @@
         let currentBattleMonster = null;
         const playerState = {
             job: "戦士",
-            lv: 1,
+            lv: 99,
             exp: 0,
-            nextExp: 20,
-            maxHp: 30,
-            hp: 30,
-            maxMp: 10,
-            mp: 10,
-            atk: 12,
-            def: 6,
-            gold: 100,
+            nextExp: 9999,
+            maxHp: 999,
+            hp: 999,
+            maxMp: 999,
+            mp: 999,
+            atk: 999,
+            def: 999,
+            gold: 9999999,
             maxCost: 10,
             equipment: { weapon: null, shield: null, heart: null },
             homeSet: false,
@@ -819,6 +831,7 @@
         let questDone = {};
         const defeatEffects = [];
         let homeSpotGroup = null;
+        let lastPingMs = '--';
 
         const R = 6378137;
         const MAP_RADIUS = 560;
@@ -841,54 +854,62 @@
         }
 
         function applyTimeAndWeather() {
-            updateTimePeriod();
-
-            const config = {
-                day: {
-                    clear: { bg: 0xaaccff, fog: 0xaaccff, fogDensity: 0.003, ambient: 0xcccccc, sun: 0xffffff, sunIntensity: 0.8 },
-                    cloudy: { bg: 0x90a0b0, fog: 0x90a0b0, fogDensity: 0.005, ambient: 0x888888, sun: 0xaaaaaa, sunIntensity: 0.4 },
-                    rain: { bg: 0x708090, fog: 0x708090, fogDensity: 0.007, ambient: 0x666666, sun: 0x888888, sunIntensity: 0.2 },
-                    snow: { bg: 0xd0d8e0, fog: 0xd0d8e0, fogDensity: 0.006, ambient: 0xaaaaaa, sun: 0xcccccc, sunIntensity: 0.3 },
-                    fog: { bg: 0xcccccc, fog: 0xcccccc, fogDensity: 0.022, ambient: 0x888888, sun: 0x999999, sunIntensity: 0.1 }
-                },
-                sunset: {
-                    clear: { bg: 0xfd5e53, fog: 0xfd5e53, fogDensity: 0.004, ambient: 0xaa8877, sun: 0xffaa44, sunIntensity: 0.7 },
-                    cloudy: { bg: 0xaa7766, fog: 0xaa7766, fogDensity: 0.006, ambient: 0x886655, sun: 0xcc8855, sunIntensity: 0.3 },
-                    rain: { bg: 0x775555, fog: 0x775555, fogDensity: 0.008, ambient: 0x554444, sun: 0x885544, sunIntensity: 0.1 },
-                    snow: { bg: 0xaa8899, fog: 0xaa8899, fogDensity: 0.007, ambient: 0x776677, sun: 0xaa8899, sunIntensity: 0.2 },
-                    fog: { bg: 0xaa8888, fog: 0xaa8888, fogDensity: 0.022, ambient: 0x665555, sun: 0x886666, sunIntensity: 0.1 }
-                },
-                night: {
-                    clear: { bg: 0x070b12, fog: 0x070b12, fogDensity: 0.005, ambient: 0x223355, sun: 0x5577aa, sunIntensity: 0.3 },
-                    cloudy: { bg: 0x0a0c10, fog: 0x0a0c10, fogDensity: 0.007, ambient: 0x1d2636, sun: 0x3d4d6d, sunIntensity: 0.1 },
-                    rain: { bg: 0x05070a, fog: 0x05070a, fogDensity: 0.009, ambient: 0x111b2b, sun: 0x223350, sunIntensity: 0.05 },
-                    snow: { bg: 0x121722, fog: 0x121722, fogDensity: 0.008, ambient: 0x334466, sun: 0x556688, sunIntensity: 0.15 },
-                    fog: { bg: 0x10141d, fog: 0x10141d, fogDensity: 0.024, ambient: 0x1f283a, sun: 0x2f3e5c, sunIntensity: 0.05 }
-                }
-            };
-
-            const settings = config[currentPeriod][currentWeather] || config.day.clear;
-
-            if (renderer) renderer.setClearColor(settings.bg, 1);
-
-            if (scene) {
-                if (scene.fog) {
-                    scene.fog.color.setHex(settings.fog);
-                    scene.fog.density = settings.fogDensity;
+            function updateTimePeriod() {
+                const hour = new Date().getHours();
+                if (hour >= 6 && hour < 16) {
+                    currentPeriod = "day";
+                } else if (hour >= 16 && hour < 19) {
+                    currentPeriod = "sunset";
                 } else {
-                    scene.fog = new THREE.FogExp2(settings.fog, settings.fogDensity);
+                    currentPeriod = "night";
                 }
             }
 
-            if (ambientLight) ambientLight.color.setHex(settings.ambient);
-            if (sunLight) {
-                sunLight.color.setHex(settings.sun);
-                sunLight.intensity = settings.sunIntensity;
-            }
+            function applyTimeAndWeather() {
+                updateTimePeriod();
+                const config = {
+                    day: { clear: { bg: 0xaaccff, ambient: 0xcccccc, sun: 0xffffff, sunIntensity: 0.8 } },
+                    sunset: { clear: { bg: 0xfd5e53, ambient: 0xaa8877, sun: 0xffaa44, sunIntensity: 0.7 } },
+                    night: { clear: { bg: 0x070b12, ambient: 0x223355, sun: 0x5577aa, sunIntensity: 0.3 } }
+                };
+                const settings = config[currentPeriod]?.clear || config.day.clear;
 
-            setupWeatherParticles();
-            setupCloudObjects();
+                if (renderer) {
+                    renderer.setClearColor(settings.bg, 1);
+                }
+
+                if (scene) {
+                    scene.fog = null;
+                }
+
+                if (ambientLight) {
+                    ambientLight.color.setHex(settings.ambient);
+                }
+                if (sunLight) {
+                    sunLight.color.setHex(settings.sun);
+                    sunLight.intensity = settings.sunIntensity;
+                }
+            }
         }
+
+
+
+
+        if (renderer) renderer.setClearColor(settings.bg, 1);
+
+        if (scene) {
+            scene.fog = null;
+        }
+
+        if (ambientLight) ambientLight.color.setHex(settings.ambient);
+        if (sunLight) {
+            sunLight.color.setHex(settings.sun);
+            sunLight.intensity = settings.sunIntensity;
+        }
+
+        setupWeatherParticles();
+        setupCloudObjects();
+
 
         function setupWeatherParticles() {
             if (weatherParticleSystem) {
@@ -1052,7 +1073,8 @@
 
             const shape = new THREE.Shape(pts2D);
             const buildingGeom = new THREE.ShapeGeometry(shape);
-            const buildingMesh = new THREE.Mesh(buildingGeom, buildingFillMaterial.clone());
+            // マテリアルを共有（クローンしない）→ 黒ずみ防止＋メモリ節約
+            const buildingMesh = new THREE.Mesh(buildingGeom, buildingFillMaterial);
             buildingMesh.rotation.x = Math.PI / 2;
             buildingMesh.position.y = 0.26;
             buildingMesh.userData = {
@@ -1068,64 +1090,14 @@
             const lineGeom = new THREE.BufferGeometry().setFromPoints(
                 outlinePts.map(p => new THREE.Vector3(p.x, 0.28, p.y))
             );
-            const line = new THREE.Line(lineGeom, buildingLineMaterial.clone());
+            // アウトラインも共有マテリアル（クローンなし）
+            const line = new THREE.Line(lineGeom, buildingLineMaterial);
             const centerX = pts2D.reduce((sum, p) => sum + p.x, 0) / pts2D.length;
             const centerZ = pts2D.reduce((sum, p) => sum + p.y, 0) / pts2D.length;
             line.userData = { id: el.id, type: "building_line", center: { x: centerX, z: centerZ } };
-            line.material.transparent = true;
-            line.material.opacity = 0;
             mapLayer.add(line);
             buildingOutlineLines.push(line);
         }
-
-        function createRoadMesh(el, pts2D, roadMaterial) {
-            if (loadedMapElements.has(el.id)) return;
-            loadedMapElements.add(el.id);
-
-            const halfWidth = 4.8;
-            const pts = pts2D;
-            if (pts.length < 2) return;
-
-            const segLeft = [];
-            const segRight = [];
-            for (let i = 0; i < pts.length; i++) {
-                const prev = pts[Math.max(0, i - 1)];
-                const next = pts[Math.min(pts.length - 1, i + 1)];
-                const dir = new THREE.Vector2(next.x - prev.x, next.y - prev.y);
-                if (dir.lengthSq() < 0.0001) continue;
-                dir.normalize();
-                const n = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(halfWidth);
-                segLeft.push(pts[i].x + n.x, 0.245, pts[i].y + n.y);
-                segRight.push(pts[i].x - n.x, 0.245, pts[i].y - n.y);
-            }
-
-            const count = segLeft.length / 3;
-            if (count < 2) return;
-
-            const allPos = [];
-            const allIdx = [];
-            for (let i = 0; i < count - 1; i++) {
-                const a = i * 2;
-                allIdx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-            }
-            for (let i = 0; i < count; i++) {
-                allPos.push(segLeft[i * 3], segLeft[i * 3 + 1], segLeft[i * 3 + 2]);
-                allPos.push(segRight[i * 3], segRight[i * 3 + 1], segRight[i * 3 + 2]);
-            }
-
-            const geom = new THREE.BufferGeometry();
-            geom.setAttribute("position", new THREE.Float32BufferAttribute(allPos, 3));
-            geom.setIndex(allIdx);
-
-            const mat = roadMaterial.clone();
-            mat.transparent = true;
-            mat.opacity = 0;
-
-            const mesh = new THREE.Mesh(geom, mat);
-            mesh.userData = { id: el.id, type: "road", animProgress: 0 };
-            roadLayer.add(mesh);
-        }
-
         function cleanupRemoteMapElements() {
             if (!slimeGroup) return;
             const cleanupDistance = 700;
@@ -1176,12 +1148,18 @@
                         roadLayer.remove(child);
                         child.geometry.dispose();
                         if (child.material) child.material.dispose();
-                        if (child.userData && child.userData.id) {
-                            loadedMapElements.delete(child.userData.id);
+                        if (child.userData) {
+                            if (child.userData.id) {
+                                loadedMapElements.delete(child.userData.id);
+                            }
+                            if (child.userData.ids) {
+                                child.userData.ids.forEach(id => loadedMapElements.delete(id));
+                            }
                         }
                     }
                 }
             }
+            if (typeof createObjects === 'function') createObjects();
         }
 
         function init() {
@@ -1268,52 +1246,108 @@
                 if (!storyState.tutorialDone.start) showTutorialChapter(TUTORIAL_CHAPTERS[0]);
             }, 1200);
             animate();
+            pollPing();
         }
 
-        function buildBatchedRoadMesh(segments, maxWays = 130, halfWidth = 5.8) {
+        async function pollPing() {
+            try {
+                const t0 = performance.now();
+                await fetch('/api/ping');
+                lastPingMs = Math.round(performance.now() - t0);
+            } catch (e) {
+                lastPingMs = '?';
+            }
+            setTimeout(pollPing, 5000);
+        }
+
+        // 道路を細いクァッドリボンで描画（LineSegmentsより太く・前回リボンより軽量）
+        function buildRoadLines(segments, maxWays = 200, halfW = 2.5) {
             const allPos = [];
             const allIdx = [];
             let vOff = 0;
             const sorted = segments.slice().sort((a, b) => b.length - a.length).slice(0, maxWays);
             for (const pts of sorted) {
                 if (pts.length < 2) continue;
-                const segLeft = [];
-                const segRight = [];
-                for (let i = 0; i < pts.length; i++) {
-                    const prev = pts[Math.max(0, i - 1)];
-                    const next = pts[Math.min(pts.length - 1, i + 1)];
-                    const dir = new THREE.Vector2(next.x - prev.x, next.y - prev.y);
-                    if (dir.lengthSq() < 0.0001) continue;
-                    dir.normalize();
-                    const n = new THREE.Vector2(-dir.y, dir.x).multiplyScalar(halfWidth);
-                    segLeft.push(pts[i].x + n.x, 0.245, pts[i].y + n.y);
-                    segRight.push(pts[i].x - n.x, 0.245, pts[i].y - n.y);
+                for (let i = 0; i < pts.length - 1; i++) {
+                    const ax = pts[i].x, az = pts[i].y;
+                    const bx = pts[i + 1].x, bz = pts[i + 1].y;
+                    const dx = bx - ax, dz = bz - az;
+                    const len = Math.sqrt(dx * dx + dz * dz);
+                    if (len < 0.001) continue;
+                    const nx = (-dz / len) * halfW, nz = (dx / len) * halfW;
+                    // 4 vertices: left0, right0, left1, right1
+                    allPos.push(
+                        ax + nx, 0.27, az + nz,
+                        ax - nx, 0.27, az - nz,
+                        bx + nx, 0.27, bz + nz,
+                        bx - nx, 0.27, bz - nz
+                    );
+                    allIdx.push(vOff, vOff + 1, vOff + 2, vOff + 1, vOff + 3, vOff + 2);
+                    vOff += 4;
                 }
-                const count = segLeft.length / 3;
-                if (count < 2) continue;
-                for (let i = 0; i < count - 1; i++) {
-                    const a = vOff + i * 2;
-                    allIdx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-                }
-                for (let i = 0; i < count; i++) {
-                    allPos.push(segLeft[i * 3], segLeft[i * 3 + 1], segLeft[i * 3 + 2]);
-                    allPos.push(segRight[i * 3], segRight[i * 3 + 1], segRight[i * 3 + 2]);
-                }
-                vOff += count * 2;
             }
             if (!allPos.length) return null;
             const geom = new THREE.BufferGeometry();
-            geom.setAttribute("position", new THREE.Float32BufferAttribute(allPos, 3));
+            geom.setAttribute('position', new THREE.Float32BufferAttribute(allPos, 3));
             geom.setIndex(allIdx);
-            const mat = new THREE.MeshLambertMaterial({
-                color: 0x707a88,
-                emissive: 0x1a2230,
-                emissiveIntensity: 0.35,
+            return new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ color: 0x6b7c8a }));
+        }
+
+        const mapDataCache = {};
+
+        function processMapData(data) {
+            // MeshBasicMaterial: 照明計算なし→ 黒ずみ完全防止
+            // RPGファンタジー石造り建物カラー（暖色系アンバーストーン）
+            const buildingFillMaterial = new THREE.MeshBasicMaterial({
+                color: 0x4a3728,  // 深い琥珀石
+                side: THREE.DoubleSide,
                 polygonOffset: true,
                 polygonOffsetFactor: -1,
-                polygonOffsetUnits: -1
+                polygonOffsetUnits: -2
             });
-            return new THREE.Mesh(geom, mat);
+            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xd4a85a, transparent: true, opacity: 0.6 }); // ゴールド輪郭
+            // 道路: 暗いアスファルト調
+            const roadLineMaterial = new THREE.MeshBasicMaterial({ color: 0x5a6a78 });
+
+            const newRoadSegments = [];
+            const newRoadIds = [];
+
+            data.elements.forEach(el => {
+                if (!el.geometry || !el.tags) return;
+
+                const pts2D = el.geometry.map(p => {
+                    const dx = (p.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
+                    const dz = -(p.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
+                    return new THREE.Vector2(dx, dz);
+                });
+
+                if (el.tags.building) {
+                    if (pts2D.length < 3) return;
+                    createBuildingMesh(el, pts2D, baseCoords, buildingFillMaterial, buildingLineMaterial);
+                } else if (el.tags.highway) {
+                    if (pts2D.length < 2) return;
+                    if (!loadedMapElements.has(el.id)) {
+                        loadedMapElements.add(el.id);
+                        newRoadSegments.push(pts2D);
+                        newRoadIds.push(el.id);
+                    }
+                }
+            });
+
+            if (newRoadSegments.length > 0) {
+                const roadLines = buildRoadLines(newRoadSegments);
+                if (roadLines) {
+                    roadLines.userData = { type: "road", ids: newRoadIds };
+                    roadLines.material = roadLineMaterial;
+                    roadLayer.add(roadLines);
+                }
+            }
+
+            // 遠方の不要なマップ要素を破棄
+            cleanupRemoteMapElements();
+
+            if (spots.length === 0 && monsters.length === 0) createObjects();
+            else if (playerState.homeCoords) createHomeMarker();
         }
 
         async function fetchMapData(lat, lon) {
@@ -1323,6 +1357,18 @@
                 document.getElementById('map-loading').classList.remove('visible');
                 return;
             }
+
+            // 300mごとのグリッド（緯度経度約0.003度刻み）でキャッシュ判定
+            const gridLat = Math.round(lat * 333);
+            const gridLon = Math.round(lon * 333);
+            const cacheKey = `${gridLat}_${gridLon}`;
+
+            if (mapDataCache[cacheKey]) {
+                addLog(`Cache Hit: ${cacheKey}`);
+                processMapData(mapDataCache[cacheKey]);
+                return;
+            }
+
             isFetching = true;
             lastFetchedCoords = { lat, lon };
             addLog(`Fetch: ${lat.toFixed(4)},${lon.toFixed(4)}`);
@@ -1354,51 +1400,10 @@
                     addLog(`Got ${data.elements.length} items`);
                 }
 
-                // レイヤーのクリア（clear()）を廃止し、新規要素のみを追加するように変更
-                const buildingFillMaterial = new THREE.MeshLambertMaterial({
-                    color: 0x5b6672,
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                    opacity: 0, // フェードインされるので初期値0
-                    polygonOffset: true,
-                    polygonOffsetFactor: -1,
-                    polygonOffsetUnits: -2
-                });
-                const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xbfc6cf });
-                const roadMaterial = new THREE.MeshLambertMaterial({
-                    color: 0x707a88,
-                    emissive: 0x1a2230,
-                    emissiveIntensity: 0.35,
-                    polygonOffset: true,
-                    polygonOffsetFactor: -1,
-                    polygonOffsetUnits: -1,
-                    transparent: true,
-                    opacity: 0 // フェードインされるので初期値0
-                });
+                // キャッシュに保存
+                mapDataCache[cacheKey] = data;
 
-                data.elements.forEach(el => {
-                    if (!el.geometry || !el.tags) return;
-
-                    const pts2D = el.geometry.map(p => {
-                        const dx = (p.lon - baseCoords.lon) * ((Math.PI * R * Math.cos(baseCoords.lat * Math.PI / 180)) / 180);
-                        const dz = -(p.lat - baseCoords.lat) * ((2 * Math.PI * R) / 360);
-                        return new THREE.Vector2(dx, dz);
-                    });
-
-                    if (el.tags.building) {
-                        if (pts2D.length < 3) return;
-                        createBuildingMesh(el, pts2D, baseCoords, buildingFillMaterial, buildingLineMaterial);
-                    } else if (el.tags.highway) {
-                        if (pts2D.length < 2) return;
-                        createRoadMesh(el, pts2D, roadMaterial);
-                    }
-                });
-
-                // 遠方の不要なマップ要素を破棄
-                cleanupRemoteMapElements();
-
-                if (spots.length === 0 && monsters.length === 0) createObjects();
-                else if (playerState.homeCoords) createHomeMarker();
+                processMapData(data);
             } catch (e) {
                 addLog("API Error: " + e.message);
                 showMessage("ちずの よみこみに しっぱい");
@@ -2405,9 +2410,7 @@
                 if (code <= 3) {
                     currentWeather = "clear";
                     statusText = "晴れ";
-                } else if (code === 45 || code === 48) {
-                    currentWeather = "fog";
-                    statusText = "霧";
+
                 } else if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
                     currentWeather = "rain";
                     statusText = "雨";
@@ -2607,33 +2610,15 @@
             // 雲オブジェクトの更新
             updateCloudObjects();
 
-            // 建物と道路のフェードインアニメーション処理
+            // 建物のスケールアニメのみ（opacity操作なし→ マテリアル共有OK）
             mapLayer.children.forEach(child => {
                 if (child.userData && child.userData.animProgress !== undefined && child.userData.animProgress < 1) {
-                    child.userData.animProgress += 0.03; // フェードイン速度
-                    const t = child.userData.animProgress;
+                    child.userData.animProgress += 0.04;
+                    const t = Math.min(child.userData.animProgress, 1);
                     if (child.userData.type === "building") {
                         const targetScale = child.userData.targetScaleY;
                         child.scale.set(1, 1, 0.01 + (targetScale - 0.01) * t);
-                        child.material.opacity = 0.88 * t;
                     }
-                }
-            });
-
-            buildingOutlineLines.forEach(line => {
-                if (line.userData && line.userData.id) {
-                    const parent = mapLayer.children.find(c => c.userData.id === line.userData.id && c.userData.type === "building");
-                    if (parent) {
-                        line.material.opacity = parent.userData.animProgress;
-                    }
-                }
-            });
-
-            roadLayer.children.forEach(child => {
-                if (child.userData && child.userData.animProgress !== undefined && child.userData.animProgress < 1) {
-                    child.userData.animProgress += 0.03;
-                    const t = child.userData.animProgress;
-                    child.material.opacity = 0.85 * t;
                 }
             });
 
@@ -2655,13 +2640,48 @@
 
             fpsAccum += dt;
             fpsFrames += 1;
-            if (fpsAccum >= 600) {
-                const fps = (fpsFrames * 1000) / fpsAccum;
-                // 低FPS時は建物枠線を消して負荷を下げる
-                const shouldShow = fps > 30;
-                if (buildingOutlineVisible !== shouldShow) {
-                    buildingOutlineVisible = shouldShow;
+            if (fpsAccum >= 500) {
+                const fps = Math.round((fpsFrames * 1000) / fpsAccum);
+
+                // ===== 適応品質制御: 最低30FPS保証 =====
+                if (fps < 30) {
+                    // Lv1: 建物枠線を消す
+                    buildingOutlineVisible = false;
+                    // Lv2: 雲を非表示
+                    cloudGroup.visible = false;
+                    // Lv3: 建物アニメを即完了させる（毎フレームのスキャンを減らす）
+                    mapLayer.children.forEach(c => {
+                        if (c.userData && c.userData.animProgress !== undefined) {
+                            c.userData.animProgress = 1;
+                            if (c.userData.type === 'building') {
+                                c.scale.set(1, 1, c.userData.targetScaleY || 1);
+                            }
+                        }
+                    });
+                    // Lv4: 遠い建物を非表示
+                    mapLayer.children.forEach(c => {
+                        if (c.userData && c.userData.type === 'building') {
+                            const d = c.position.distanceTo(slimeGroup.position);
+                            c.visible = d < 300;
+                        }
+                    });
+                } else {
+                    // FPS回復時: 段階的に機能を戻す
+                    if (fps > 45) {
+                        cloudGroup.visible = true;
+                        buildingOutlineVisible = true;
+                        mapLayer.children.forEach(c => {
+                            if (c.userData && c.userData.type === 'building') c.visible = true;
+                        });
+                    } else if (fps > 35) {
+                        cloudGroup.visible = false; // 雲は重いので40以上で復帰
+                        buildingOutlineVisible = true;
+                    }
                 }
+
+                // FPS・Ping 表示更新
+                const perfEl = document.getElementById('perf-display');
+                if (perfEl) perfEl.textContent = `FPS: ${fps} | Ping: ${lastPingMs}ms`;
                 fpsAccum = 0;
                 fpsFrames = 0;
             }
@@ -2714,6 +2734,20 @@
                 controls.target.lerp(slimeGroup.position, 0.1);
                 controls.update();
             }
+
+            // ビーコンリングのアニメーション
+            if (window.activeDestinations && window.activeDestinations.length > 0) {
+                const dest = window.activeDestinations[0];
+                if (dest && dest.userData.ring) {
+                    dest.userData.ring.rotation.z += 0.015;
+                }
+                // HUDコンパス矢印を更新
+                updateDestCompass();
+            } else {
+                const compassEl = document.getElementById('dest-compass');
+                if (compassEl) compassEl.style.display = 'none';
+            }
+
             renderer.render(scene, camera);
         }
         init();
@@ -2940,58 +2974,30 @@
         document.addEventListener("DOMContentLoaded", () => {
             loadStoryProgress();
         });
-        /**
-         * 150m先（またはプレイヤーの目の前）に目的地オブジェクトを生成してシーンに追加する関数
-         */
-        function spawnTargetDestination(type = 'house', name = "もくてきち") {
-            if (typeof scene === "undefined" || !scene) {
-                console.error("sceneが定義されていません。");
-                return;
-            }
-            if (typeof slimeGroup === "undefined" || !slimeGroup) {
-                console.error("プレイヤー（slimeGroup）が見つかりません。");
-                return;
-            }
+        // 重複している古い spawnTargetDestination は削除し、上の完全版のみ使用
+        // ─────────────────────────────────────────
 
-            // 150m先のオフセット位置を計算（ランダムな方向）
-            const distance = 150;
-            const angle = Math.random() * Math.PI * 2;
-            const dx = Math.cos(angle) * distance;
-            const dz = Math.sin(angle) * distance;
-
-            // 目的地の3Dグループを作成
-            const destGroup = new THREE.Group();
-            const material = new THREE.MeshStandardMaterial({ color: 0xcc4433, flatShading: true });
-
-            // 土台（家）のポリゴン
-            const bodyGeo = new THREE.BoxGeometry(4, 3, 4);
-            const body = new THREE.Mesh(bodyGeo, material);
-            body.position.y = 1.5;
-            destGroup.add(body);
-
-            // 屋根のポリゴン
-            const roofGeo = new THREE.ConeGeometry(3.5, 2.5, 4);
-            const roof = new THREE.Mesh(roofGeo, new THREE.MeshStandardMaterial({ color: 0xddaa77, flatShading: true }));
-            roof.position.y = 4.25;
-            roof.rotation.y = Math.PI / 4;
-            destGroup.add(roof);
-
-            // プレイヤーの位置を基準にして座標を設定
-            destGroup.position.set(slimeGroup.position.x + dx, 0, slimeGroup.position.z + dz);
-
-            // データの保持
-            destGroup.userData = { name: name, type: type };
-
-            // シーンと管理配列（window.activeDestinations）に追加
-            scene.add(destGroup);
-            if (!window.activeDestinations) window.activeDestinations = [];
-            window.activeDestinations.push(destGroup);
-
-            console.log(`[目的地配置] ${name} を3D空間（X:${destGroup.position.x.toFixed(1)}, Z:${destGroup.position.z.toFixed(1)}）に配置しました。`);
-
-            if (typeof showMessage === "function") {
-                showMessage(`${name} が 150m さきに 現れた！`);
-            }
+        // HUDコンパス: 目的地方向・距離を常に表示
+        function updateDestCompass() {
+            if (!window.activeDestinations || !window.activeDestinations.length || !slimeGroup) return;
+            const compassEl = document.getElementById('dest-compass');
+            if (!compassEl) return;
+            const dest = window.activeDestinations[0];
+            const dx = dest.position.x - slimeGroup.position.x;
+            const dz = dest.position.z - slimeGroup.position.z;
+            const dist = Math.sqrt(dx * dx + dz * dz);
+            // カメラの向きを基準にした角度
+            const camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
+            const camAngle = Math.atan2(camDir.x, camDir.z);
+            const destAngle = Math.atan2(dx, dz);
+            const relAngle = destAngle - camAngle;
+            compassEl.style.display = 'flex';
+            const arrow = compassEl.querySelector('#compass-arrow');
+            if (arrow) arrow.style.transform = `rotate(${relAngle}rad)`;
+            const distEl = compassEl.querySelector('#compass-dist');
+            if (distEl) distEl.textContent = dist < 1000 ? `${Math.round(dist)}m` : `${(dist / 1000).toFixed(1)}km`;
+            const nameEl = compassEl.querySelector('#compass-name');
+            if (nameEl) nameEl.textContent = dest.userData.name || 'もくてきち';
         }
 
     </script>
