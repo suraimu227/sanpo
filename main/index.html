@@ -743,6 +743,8 @@
         const clouds = [];
         const cloudGroup = new THREE.Group();
         const loadedMapElements = new Set();
+        const animatingBuildings = [];
+        let lastVisibilityUpdatePos = new THREE.Vector3(99999, 99999, 99999);
         const mouse = new THREE.Vector2();
         const inventory = [];
         const ITEM_POOL = ["やくそう", "どうのつるぎ", "かわのたて", "どくけしそう", "スライムゼリー", "スライムコイン"];
@@ -1077,14 +1079,18 @@
             const buildingMesh = new THREE.Mesh(buildingGeom, buildingFillMaterial);
             buildingMesh.rotation.x = Math.PI / 2;
             buildingMesh.position.y = 0.26;
+            const centerX = pts2D.reduce((sum, p) => sum + p.x, 0) / pts2D.length;
+            const centerZ = pts2D.reduce((sum, p) => sum + p.y, 0) / pts2D.length;
             buildingMesh.userData = {
                 id: el.id,
                 type: "building",
+                center: { x: centerX, z: centerZ },
                 animProgress: 0,
                 targetScaleY: 1.0 + Math.random() * 2.0
             };
             buildingMesh.scale.set(1, 1, 0.01);
             mapLayer.add(buildingMesh);
+            animatingBuildings.push(buildingMesh);
 
             const outlinePts = [...pts2D, pts2D[0]];
             const lineGeom = new THREE.BufferGeometry().setFromPoints(
@@ -1092,8 +1098,6 @@
             );
             // アウトラインも共有マテリアル（クローンなし）
             const line = new THREE.Line(lineGeom, buildingLineMaterial);
-            const centerX = pts2D.reduce((sum, p) => sum + p.x, 0) / pts2D.length;
-            const centerZ = pts2D.reduce((sum, p) => sum + p.y, 0) / pts2D.length;
             line.userData = { id: el.id, type: "building_line", center: { x: centerX, z: centerZ } };
             mapLayer.add(line);
             buildingOutlineLines.push(line);
