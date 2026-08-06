@@ -201,15 +201,140 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
         }
 
+        /* =========================================================
+           タイトル画面（保留中）
+        ========================================================= */
+        #title-screen {
+            display: none !important;
+        }
+
+        #title-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #title-screen.hidden {
+            display: none;
+        }
+
+        .title-logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(18px, 5vw, 36px);
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.4);
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: title-pulse 2.5s ease-in-out infinite;
+        }
+
+        .title-sub {
+            font-family: 'DotGothic16', cursive;
+            font-size: clamp(11px, 2.5vw, 16px);
+            color: rgba(0, 220, 255, 0.7);
+            letter-spacing: 4px;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        @keyframes title-pulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.4);
+            }
+
+            50% {
+                text-shadow: 0 0 30px rgba(0, 255, 255, 1.0), 0 0 60px rgba(0, 255, 255, 0.6), 0 0 80px rgba(0, 200, 255, 0.3);
+            }
+        }
+
+        .title-loading-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-loading-label {
+            font-family: 'DotGothic16', cursive;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            animation: blink 1.2s step-end infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.1;
+            }
+        }
+
+        .title-bar-outer {
+            width: 220px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .title-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00b4ff, #00ffcc);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(0, 180, 255, 0.6);
+        }
+
+        /* 星パーティクル背景 */
+        #title-stars {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .t-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--d) ease-in-out infinite var(--delay);
+            opacity: 0;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            50% {
+                opacity: var(--op);
+                transform: scale(1.4);
+            }
+        }
+
+        /* DQW風 ロード画面 */
         #map-loading {
             position: fixed;
             inset: 0;
-            z-index: 2000;
+            z-index: 9999;
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(5, 8, 17, 0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
         }
 
         #map-loading.visible {
@@ -217,59 +342,78 @@
         }
 
         .load-window {
-            background: rgba(10, 16, 28, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 25px;
+            background: #0b1526;
+            border: 3px solid #f3c85c;
+            outline: 2px solid #000000;
+            border-radius: 8px;
+            padding: 22px 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(0, 0, 0, 0.8);
+            gap: 14px;
+            min-width: 240px;
+            color: #ffffff;
+            font-family: 'DotGothic16', cursive;
         }
 
-        .load-text {
-            color: #fff;
-            font-size: 12px;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
+        .load-title {
+            color: #f3c85c;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .load-pct {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0 #000;
+            font-family: 'Press Start 2P', 'DotGothic16', monospace;
         }
 
         .small-load-bar {
-            width: 180px;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 220px;
+            height: 12px;
+            border-radius: 6px;
+            background: #050a12;
+            border: 2px solid #ffffff;
             position: relative;
             overflow: hidden;
+            box-shadow: inset 0 0 4px #000;
         }
 
         .small-load-fill {
             height: 100%;
-            width: 60px;
-            background: #00b4ff;
-            border-radius: 4px;
-            position: absolute;
-            animation: bar-move 1.2s linear infinite;
+            width: 0%;
+            background: linear-gradient(90deg, #ffd700, #ff9900);
+            border-radius: 3px;
+            transition: width 0.08s linear;
         }
 
+        /* スマホ対応 戦闘画面UI */
         .battle-window {
             position: fixed;
             z-index: 2200;
             display: none;
+            box-sizing: border-box;
         }
 
         #battle-status-window {
-            left: 5%;
-            top: 20px;
-            width: 90%;
-            max-width: 480px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 15px;
+            width: 92%;
+            max-width: 440px;
         }
 
         #battle-command-window {
-            bottom: 20px;
-            left: 5%;
-            width: 90%;
-            max-width: 480px;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 15px;
+            width: 92%;
+            max-width: 440px;
         }
 
         #battle-title {
@@ -619,6 +763,21 @@
 
 <body>
 
+    <!-- ===== タイトル画面 ===== -->
+    <div id="title-screen">
+        <div id="title-stars"></div>
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;">
+            <div class="title-logo">DQW 3D</div>
+            <div class="title-sub">SANPO ADVENTURE</div>
+            <div class="title-loading-wrap">
+                <div class="title-loading-label" id="title-load-label">NOW LOADING...</div>
+                <div class="title-bar-outer">
+                    <div class="title-bar-fill" id="title-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="status-bar" class="glass-panel">
         <div id="status-lv">Lv 1</div>
         <div id="status-hp-bar">
@@ -698,12 +857,11 @@
 
     <div id="map-loading">
         <div class="load-window">
-            <div class="load-text">ちず よみこみちゅう...</div>
+            <div class="load-title">【 ちずの よみこみ 】</div>
+            <div class="load-pct" id="map-load-pct">0.0%</div>
             <div class="small-load-bar">
-                <div class="small-load-fill"></div>
+                <div class="small-load-fill" id="map-load-fill"></div>
             </div>
-            <button onclick="document.getElementById('map-loading').classList.remove('visible')"
-                style="margin-top:15px; background:#444; color:#fff; border:1px solid #fff; font-size:10px;">とじる(強制)</button>
         </div>
     </div>
 
@@ -1176,8 +1334,8 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             document.body.appendChild(renderer.domElement);
 
-            roadLayer = new THREE.Group(); scene.add(roadLayer);
-            mapLayer = new THREE.Group(); scene.add(mapLayer);
+            roadLayer = new THREE.Group(); roadLayer.renderOrder = 2; scene.add(roadLayer);
+            mapLayer = new THREE.Group(); mapLayer.renderOrder = 1; scene.add(mapLayer);
 
             // Ground
             const canvas = document.createElement('canvas');
@@ -1232,9 +1390,36 @@
             window.addEventListener('beforeunload', () => saveGame(true));
 
             renderer.domElement.addEventListener('pointerdown', (e) => {
+                if (e.target !== renderer.domElement) return;
+
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
+
+                // 60m以内の敵モンスターをタップして引き寄せる仕様
+                const monsterMeshes = monsters.filter(m => m.active).map(m => m.group);
+                const intersects = raycaster.intersectObjects(monsterMeshes, true);
+                if (intersects.length > 0) {
+                    let hitObj = intersects[0].object;
+                    while (hitObj.parent && !monsters.some(m => m.group === hitObj)) {
+                        hitObj = hitObj.parent;
+                    }
+                    const clickedMonster = monsters.find(m => m.group === hitObj);
+                    if (clickedMonster && clickedMonster.active && slimeGroup) {
+                        const dist = slimeGroup.position.distanceTo(clickedMonster.group.position);
+                        if (dist <= 60) {
+                            clickedMonster.isChasingPlayer = true;
+                            clickedMonster.mark.visible = true;
+                            showMessage(`【${clickedMonster.stats.name}】が こちらに 近づいてくる！`);
+                            if (typeof playTone === 'function') playTone(880, 'square', 0.1, 0.08, 0);
+                            return;
+                        } else {
+                            showMessage("とおすぎて 気づかないようだ... (半径60m以内)");
+                            return;
+                        }
+                    }
+                }
+
                 const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
                 const intersectPoint = new THREE.Vector3();
                 if (raycaster.ray.intersectPlane(plane, intersectPoint)) {
@@ -1251,10 +1436,12 @@
                 if (!storyState.tutorialDone.start) showTutorialChapter(TUTORIAL_CHAPTERS[0]);
             }, 1200);
             animate();
+            // タイトル画面の進行バーをアニメーション（保留中のため無効化）
+            // runTitleSequence();
         }
 
-        // 道路を細いクァッドリボンで描画（LineSegmentsより太く・前回リボンより軽量）
-        function buildRoadLines(segments, maxWays = 200, halfW = 2.5) {
+        // 道路をクァッドリボンで描画（Y=0.5で地面より上・両面描画で確実に可視化）
+        function buildRoadLines(segments, maxWays = 300, halfW = 4.5) {
             const allPos = [];
             const allIdx = [];
             let vOff = 0;
@@ -1268,12 +1455,12 @@
                     const len = Math.sqrt(dx * dx + dz * dz);
                     if (len < 0.001) continue;
                     const nx = (-dz / len) * halfW, nz = (dx / len) * halfW;
-                    // 4 vertices: left0, right0, left1, right1  (Y=0.8 で地面・建物より上に描画)
+                    // Y=0.5、両面描画で地面や建物の敷地の上に100%はっきり描画
                     allPos.push(
-                        ax + nx, 0.8, az + nz,
-                        ax - nx, 0.8, az - nz,
-                        bx + nx, 0.8, bz + nz,
-                        bx - nx, 0.8, bz - nz
+                        ax + nx, 0.5, az + nz,
+                        ax - nx, 0.5, az - nz,
+                        bx + nx, 0.5, bz + nz,
+                        bx - nx, 0.5, bz - nz
                     );
                     allIdx.push(vOff, vOff + 1, vOff + 2, vOff + 1, vOff + 3, vOff + 2);
                     vOff += 4;
@@ -1283,24 +1470,30 @@
             const geom = new THREE.BufferGeometry();
             geom.setAttribute('position', new THREE.Float32BufferAttribute(allPos, 3));
             geom.setIndex(allIdx);
-            return new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ color: 0x6b7c8a }));
+            return new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ color: 0xedd59e, side: THREE.DoubleSide }));
         }
 
         const mapDataCache = {};
 
         function processMapData(data) {
-            // MeshBasicMaterial: 照明計算なし→ 黒ずみ完全防止
-            // RPGファンタジー石造り建物カラー（暖色系アンバーストーン）
             const buildingFillMaterial = new THREE.MeshBasicMaterial({
-                color: 0x4a3728,  // 深い琥珀石
+                color: 0x4a3728,
                 side: THREE.DoubleSide,
                 polygonOffset: true,
-                polygonOffsetFactor: -1,
-                polygonOffsetUnits: -2
+                polygonOffsetFactor: 1,
+                polygonOffsetUnits: 1
             });
-            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xd4a85a, transparent: true, opacity: 0.6 }); // ゴールド輪郭
-            // 道路: 暗いアスファルト調
-            const roadLineMaterial = new THREE.MeshBasicMaterial({ color: 0x5a6a78 });
+            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xd4a85a, transparent: true, opacity: 0.6 });
+            // 道路マテリアル: 明るい石畳・舗装路カラー＆DoubleSideで確実描画
+            const roadLineMaterial = new THREE.MeshBasicMaterial({
+                color: 0xedd59e,
+                side: THREE.DoubleSide,
+                polygonOffset: true,
+                polygonOffsetFactor: -3,
+                polygonOffsetUnits: -3,
+                depthTest: true,
+                depthWrite: true
+            });
 
             const newRoadSegments = [];
             const newRoadIds = [];
@@ -1343,6 +1536,40 @@
             else if (playerState.homeCoords) createHomeMarker();
         }
 
+        let mapLoadProgressTimer = null;
+        let currentLoadProgress = 0.0;
+
+        function updateMapLoadUI(pct) {
+            currentLoadProgress = Math.min(100.0, Math.max(0.0, pct));
+            const pctEl = document.getElementById('map-load-pct');
+            const fillEl = document.getElementById('map-load-fill');
+            if (pctEl) pctEl.textContent = `${currentLoadProgress.toFixed(1)}%`;
+            if (fillEl) fillEl.style.width = `${currentLoadProgress.toFixed(1)}%`;
+        }
+
+        function startMapLoadProgress() {
+            if (mapLoadProgressTimer) clearInterval(mapLoadProgressTimer);
+            updateMapLoadUI(0.0);
+            document.getElementById('map-loading').classList.add('visible');
+            if (typeof playLoadingBeep === 'function') playLoadingBeep();
+            mapLoadProgressTimer = setInterval(() => {
+                if (currentLoadProgress < 93.0) {
+                    const step = 3.0 + Math.random() * 5.0;
+                    updateMapLoadUI(currentLoadProgress + step);
+                }
+            }, 40);
+        }
+
+        function finishMapLoadProgress(callback) {
+            if (mapLoadProgressTimer) clearInterval(mapLoadProgressTimer);
+            updateMapLoadUI(100.0);
+            if (typeof playLoadingDone === 'function') playLoadingDone();
+            setTimeout(() => {
+                document.getElementById('map-loading').classList.remove('visible');
+                if (callback) callback();
+            }, 200);
+        }
+
         async function fetchMapData(lat, lon) {
             if (isFetching) return;
             if (!baseCoords) {
@@ -1351,23 +1578,24 @@
                 return;
             }
 
-            // 300mごとのグリッド（緯度経度約0.003度刻み）でキャッシュ判定
             const gridLat = Math.round(lat * 333);
             const gridLon = Math.round(lon * 333);
             const cacheKey = `${gridLat}_${gridLon}`;
 
             if (mapDataCache[cacheKey]) {
                 addLog(`Cache Hit: ${cacheKey}`);
+                startMapLoadProgress();
                 processMapData(mapDataCache[cacheKey]);
+                finishMapLoadProgress();
                 return;
             }
 
             isFetching = true;
             lastFetchedCoords = { lat, lon };
             addLog(`Fetch: ${lat.toFixed(4)},${lon.toFixed(4)}`);
-            document.getElementById('map-loading').classList.add('visible');
+            startMapLoadProgress();
 
-            const q = `[out:json][timeout:20];(way["highway"](around:${MAP_RADIUS},${lat},${lon});way["building"](around:${MAP_RADIUS},${lat},${lon}););out geom;`;
+            const q = `[out:json][timeout:8];(way["highway"](around:${MAP_RADIUS},${lat},${lon});way["building"](around:${MAP_RADIUS},${lat},${lon}););out geom;`;
 
             let data = null;
             let success = false;
@@ -1393,16 +1621,14 @@
                     addLog(`Got ${data.elements.length} items`);
                 }
 
-                // キャッシュに保存
                 mapDataCache[cacheKey] = data;
-
                 processMapData(data);
             } catch (e) {
                 addLog("API Error: " + e.message);
                 showMessage("ちずの よみこみに しっぱい");
             } finally {
                 isFetching = false;
-                setTimeout(() => document.getElementById('map-loading').classList.remove('visible'), 500);
+                finishMapLoadProgress();
             }
         }
 
@@ -1997,7 +2223,12 @@
             };
             controls.enabled = false;
             battleState.center = center.clone();
-            camera.position.set(center.x, center.y + 28, center.z + 40);
+
+            // スマホ（縦画面）対応：アスペクト比に合わせて画角・カメラ距離を引きぎみに自動全収まり調整
+            const aspect = camera.aspect || (window.innerWidth / window.innerHeight);
+            const distMult = aspect < 1.0 ? Math.max(1.25, 1.0 / aspect) : 1.0;
+
+            camera.position.set(center.x, center.y + 32 * distMult, center.z + 48 * distMult);
             camera.lookAt(center.x, center.y + 4, center.z);
         }
 
@@ -2069,6 +2300,11 @@
             currentBattleMonster = monster;
             monster.active = false;
             monster.mark.visible = true;
+
+            // スマホ画面で全収まりするように周囲のフィールドGUIを隠す
+            document.getElementById('status-bar').style.display = 'none';
+            document.getElementById('gui').style.display = 'none';
+            document.getElementById('bag-gui').style.display = 'none';
 
             const center = slimeGroup.position.clone();
             const playerPos = center.clone().add(new THREE.Vector3(-11, 0, 8));
@@ -2237,6 +2473,12 @@
                 }
                 document.getElementById('battle-status-window').style.display = 'none';
                 document.getElementById('battle-command-window').style.display = 'none';
+
+                // 戦闘終了時にフィールドGUIを復帰
+                document.getElementById('status-bar').style.display = 'block';
+                document.getElementById('gui').style.display = 'block';
+                document.getElementById('bag-gui').style.display = 'flex';
+
                 isInBattle = false;
                 battleState.enemy = null;
                 battleState.animation = null;
@@ -2705,15 +2947,25 @@
             if (!isInBattle) checkStoryArrival();
             monsters.forEach(m => {
                 if (!m.active) return;
-                const now = Date.now();
-                if (now > m.nextMoveTime) {
-                    if (m.velocity.length() === 0) {
-                        const a = Math.random() * Math.PI * 2;
-                        m.velocity.set(Math.cos(a) * 0.2, 0, Math.sin(a) * 0.2);
-                        m.nextMoveTime = now + 2000;
-                    } else { m.velocity.set(0, 0, 0); m.nextMoveTime = now + 3000; }
+                if (m.isChasingPlayer && slimeGroup) {
+                    const dir = new THREE.Vector3().subVectors(slimeGroup.position, m.group.position);
+                    dir.y = 0;
+                    if (dir.length() > 3) {
+                        dir.normalize().multiplyScalar(0.45);
+                        m.group.position.add(dir);
+                        m.group.lookAt(slimeGroup.position.x, m.group.position.y, slimeGroup.position.z);
+                    }
+                } else {
+                    const now = Date.now();
+                    if (now > m.nextMoveTime) {
+                        if (m.velocity.length() === 0) {
+                            const a = Math.random() * Math.PI * 2;
+                            m.velocity.set(Math.cos(a) * 0.2, 0, Math.sin(a) * 0.2);
+                            m.nextMoveTime = now + 2000;
+                        } else { m.velocity.set(0, 0, 0); m.nextMoveTime = now + 3000; }
+                    }
+                    m.group.position.add(m.velocity);
                 }
-                m.group.position.add(m.velocity);
                 m.mark.lookAt(camera.position);
             });
             if (isInBattle && battleState.center) {
@@ -2739,6 +2991,112 @@
 
             renderer.render(scene, camera);
         }
+        // =========================================================
+        // Web Audio API: 効果音
+        // =========================================================
+        let _audioCtx = null;
+        function getAudioCtx() {
+            if (!_audioCtx) {
+                try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { }
+            }
+            return _audioCtx;
+        }
+        function playTone(freq, type, dur, vol, delay) {
+            const ctx = getAudioCtx(); if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = type; osc.frequency.value = freq;
+            const t0 = ctx.currentTime + (delay || 0);
+            gain.gain.setValueAtTime(vol || 0.08, t0);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+            osc.start(t0); osc.stop(t0 + dur);
+        }
+        function playLoadingBeep() {
+            // 短いピコ音: 地図読み込み開始
+            playTone(660, 'square', 0.08, 0.06, 0);
+            playTone(880, 'square', 0.08, 0.06, 0.10);
+        }
+        function playLoadingDone() {
+            // 完了チャイム
+            playTone(880, 'sine', 0.15, 0.07, 0);
+            playTone(1100, 'sine', 0.15, 0.07, 0.12);
+            playTone(1320, 'sine', 0.25, 0.07, 0.24);
+        }
+        function playTitleReady() {
+            // タイトル→ゲーム開始 ファンファーレ
+            [440, 554, 659, 880].forEach((f, i) => playTone(f, 'sine', 0.2, 0.07, i * 0.08));
+        }
+
+        // =========================================================
+        // タイトル画面シーケンス
+        // =========================================================
+        function makeTitleStars() {
+            const container = document.getElementById('title-stars');
+            if (!container) return;
+            for (let i = 0; i < 80; i++) {
+                const s = document.createElement('div');
+                s.className = 't-star';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                const dur = (2 + Math.random() * 4).toFixed(1) + 's';
+                const del = (Math.random() * 4).toFixed(1) + 's';
+                const op = (0.4 + Math.random() * 0.6).toFixed(2);
+                s.style.setProperty('--d', dur);
+                s.style.setProperty('--delay', '-' + del);
+                s.style.setProperty('--op', op);
+                container.appendChild(s);
+            }
+        }
+
+        function runTitleSequence() {
+            makeTitleStars();
+            const bar = document.getElementById('title-bar');
+            const label = document.getElementById('title-load-label');
+            const ts = document.getElementById('title-screen');
+            if (!bar || !ts) return;
+
+            // プログレスバーを徐々に進める（2.5秒で90%まで）
+            let pct = 0;
+            const tickInterval = setInterval(() => {
+                pct += (1 + Math.random() * 3);
+                if (pct > 88) pct = 88;
+                if (bar) bar.style.width = pct + '%';
+            }, 80);
+
+            // GPS & 地図取得を待って完了
+            const checkReady = setInterval(() => {
+                // baseCoords が入ったら地図読み込み開始済み → 完了へ
+                if (baseCoords || pct >= 88) {
+                    clearInterval(checkReady);
+                    clearInterval(tickInterval);
+
+                    if (bar) bar.style.width = '100%';
+                    if (label) label.textContent = 'READY!';
+                    playTitleReady();
+
+                    // 0.8秒後に暗転してゲーム画面へ
+                    setTimeout(() => {
+                        ts.classList.add('fade-out');
+                        setTimeout(() => ts.classList.add('hidden'), 850);
+                    }, 700);
+                }
+            }, 200);
+
+            // 最大7秒でタイムアウト（GPS待ちが長すぎる場合）
+            setTimeout(() => {
+                clearInterval(checkReady);
+                clearInterval(tickInterval);
+                if (bar) bar.style.width = '100%';
+                if (label) label.textContent = 'READY!';
+                playTitleReady();
+                setTimeout(() => {
+                    ts.classList.add('fade-out');
+                    setTimeout(() => ts.classList.add('hidden'), 850);
+                }, 600);
+            }, 7000);
+        }
+
         init();
 
         // =========================================================================
