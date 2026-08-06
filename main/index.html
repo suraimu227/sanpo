@@ -75,17 +75,6 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        #perf-display {
-            font-size: 9px;
-            color: #0ff;
-            margin-top: 5px;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
-            padding-top: 4px;
-            text-align: left;
-            letter-spacing: 0.5px;
-            line-height: 1.5;
-        }
-
         #bag-gui {
             position: absolute;
             bottom: 24px;
@@ -801,7 +790,6 @@
         <div id="debug-log"
             style="display:none; font-size:8px; color:#0f0; margin-top:4px; text-align:left; border-top:1px solid rgba(255,255,255,0.15); padding-top:4px;">
             Log: Wait GPS</div>
-        <div id="perf-display">FPS: --</div>
     </div>
 
     <div id="bag-gui">
@@ -1016,62 +1004,59 @@
         }
 
         function applyTimeAndWeather() {
-            function updateTimePeriod() {
-                const hour = new Date().getHours();
-                if (hour >= 6 && hour < 16) {
-                    currentPeriod = "day";
-                } else if (hour >= 16 && hour < 19) {
-                    currentPeriod = "sunset";
-                } else {
-                    currentPeriod = "night";
+            updateTimePeriod();
+
+            const periodConfigs = {
+                day: {
+                    clear: { bg: 0x70a6ff, ambient: 0xdddddd, sun: 0xffffff, sunIntensity: 0.85, fog: null },
+                    cloudy: { bg: 0x8494a5, ambient: 0x99aabb, sun: 0xddeeff, sunIntensity: 0.5, fog: 0x8494a5 },
+                    rain: { bg: 0x384452, ambient: 0x667788, sun: 0x8899aa, sunIntensity: 0.35, fog: 0x384452 },
+                    snow: { bg: 0xc8d6e3, ambient: 0xb0c4de, sun: 0xffffff, sunIntensity: 0.6, fog: 0xc8d6e3 },
+                    fog: { bg: 0xa0b0c0, ambient: 0x8899aa, sun: 0xcccccc, sunIntensity: 0.4, fog: 0xa0b0c0 },
+                    thunderstorm: { bg: 0x1f2733, ambient: 0x445566, sun: 0x778899, sunIntensity: 0.25, fog: 0x1f2733 }
+                },
+                sunset: {
+                    clear: { bg: 0xfd5e53, ambient: 0xaa8877, sun: 0xffaa44, sunIntensity: 0.75, fog: null },
+                    cloudy: { bg: 0x995555, ambient: 0x886666, sun: 0xdd7755, sunIntensity: 0.45, fog: 0x995555 },
+                    rain: { bg: 0x4a333b, ambient: 0x66444f, sun: 0x885555, sunIntensity: 0.3, fog: 0x4a333b },
+                    snow: { bg: 0xb58899, ambient: 0x997788, sun: 0xdd99aa, sunIntensity: 0.5, fog: 0xb58899 },
+                    fog: { bg: 0x886677, ambient: 0x775566, sun: 0xaa7788, sunIntensity: 0.35, fog: 0x886677 },
+                    thunderstorm: { bg: 0x2e1f28, ambient: 0x442e37, sun: 0x663d4a, sunIntensity: 0.2, fog: 0x2e1f28 }
+                },
+                night: {
+                    clear: { bg: 0x070b12, ambient: 0x223355, sun: 0x5577aa, sunIntensity: 0.3, fog: null },
+                    cloudy: { bg: 0x0c1320, ambient: 0x1a2638, sun: 0x334466, sunIntensity: 0.2, fog: 0x0c1320 },
+                    rain: { bg: 0x050a14, ambient: 0x111c2e, sun: 0x223344, sunIntensity: 0.15, fog: 0x050a14 },
+                    snow: { bg: 0x162232, ambient: 0x2d3e54, sun: 0x445577, sunIntensity: 0.25, fog: 0x162232 },
+                    fog: { bg: 0x0f1926, ambient: 0x1e2b3d, sun: 0x334455, sunIntensity: 0.18, fog: 0x0f1926 },
+                    thunderstorm: { bg: 0x03060a, ambient: 0x0a101d, sun: 0x152233, sunIntensity: 0.1, fog: 0x03060a }
                 }
+            };
+
+            const period = periodConfigs[currentPeriod] || periodConfigs.day;
+            const settings = period[currentWeather] || period.clear;
+
+            if (renderer) {
+                renderer.setClearColor(settings.bg, 1);
             }
 
-            function applyTimeAndWeather() {
-                updateTimePeriod();
-                const config = {
-                    day: { clear: { bg: 0xaaccff, ambient: 0xcccccc, sun: 0xffffff, sunIntensity: 0.8 } },
-                    sunset: { clear: { bg: 0xfd5e53, ambient: 0xaa8877, sun: 0xffaa44, sunIntensity: 0.7 } },
-                    night: { clear: { bg: 0x070b12, ambient: 0x223355, sun: 0x5577aa, sunIntensity: 0.3 } }
-                };
-                const settings = config[currentPeriod]?.clear || config.day.clear;
-
-                if (renderer) {
-                    renderer.setClearColor(settings.bg, 1);
-                }
-
-                if (scene) {
+            if (scene) {
+                if (settings.fog) {
+                    scene.fog = new THREE.FogExp2(settings.fog, 0.0018);
+                } else {
                     scene.fog = null;
                 }
-
-                if (ambientLight) {
-                    ambientLight.color.setHex(settings.ambient);
-                }
-                if (sunLight) {
-                    sunLight.color.setHex(settings.sun);
-                    sunLight.intensity = settings.sunIntensity;
-                }
             }
+
+            if (ambientLight) ambientLight.color.setHex(settings.ambient);
+            if (sunLight) {
+                sunLight.color.setHex(settings.sun);
+                sunLight.intensity = settings.sunIntensity;
+            }
+
+            setupWeatherParticles();
+            setupCloudObjects();
         }
-
-
-
-
-        if (renderer) renderer.setClearColor(settings.bg, 1);
-
-        if (scene) {
-            scene.fog = null;
-        }
-
-        if (ambientLight) ambientLight.color.setHex(settings.ambient);
-        if (sunLight) {
-            sunLight.color.setHex(settings.sun);
-            sunLight.intensity = settings.sunIntensity;
-        }
-
-        setupWeatherParticles();
-        setupCloudObjects();
-
 
         function setupWeatherParticles() {
             if (weatherParticleSystem) {
@@ -1081,27 +1066,66 @@
                 weatherParticleSystem = null;
             }
 
-            if (currentWeather !== "rain" && currentWeather !== "snow") return;
+            if (currentWeather === "clear") {
+                const particleCount = 200;
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+                const velocities = [];
 
-            const particleCount = currentWeather === "rain" ? 1200 : 600;
+                for (let i = 0; i < particleCount; i++) {
+                    positions.push(
+                        (Math.random() - 0.5) * 160,
+                        Math.random() * 30 + 2,
+                        (Math.random() - 0.5) * 160
+                    );
+                    velocities.push(
+                        (Math.random() - 0.5) * 0.03,
+                        (Math.random() - 0.5) * 0.02,
+                        (Math.random() - 0.5) * 0.03
+                    );
+                }
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.userData = { velocities };
+
+                const material = new THREE.PointsMaterial({
+                    color: 0xfffae6,
+                    size: 0.8,
+                    transparent: true,
+                    opacity: 0.6,
+                    blending: THREE.AdditiveBlending
+                });
+                weatherParticleSystem = new THREE.Points(geometry, material);
+                if (slimeGroup) weatherParticleSystem.position.copy(slimeGroup.position);
+                scene.add(weatherParticleSystem);
+                return;
+            }
+
+            if (currentWeather !== "rain" && currentWeather !== "snow" && currentWeather !== "thunderstorm") return;
+
+            const isRain = (currentWeather === "rain" || currentWeather === "thunderstorm");
+            const particleCount = isRain ? 1500 : 800;
             const geometry = new THREE.BufferGeometry();
             const positions = [];
             const velocities = [];
 
             for (let i = 0; i < particleCount; i++) {
                 positions.push(
-                    (Math.random() - 0.5) * 120,
-                    Math.random() * 45,
-                    (Math.random() - 0.5) * 120
+                    (Math.random() - 0.5) * 140,
+                    Math.random() * 50,
+                    (Math.random() - 0.5) * 140
                 );
 
-                if (currentWeather === "rain") {
-                    velocities.push(0, -(0.6 + Math.random() * 0.4), 0);
+                if (isRain) {
+                    velocities.push(
+                        (Math.random() - 0.5) * 0.05,
+                        -(0.85 + Math.random() * 0.4),
+                        (Math.random() - 0.5) * 0.05
+                    );
                 } else {
                     velocities.push(
-                        (Math.random() - 0.5) * 0.1,
-                        -(0.08 + Math.random() * 0.08),
-                        (Math.random() - 0.5) * 0.1
+                        (Math.random() - 0.5) * 0.12,
+                        -(0.09 + Math.random() * 0.09),
+                        (Math.random() - 0.5) * 0.12
                     );
                 }
             }
@@ -1110,19 +1134,19 @@
             geometry.userData = { velocities };
 
             let material;
-            if (currentWeather === "rain") {
+            if (isRain) {
                 material = new THREE.PointsMaterial({
-                    color: 0xddddff,
-                    size: 0.4,
+                    color: 0xbbccff,
+                    size: 0.45,
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.7
                 });
             } else {
                 material = new THREE.PointsMaterial({
                     color: 0xffffff,
-                    size: 0.9,
+                    size: 1.1,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.85
                 });
             }
 
@@ -1140,6 +1164,15 @@
             const positions = positionAttr.array;
             const velocities = weatherParticleSystem.geometry.userData.velocities;
 
+            if (currentWeather === "thunderstorm" && sunLight) {
+                if (Math.random() < 0.015) {
+                    sunLight.intensity = 2.5;
+                    sunLight.color.setHex(0xffffff);
+                } else {
+                    sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, 0.25, 0.2);
+                }
+            }
+
             for (let i = 0; i < positionAttr.count; i++) {
                 const i3 = i * 3;
                 positions[i3 + 0] += velocities[i3 + 0];
@@ -1147,13 +1180,16 @@
                 positions[i3 + 2] += velocities[i3 + 2];
 
                 if (currentWeather === "snow") {
-                    velocities[i3 + 0] = Math.sin(performance.now() * 0.002 + i) * 0.04;
+                    velocities[i3 + 0] = Math.sin(performance.now() * 0.002 + i) * 0.05;
+                } else if (currentWeather === "clear") {
+                    if (positions[i3 + 1] > 35) positions[i3 + 1] = 2;
+                    if (positions[i3 + 1] < 1) positions[i3 + 1] = 30;
                 }
 
                 if (positions[i3 + 1] < 0) {
-                    positions[i3 + 0] = (Math.random() - 0.5) * 120;
-                    positions[i3 + 1] = 45;
-                    positions[i3 + 2] = (Math.random() - 0.5) * 120;
+                    positions[i3 + 0] = (Math.random() - 0.5) * 140;
+                    positions[i3 + 1] = 50;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 140;
                 }
             }
             positionAttr.needsUpdate = true;
@@ -1360,12 +1396,31 @@
             body.scale.set(1.1, 0.85, 1.1);
             const horn = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4, 16), new THREE.MeshPhongMaterial({ color: 0x00BFFF }));
             horn.position.y = 1.5; slimeGroup.add(body); slimeGroup.add(horn);
-            const ring = new THREE.Mesh(new THREE.RingGeometry(10.8, 11, 32), new THREE.MeshBasicMaterial({ color: 0x0000FF, side: THREE.DoubleSide }));
-            ring.rotation.x = Math.PI / 2; ring.position.y = -2.8; slimeGroup.add(ring);
+
+            // プレイヤー索敵範囲サークル (最前層描画: depthTest: false & renderOrder: 99999)
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                side: THREE.DoubleSide,
+                depthTest: false,
+                depthWrite: false,
+                transparent: true,
+                opacity: 0.85
+            });
+            const ring = new THREE.Mesh(new THREE.RingGeometry(10.8, 11.2, 48), ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = -2.7;
+            ring.renderOrder = 99999;
+            slimeGroup.add(ring);
+
             slimeGroup.position.set(0, 3, 0); scene.add(slimeGroup);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.minDistance = CAMERA_DIST - 8; controls.maxDistance = CAMERA_DIST + 4;
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.maxPolarAngle = Math.PI / 2.15; // カメラが地面の裏側に回り込まないよう角度制限 (最大83.7度)
+            controls.minPolarAngle = Math.PI / 12;
+            controls.minDistance = CAMERA_DIST - 12;
+            controls.maxDistance = CAMERA_DIST + 15;
             controls.target.copy(slimeGroup.position);
             camera.position.set(0, 47, 60);
 
@@ -1396,7 +1451,6 @@
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
 
-                // 60m以内の敵モンスターをタップして引き寄せる仕様
                 const monsterMeshes = monsters.filter(m => m.active).map(m => m.group);
                 const intersects = raycaster.intersectObjects(monsterMeshes, true);
                 if (intersects.length > 0) {
@@ -1436,41 +1490,182 @@
                 if (!storyState.tutorialDone.start) showTutorialChapter(TUTORIAL_CHAPTERS[0]);
             }, 1200);
             animate();
-            // タイトル画面の進行バーをアニメーション（保留中のため無効化）
-            // runTitleSequence();
         }
 
-        // 道路をクァッドリボンで描画（Y=0.5で地面より上・両面描画で確実に可視化）
-        function buildRoadLines(segments, maxWays = 300, halfW = 4.5) {
-            const allPos = [];
-            const allIdx = [];
-            let vOff = 0;
-            const sorted = segments.slice().sort((a, b) => b.length - a.length).slice(0, maxWays);
-            for (const pts of sorted) {
-                if (pts.length < 2) continue;
-                for (let i = 0; i < pts.length - 1; i++) {
-                    const ax = pts[i].x, az = pts[i].y;
-                    const bx = pts[i + 1].x, bz = pts[i + 1].y;
-                    const dx = bx - ax, dz = bz - az;
-                    const len = Math.sqrt(dx * dx + dz * dz);
-                    if (len < 0.001) continue;
-                    const nx = (-dz / len) * halfW, nz = (dx / len) * halfW;
-                    // Y=0.5、両面描画で地面や建物の敷地の上に100%はっきり描画
-                    allPos.push(
-                        ax + nx, 0.5, az + nz,
-                        ax - nx, 0.5, az - nz,
-                        bx + nx, 0.5, bz + nz,
-                        bx - nx, 0.5, bz - nz
-                    );
-                    allIdx.push(vOff, vOff + 1, vOff + 2, vOff + 1, vOff + 3, vOff + 2);
-                    vOff += 4;
+        // グレー系・シックな石畳（スレートパヴェ）テクスチャの生成
+        let cachedRoadTexture = null;
+        function getCobblestoneTexture() {
+            if (cachedRoadTexture) return cachedRoadTexture;
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // ダークスレートグレーの目地
+            ctx.fillStyle = '#3a3d42';
+            ctx.fillRect(0, 0, 512, 512);
+
+            const rows = 16;
+            const cols = 8;
+            const rowH = 512 / rows;
+            const colW = 512 / cols;
+
+            for (let r = 0; r < rows; r++) {
+                const offset = (r % 2 === 0) ? 0 : colW / 2;
+                for (let c = -1; c <= cols + 1; c++) {
+                    const x = c * colW + offset + 2;
+                    const y = r * rowH + 2;
+                    const w = colW - 4;
+                    const h = rowH - 4;
+
+                    const seed = (r * 13 + c * 29) % 100;
+                    const tone = (seed % 24);
+                    // グレーベースの石畳カラー
+                    const rCol = 112 + tone - (seed % 8);
+                    const gCol = 118 + tone - (seed % 8);
+                    const bCol = 125 + tone - (seed % 8);
+
+                    ctx.fillStyle = `rgb(${rCol}, ${gCol}, ${bCol})`;
+
+                    ctx.beginPath();
+                    if (typeof ctx.roundRect === 'function') {
+                        ctx.roundRect(x, y, w, h, 3);
+                    } else {
+                        ctx.rect(x, y, w, h);
+                    }
+                    ctx.fill();
+
+                    // 質感ハイライトとシャドウ
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 2, y + h - 2);
+                    ctx.lineTo(x + 2, y + 2);
+                    ctx.lineTo(x + w - 2, y + 2);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+                    ctx.beginPath();
+                    ctx.moveTo(x + 2, y + h - 2);
+                    ctx.lineTo(x + w - 2, y + h - 2);
+                    ctx.lineTo(x + w - 2, y + 2);
+                    ctx.stroke();
                 }
             }
+
+            cachedRoadTexture = new THREE.CanvasTexture(canvas);
+            cachedRoadTexture.wrapS = THREE.RepeatWrapping;
+            cachedRoadTexture.wrapT = THREE.RepeatWrapping;
+            return cachedRoadTexture;
+        }
+
+        // シャープで直線的な道路形状（太ペン感を廃止し、四角形の整然さを活かしつつマイター角接続で隙間だけ解消）
+        function buildRoadLines(segments, maxWays = 300, halfW = 2.8) {
+            const allPos = [];
+            const allUvs = [];
+            const allIdx = [];
+            let vOff = 0;
+
+            const sorted = segments.slice().sort((a, b) => b.length - a.length).slice(0, maxWays);
+
+            for (const pts of sorted) {
+                if (!pts || pts.length < 2) continue;
+
+                // ノードごとの法線ベクトルの算出 (マイター補正で四角形同士の継ぎ目隙間を接続)
+                const normals = [];
+                const segDirs = [];
+                const cumDist = [0];
+
+                for (let i = 0; i < pts.length - 1; i++) {
+                    const dx = pts[i + 1].x - pts[i].x;
+                    const dz = pts[i + 1].y - pts[i].y;
+                    const len = Math.sqrt(dx * dx + dz * dz);
+                    cumDist.push(cumDist[i] + len);
+                    if (len < 0.0001) {
+                        segDirs.push(new THREE.Vector2(1, 0));
+                    } else {
+                        segDirs.push(new THREE.Vector2(dx / len, dz / len));
+                    }
+                }
+
+                if (cumDist[cumDist.length - 1] < 0.01) continue;
+
+                for (let i = 0; i < pts.length; i++) {
+                    if (i === 0) {
+                        const d = segDirs[0];
+                        normals.push(new THREE.Vector2(-d.y, d.x));
+                    } else if (i === pts.length - 1) {
+                        const d = segDirs[segDirs.length - 1];
+                        normals.push(new THREE.Vector2(-d.y, d.x));
+                    } else {
+                        const d1 = segDirs[i - 1];
+                        const d2 = segDirs[i];
+                        const n1 = new THREE.Vector2(-d1.y, d1.x);
+                        const n2 = new THREE.Vector2(-d2.y, d2.x);
+                        const miter = new THREE.Vector2().addVectors(n1, n2);
+                        if (miter.lengthSq() < 0.0001) {
+                            normals.push(n1);
+                        } else {
+                            miter.normalize();
+                            let dot = miter.dot(n1);
+                            if (dot < 0.45) dot = 0.45;
+                            const lenScale = Math.min(1.35, 1.0 / dot);
+                            normals.push(miter.multiplyScalar(lenScale));
+                        }
+                    }
+                }
+
+                // 頂点とUVの生成
+                const baseVOff = vOff;
+                for (let i = 0; i < pts.length; i++) {
+                    const p = pts[i];
+                    const n = normals[i];
+                    const dist = cumDist[i];
+
+                    const lx = p.x + n.x * halfW;
+                    const lz = p.y + n.y * halfW;
+                    const rx = p.x - n.x * halfW;
+                    const rz = p.y - n.y * halfW;
+
+                    allPos.push(lx, 0.35, lz);
+                    allPos.push(rx, 0.35, rz);
+
+                    const v = dist / 8.0;
+                    allUvs.push(0, v);
+                    allUvs.push(1, v);
+
+                    vOff += 2;
+                }
+
+                // クァッドインデックスの接続
+                const numPts = pts.length;
+                for (let i = 0; i < numPts - 1; i++) {
+                    const i0 = baseVOff + i * 2;
+                    const i1 = i0 + 1;
+                    const i2 = i0 + 2;
+                    const i3 = i0 + 3;
+                    allIdx.push(i0, i1, i2);
+                    allIdx.push(i1, i3, i2);
+                }
+            }
+
             if (!allPos.length) return null;
+
             const geom = new THREE.BufferGeometry();
             geom.setAttribute('position', new THREE.Float32BufferAttribute(allPos, 3));
+            geom.setAttribute('uv', new THREE.Float32BufferAttribute(allUvs, 2));
             geom.setIndex(allIdx);
-            return new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ color: 0xedd59e, side: THREE.DoubleSide }));
+
+            const texture = getCobblestoneTexture();
+            const mat = new THREE.MeshLambertMaterial({
+                map: texture,
+                side: THREE.DoubleSide,
+                polygonOffset: true,
+                polygonOffsetFactor: -2,
+                polygonOffsetUnits: -2
+            });
+
+            return new THREE.Mesh(geom, mat);
         }
 
         const mapDataCache = {};
@@ -1484,16 +1679,6 @@
                 polygonOffsetUnits: 1
             });
             const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xd4a85a, transparent: true, opacity: 0.6 });
-            // 道路マテリアル: 明るい石畳・舗装路カラー＆DoubleSideで確実描画
-            const roadLineMaterial = new THREE.MeshBasicMaterial({
-                color: 0xedd59e,
-                side: THREE.DoubleSide,
-                polygonOffset: true,
-                polygonOffsetFactor: -3,
-                polygonOffsetUnits: -3,
-                depthTest: true,
-                depthWrite: true
-            });
 
             const newRoadSegments = [];
             const newRoadIds = [];
@@ -1524,7 +1709,6 @@
                 const roadLines = buildRoadLines(newRoadSegments);
                 if (roadLines) {
                     roadLines.userData = { type: "road", ids: newRoadIds };
-                    roadLines.material = roadLineMaterial;
                     roadLayer.add(roadLines);
                 }
             }
@@ -1538,6 +1722,7 @@
 
         let mapLoadProgressTimer = null;
         let currentLoadProgress = 0.0;
+        let targetLoadProgress = 0.0;
 
         function updateMapLoadUI(pct) {
             currentLoadProgress = Math.min(100.0, Math.max(0.0, pct));
@@ -1547,27 +1732,44 @@
             if (fillEl) fillEl.style.width = `${currentLoadProgress.toFixed(1)}%`;
         }
 
+        function setMapLoadTarget(targetPct) {
+            targetLoadProgress = targetPct;
+        }
+
         function startMapLoadProgress() {
             if (mapLoadProgressTimer) clearInterval(mapLoadProgressTimer);
+            currentLoadProgress = 0.0;
+            targetLoadProgress = 15.0;
             updateMapLoadUI(0.0);
             document.getElementById('map-loading').classList.add('visible');
             if (typeof playLoadingBeep === 'function') playLoadingBeep();
+
             mapLoadProgressTimer = setInterval(() => {
-                if (currentLoadProgress < 93.0) {
-                    const step = 3.0 + Math.random() * 5.0;
+                if (currentLoadProgress < targetLoadProgress) {
+                    const diff = targetLoadProgress - currentLoadProgress;
+                    const step = Math.max(0.4, diff * 0.15);
                     updateMapLoadUI(currentLoadProgress + step);
                 }
             }, 40);
         }
 
         function finishMapLoadProgress(callback) {
-            if (mapLoadProgressTimer) clearInterval(mapLoadProgressTimer);
-            updateMapLoadUI(100.0);
-            if (typeof playLoadingDone === 'function') playLoadingDone();
-            setTimeout(() => {
-                document.getElementById('map-loading').classList.remove('visible');
-                if (callback) callback();
-            }, 200);
+            targetLoadProgress = 100.0;
+            const finishInterval = setInterval(() => {
+                if (currentLoadProgress >= 99.5) {
+                    clearInterval(finishInterval);
+                    if (mapLoadProgressTimer) clearInterval(mapLoadProgressTimer);
+                    updateMapLoadUI(100.0);
+                    if (typeof playLoadingDone === 'function') playLoadingDone();
+                    setTimeout(() => {
+                        document.getElementById('map-loading').classList.remove('visible');
+                        if (callback) callback();
+                    }, 250);
+                } else {
+                    currentLoadProgress += (100.0 - currentLoadProgress) * 0.3 + 0.5;
+                    updateMapLoadUI(currentLoadProgress);
+                }
+            }, 30);
         }
 
         async function fetchMapData(lat, lon) {
@@ -1585,6 +1787,7 @@
             if (mapDataCache[cacheKey]) {
                 addLog(`Cache Hit: ${cacheKey}`);
                 startMapLoadProgress();
+                setMapLoadTarget(90.0);
                 processMapData(mapDataCache[cacheKey]);
                 finishMapLoadProgress();
                 return;
@@ -1594,6 +1797,12 @@
             lastFetchedCoords = { lat, lon };
             addLog(`Fetch: ${lat.toFixed(4)},${lon.toFixed(4)}`);
             startMapLoadProgress();
+
+            let fetchTimer = setInterval(() => {
+                if (targetLoadProgress < 75.0) {
+                    targetLoadProgress += 2.5;
+                }
+            }, 100);
 
             const q = `[out:json][timeout:8];(way["highway"](around:${MAP_RADIUS},${lat},${lon});way["building"](around:${MAP_RADIUS},${lat},${lon}););out geom;`;
 
@@ -1609,6 +1818,8 @@
                 success = true;
             } catch (e) {
                 addLog(`Fail: Proxy (${e.message})`);
+            } finally {
+                clearInterval(fetchTimer);
             }
 
             try {
@@ -1621,6 +1832,7 @@
                     addLog(`Got ${data.elements.length} items`);
                 }
 
+                setMapLoadTarget(90.0);
                 mapDataCache[cacheKey] = data;
                 processMapData(data);
             } catch (e) {
