@@ -1155,10 +1155,21 @@
             scene.add(weatherParticleSystem);
         }
 
+        // パーティクルの追従位置（プレイヤーに遅延追従するためのワールド座標）
+        const _particleFollowPos = new THREE.Vector3();
+        let _particleFollowInited = false;
+
         function updateWeatherParticles() {
             if (!weatherParticleSystem || !slimeGroup) return;
 
-            weatherParticleSystem.position.copy(slimeGroup.position);
+            // プレイヤーに遅延追従（lerp係数0.04 = ゆったりと追いかける）
+            if (!_particleFollowInited) {
+                _particleFollowPos.copy(slimeGroup.position);
+                _particleFollowInited = true;
+            } else {
+                _particleFollowPos.lerp(slimeGroup.position, 0.04);
+            }
+            weatherParticleSystem.position.copy(_particleFollowPos);
 
             const positionAttr = weatherParticleSystem.geometry.attributes.position;
             const positions = positionAttr.array;
@@ -1669,6 +1680,28 @@
         }
 
         const mapDataCache = {};
+
+        // 前回の地図データをlocalStorageから復元（リロード時の即時表示用）
+        try {
+            const savedMapData = localStorage.getItem("dqw_map_cache");
+            if (savedMapData) {
+                const parsed = JSON.parse(savedMapData);
+                if (parsed && typeof parsed === "object") {
+                    Object.assign(mapDataCache, parsed);
+                    addLog("Map cache restored: " + Object.keys(parsed).length + " tiles");
+                }
+            }
+        } catch (e) { }
+
+        function saveMapCacheToStorage() {
+            try {
+                // 最新3タイル分だけ保存（容量節約）
+                const keys = Object.keys(mapDataCache);
+                const recent = {};
+                keys.slice(-3).forEach(k => { recent[k] = mapDataCache[k]; });
+                localStorage.setItem("dqw_map_cache", JSON.stringify(recent));
+            } catch (e) { }
+        }
 
         function processMapData(data) {
             const buildingFillMaterial = new THREE.MeshBasicMaterial({
@@ -2928,9 +2961,9 @@
 
             addLog(`Req GPS (${gpsRetryStage + 1}/3)...`);
             const stageOptions = [
-                { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 },
-                { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 },
-                { enableHighAccuracy: false, timeout: 25000, maximumAge: 600000 }
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
+                { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 }
             ];
             const options = stageOptions[Math.min(gpsRetryStage, stageOptions.length - 1)];
 
@@ -2944,7 +2977,7 @@
                     addLog("GPS Fail: " + gpsErrorMessage(err));
                     if (gpsRetryStage < stageOptions.length - 1) {
                         gpsRetryStage += 1;
-                        setTimeout(requestGpsLocation, 800);
+                        setTimeout(requestGpsLocation, 400);
                         return;
                     }
                     useFallbackLocation(gpsErrorMessage(err));
@@ -2979,6 +3012,24 @@
 
         function startTracking() {
             addLog("Req GPS...");
+
+            // 保存済みGPS座標がある場合は即座にマップ表示を開始し、GPS取得を裏で並走
+            const saved = localStorage.getItem("dqw_last_gps_coords") || localStorage.getItem("dqw_last_coords");
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.lat && parsed.lon && !isDefaultSendaiCoords(parsed)) {
+                        addLog("Quick Start: saved coords");
+                        baseCoords = parsed;
+                        fetchMapData(baseCoords.lat, baseCoords.lon);
+                        fetchWeather(baseCoords.lat, baseCoords.lon);
+                        // GPS取得は裏側で並走 → 取得完了時に位置を更新
+                        requestGpsLocation();
+                        return;
+                    }
+                } catch (e) { }
+            }
+            // 保存座標がない場合はGPS取得を直接開始
             requestGpsLocation();
         }
 
