@@ -12,7 +12,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #050811;
+            background-color: #4f5156;
             font-family: 'DotGothic16', 'Press Start 2P', cursive;
             touch-action: none;
         }
@@ -1008,28 +1008,28 @@
 
             const periodConfigs = {
                 day: {
-                    clear: { bg: 0x70a6ff, ambient: 0xdddddd, sun: 0xffffff, sunIntensity: 0.85, fog: null },
-                    cloudy: { bg: 0x8494a5, ambient: 0x99aabb, sun: 0xddeeff, sunIntensity: 0.5, fog: 0x8494a5 },
-                    rain: { bg: 0x384452, ambient: 0x667788, sun: 0x8899aa, sunIntensity: 0.35, fog: 0x384452 },
-                    snow: { bg: 0xc8d6e3, ambient: 0xb0c4de, sun: 0xffffff, sunIntensity: 0.6, fog: 0xc8d6e3 },
-                    fog: { bg: 0xa0b0c0, ambient: 0x8899aa, sun: 0xcccccc, sunIntensity: 0.4, fog: 0xa0b0c0 },
-                    thunderstorm: { bg: 0x1f2733, ambient: 0x445566, sun: 0x778899, sunIntensity: 0.25, fog: 0x1f2733 }
+                    clear: { bg: 0x78b3ff, ambient: 0xffffff, sun: 0xffffff, sunIntensity: 1.0, fog: null },
+                    cloudy: { bg: 0xc4d6e8, ambient: 0xeeeeee, sun: 0xffffff, sunIntensity: 0.85, fog: 0xc4d6e8 },
+                    rain: { bg: 0x6c8299, ambient: 0xccccdd, sun: 0xddeeff, sunIntensity: 0.7, fog: 0x6c8299 },
+                    snow: { bg: 0xdbe6f2, ambient: 0xeeeeee, sun: 0xffffff, sunIntensity: 0.85, fog: 0xdbe6f2 },
+                    fog: { bg: 0xb8cadc, ambient: 0xdddddd, sun: 0xeeeeee, sunIntensity: 0.7, fog: 0xb8cadc },
+                    thunderstorm: { bg: 0x324458, ambient: 0x8899aa, sun: 0xbbccdd, sunIntensity: 0.5, fog: 0x324458 }
                 },
                 sunset: {
-                    clear: { bg: 0xfd5e53, ambient: 0xaa8877, sun: 0xffaa44, sunIntensity: 0.75, fog: null },
-                    cloudy: { bg: 0x995555, ambient: 0x886666, sun: 0xdd7755, sunIntensity: 0.45, fog: 0x995555 },
-                    rain: { bg: 0x4a333b, ambient: 0x66444f, sun: 0x885555, sunIntensity: 0.3, fog: 0x4a333b },
-                    snow: { bg: 0xb58899, ambient: 0x997788, sun: 0xdd99aa, sunIntensity: 0.5, fog: 0xb58899 },
-                    fog: { bg: 0x886677, ambient: 0x775566, sun: 0xaa7788, sunIntensity: 0.35, fog: 0x886677 },
-                    thunderstorm: { bg: 0x2e1f28, ambient: 0x442e37, sun: 0x663d4a, sunIntensity: 0.2, fog: 0x2e1f28 }
+                    clear: { bg: 0xff8555, ambient: 0xffddbb, sun: 0xffcc77, sunIntensity: 0.95, fog: null },
+                    cloudy: { bg: 0xcc7766, ambient: 0xddaaaa, sun: 0xffaa77, sunIntensity: 0.7, fog: 0xcc7766 },
+                    rain: { bg: 0x775566, ambient: 0x997788, sun: 0xbb8899, sunIntensity: 0.5, fog: 0x775566 },
+                    snow: { bg: 0xd699aa, ambient: 0xeeccdd, sun: 0xffbbcc, sunIntensity: 0.75, fog: 0xd699aa },
+                    fog: { bg: 0xaa7788, ambient: 0xcc99aa, sun: 0xddaabb, sunIntensity: 0.6, fog: 0xaa7788 },
+                    thunderstorm: { bg: 0x442e3a, ambient: 0x664455, sun: 0x885566, sunIntensity: 0.4, fog: 0x442e3a }
                 },
                 night: {
-                    clear: { bg: 0x070b12, ambient: 0x223355, sun: 0x5577aa, sunIntensity: 0.3, fog: null },
-                    cloudy: { bg: 0x0c1320, ambient: 0x1a2638, sun: 0x334466, sunIntensity: 0.2, fog: 0x0c1320 },
-                    rain: { bg: 0x050a14, ambient: 0x111c2e, sun: 0x223344, sunIntensity: 0.15, fog: 0x050a14 },
-                    snow: { bg: 0x162232, ambient: 0x2d3e54, sun: 0x445577, sunIntensity: 0.25, fog: 0x162232 },
-                    fog: { bg: 0x0f1926, ambient: 0x1e2b3d, sun: 0x334455, sunIntensity: 0.18, fog: 0x0f1926 },
-                    thunderstorm: { bg: 0x03060a, ambient: 0x0a101d, sun: 0x152233, sunIntensity: 0.1, fog: 0x03060a }
+                    clear: { bg: 0x1e2d42, ambient: 0x7799cc, sun: 0x99bbff, sunIntensity: 0.6, fog: null },
+                    cloudy: { bg: 0x24344a, ambient: 0x6688bb, sun: 0x88aacc, sunIntensity: 0.5, fog: 0x24344a },
+                    rain: { bg: 0x1a2638, ambient: 0x5577aa, sun: 0x7799bb, sunIntensity: 0.4, fog: 0x1a2638 },
+                    snow: { bg: 0x2d3e56, ambient: 0x88aacc, sun: 0xaaccff, sunIntensity: 0.55, fog: 0x2d3e56 },
+                    fog: { bg: 0x223246, ambient: 0x6688aa, sun: 0x88aabb, sunIntensity: 0.45, fog: 0x223246 },
+                    thunderstorm: { bg: 0x141e2c, ambient: 0x446688, sun: 0x6688aa, sunIntensity: 0.3, fog: 0x141e2c }
                 }
             };
 
@@ -1384,14 +1384,14 @@
             roadLayer = new THREE.Group(); roadLayer.renderOrder = 2; scene.add(roadLayer);
             mapLayer = new THREE.Group(); mapLayer.renderOrder = 1; scene.add(mapLayer);
 
-            // Ground
+            // 自然で落ち着いた深い草原グリーンの生成（黄緑色を排除）
             const canvas = document.createElement('canvas');
             canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d');
             for (let y = 0; y < 4; y++) {
                 for (let x = 0; x < 4; x++) {
-                    const g = 70 + Math.floor(Math.random() * 50);
-                    ctx.fillStyle = `rgb(40, ${g}, 35)`;
+                    const g = 130 + Math.floor(Math.random() * 25);
+                    ctx.fillStyle = `rgb(58, ${g}, 80)`;
                     ctx.fillRect(x * 64, y * 64, 64, 64);
                 }
             }
@@ -1428,16 +1428,17 @@
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
-            controls.maxPolarAngle = Math.PI / 2.15; // カメラが地面の裏側に回り込まないよう角度制限 (最大83.7度)
+            controls.maxPolarAngle = Math.PI / 2.15;
             controls.minPolarAngle = Math.PI / 12;
             controls.minDistance = CAMERA_DIST - 12;
             controls.maxDistance = CAMERA_DIST + 15;
             controls.target.copy(slimeGroup.position);
             camera.position.set(0, 47, 60);
 
-            ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            // 明るく解放感のある照明設定
+            ambientLight = new THREE.AmbientLight(0xffffff, 1.15);
             scene.add(ambientLight);
-            sunLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            sunLight = new THREE.DirectionalLight(0xffffff, 0.85);
             sunLight.position.set(50, 200, 100);
             scene.add(sunLight);
 
@@ -1462,10 +1463,32 @@
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
 
+                // スポット（回復のツボ・宝箱）のタップ検出 (60m以内)
+                const spotGroups = spots.filter(s => s.active && s.type !== "home").map(s => s.group);
+                const spotIntersects = raycaster.intersectObjects(spotGroups, true);
+                if (spotIntersects.length > 0) {
+                    let hitObj = spotIntersects[0].object;
+                    while (hitObj.parent && !spots.some(s => s.group === hitObj)) {
+                        hitObj = hitObj.parent;
+                    }
+                    const clickedSpot = spots.find(s => s.group === hitObj);
+                    if (clickedSpot && clickedSpot.active && slimeGroup) {
+                        const dist = slimeGroup.position.distanceTo(clickedSpot.group.position);
+                        if (dist <= 60) {
+                            interactSpot(clickedSpot);
+                            return;
+                        } else {
+                            showMessage("とおすぎて とどかない... (半径60m以内)");
+                            return;
+                        }
+                    }
+                }
+
+                // モンスターのタップ検出 (60m以内)
                 const monsterMeshes = monsters.filter(m => m.active).map(m => m.group);
-                const intersects = raycaster.intersectObjects(monsterMeshes, true);
-                if (intersects.length > 0) {
-                    let hitObj = intersects[0].object;
+                const monsterIntersects = raycaster.intersectObjects(monsterMeshes, true);
+                if (monsterIntersects.length > 0) {
+                    let hitObj = monsterIntersects[0].object;
                     while (hitObj.parent && !monsters.some(m => m.group === hitObj)) {
                         hitObj = hitObj.parent;
                     }
@@ -1503,17 +1526,16 @@
             animate();
         }
 
-        // グレー系・シックな石畳（スレートパヴェ）テクスチャの生成
+        // 綺麗なピュアグレーの石畳（舗装路）テクスチャの生成（黒ずみ・暗がりを排除）
         let cachedRoadTexture = null;
         function getCobblestoneTexture() {
-            if (cachedRoadTexture) return cachedRoadTexture;
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
             const ctx = canvas.getContext('2d');
 
-            // ダークスレートグレーの目地
-            ctx.fillStyle = '#3a3d42';
+            // ニュートラルなライトグレーの目地
+            ctx.fillStyle = '#b8c0c8';
             ctx.fillRect(0, 0, 512, 512);
 
             const rows = 16;
@@ -1530,13 +1552,11 @@
                     const h = rowH - 4;
 
                     const seed = (r * 13 + c * 29) % 100;
-                    const tone = (seed % 24);
-                    // グレーベースの石畳カラー
-                    const rCol = 112 + tone - (seed % 8);
-                    const gCol = 118 + tone - (seed % 8);
-                    const bCol = 125 + tone - (seed % 8);
+                    const tone = (seed % 14);
+                    // 均一で清潔感のある美しい純灰色（ピュアグレー）
+                    const grayVal = 205 + tone - (seed % 5);
 
-                    ctx.fillStyle = `rgb(${rCol}, ${gCol}, ${bCol})`;
+                    ctx.fillStyle = `rgb(${grayVal}, ${grayVal}, ${grayVal + 4})`;
 
                     ctx.beginPath();
                     if (typeof ctx.roundRect === 'function') {
@@ -1546,8 +1566,8 @@
                     }
                     ctx.fill();
 
-                    // 質感ハイライトとシャドウ
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    // 繊細なホワイトハイライトと明るいグレー影
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
                     ctx.lineWidth = 1.2;
                     ctx.beginPath();
                     ctx.moveTo(x + 2, y + h - 2);
@@ -1555,7 +1575,7 @@
                     ctx.lineTo(x + w - 2, y + 2);
                     ctx.stroke();
 
-                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+                    ctx.strokeStyle = 'rgba(160, 168, 176, 0.4)';
                     ctx.beginPath();
                     ctx.moveTo(x + 2, y + h - 2);
                     ctx.lineTo(x + w - 2, y + h - 2);
@@ -1705,13 +1725,13 @@
 
         function processMapData(data) {
             const buildingFillMaterial = new THREE.MeshBasicMaterial({
-                color: 0x4a3728,
+                color: 0x6e5644,
                 side: THREE.DoubleSide,
                 polygonOffset: true,
                 polygonOffsetFactor: 1,
                 polygonOffsetUnits: 1
             });
-            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xd4a85a, transparent: true, opacity: 0.6 });
+            const buildingLineMaterial = new THREE.LineBasicMaterial({ color: 0xe6b86a, transparent: true, opacity: 0.8 });
 
             const newRoadSegments = [];
             const newRoadIds = [];
@@ -1903,6 +1923,135 @@
             }
         }
 
+        // 回復のツボ 3Dモデル生成
+        function createRecoveryJarMesh() {
+            const jarGroup = new THREE.Group();
+
+            const bodyMat = new THREE.MeshPhongMaterial({
+                color: 0x00b894,
+                emissive: 0x004030,
+                shininess: 80,
+                flatShading: false
+            });
+            const bodyGeo = new THREE.CylinderGeometry(2.0, 1.4, 4.0, 16);
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 2.0;
+            jarGroup.add(body);
+
+            const rimMat = new THREE.MeshPhongMaterial({ color: 0x00cec9, shininess: 100 });
+            const rimGeo = new THREE.TorusGeometry(1.6, 0.35, 10, 20);
+            const rim = new THREE.Mesh(rimGeo, rimMat);
+            rim.rotation.x = Math.PI / 2;
+            rim.position.y = 4.1;
+            jarGroup.add(rim);
+
+            const auraMat = new THREE.MeshBasicMaterial({
+                color: 0x55efc4,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+            const auraGeo = new THREE.CylinderGeometry(2.2, 2.2, 14, 16, 1, true);
+            const aura = new THREE.Mesh(auraGeo, auraMat);
+            aura.position.y = 7.0;
+            jarGroup.add(aura);
+
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0x00ffe1,
+                transparent: true,
+                opacity: 0.85,
+                side: THREE.DoubleSide
+            });
+            const ringGeo = new THREE.RingGeometry(1.8, 3.2, 24);
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.y = 0.15;
+            jarGroup.add(ring);
+
+            jarGroup.userData = {
+                auraMesh: aura,
+                ringMesh: ring,
+                hoverOffset: Math.random() * Math.PI * 2
+            };
+
+            return jarGroup;
+        }
+
+        // 宝箱 (木・銀・金) 3Dモデル生成
+        function createTreasureChestMesh(type = "wood") {
+            const chestGroup = new THREE.Group();
+
+            let baseColor, metalColor, gemColor;
+            if (type === "gold") {
+                baseColor = 0xf7b731;
+                metalColor = 0xfffa65;
+                gemColor = 0xeb3b5a;
+            } else if (type === "silver") {
+                baseColor = 0xd1d8e0;
+                metalColor = 0x4b7bec;
+                gemColor = 0x2bcbba;
+            } else {
+                baseColor = 0x8d5524;
+                metalColor = 0x4b4b4b;
+                gemColor = 0xf7b731;
+            }
+
+            const boxMat = new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.4, metalness: type === "wood" ? 0.1 : 0.7 });
+            const metalMat = new THREE.MeshStandardMaterial({ color: metalColor, roughness: 0.2, metalness: 0.9 });
+            const gemMat = new THREE.MeshPhongMaterial({ color: gemColor, shininess: 120, emissive: gemColor, emissiveIntensity: 0.3 });
+
+            const baseGeo = new THREE.BoxGeometry(3.6, 2.2, 2.6);
+            const baseMesh = new THREE.Mesh(baseGeo, boxMat);
+            baseMesh.position.y = 1.1;
+            chestGroup.add(baseMesh);
+
+            const bandGeo = new THREE.BoxGeometry(3.7, 0.4, 2.7);
+            const bandMesh = new THREE.Mesh(bandGeo, metalMat);
+            bandMesh.position.y = 1.1;
+            chestGroup.add(bandMesh);
+
+            const lidGroup = new THREE.Group();
+            lidGroup.position.set(0, 2.2, -1.3);
+
+            const lidGeo = new THREE.CylinderGeometry(1.3, 1.3, 3.6, 12, 1, false, 0, Math.PI);
+            const lidMesh = new THREE.Mesh(lidGeo, boxMat);
+            lidMesh.rotation.z = Math.PI / 2;
+            lidMesh.position.set(0, 0, 1.3);
+            lidGroup.add(lidMesh);
+
+            const lockGeo = new THREE.BoxGeometry(0.7, 0.9, 0.3);
+            const lockMesh = new THREE.Mesh(lockGeo, metalMat);
+            lockMesh.position.set(0, 0, 2.6);
+            lidGroup.add(lockMesh);
+
+            if (type !== "wood") {
+                const gemGeo = new THREE.OctahedronGeometry(0.4, 0);
+                const gemMesh = new THREE.Mesh(gemGeo, gemMat);
+                gemMesh.position.set(0, 0.6, 2.6);
+                lidGroup.add(gemMesh);
+            }
+
+            chestGroup.add(lidGroup);
+
+            if (type === "gold") {
+                const auraGeo = new THREE.RingGeometry(2.0, 3.8, 24);
+                const auraMat = new THREE.MeshBasicMaterial({ color: 0xffeaa7, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+                const aura = new THREE.Mesh(auraGeo, auraMat);
+                aura.rotation.x = -Math.PI / 2;
+                aura.position.y = 0.15;
+                chestGroup.add(aura);
+            }
+
+            chestGroup.userData = {
+                type: type,
+                lidGroup: lidGroup,
+                isOpen: false,
+                openProgress: 0
+            };
+
+            return chestGroup;
+        }
+
         function createObjects() {
             spots.forEach(s => { if (s.type !== "home") scene.remove(s.group); });
             monsters.forEach(m => scene.remove(m.group));
@@ -1910,47 +2059,65 @@
             monsters = [];
             createHomeMarker();
 
-            for (let i = 0; i < 18; i++) {
+            // 1. 回復のツボ (7〜10個配置)
+            const jarCount = 7 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < jarCount; i++) {
+                const rx = (Math.random() - 0.5) * 1200 + slimeGroup.position.x;
+                const rz = (Math.random() - 0.5) * 1200 + slimeGroup.position.z;
+                const group = createRecoveryJarMesh();
+                group.position.set(rx, 0, rz);
+                scene.add(group);
+                spots.push({ group, type: "recovery", active: true });
+            }
+
+            // 2. 宝箱 (木・銀・金 計 6〜9個配置)
+            const chestCount = 6 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < chestCount; i++) {
+                const rx = (Math.random() - 0.5) * 1300 + slimeGroup.position.x;
+                const rz = (Math.random() - 0.5) * 1300 + slimeGroup.position.z;
+
+                const roll = Math.random();
+                let cType = "wood";
+                if (roll > 0.85) cType = "gold";
+                else if (roll > 0.55) cType = "silver";
+
+                const group = createTreasureChestMesh(cType);
+                group.position.set(rx, 0, rz);
+                scene.add(group);
+                spots.push({ group, type: "chest_" + cType, chestType: cType, active: true });
+            }
+
+            // 3. モンスター配置
+            for (let i = 0; i < 16; i++) {
                 const rx = (Math.random() - 0.5) * 1400 + slimeGroup.position.x;
                 const rz = (Math.random() - 0.5) * 1400 + slimeGroup.position.z;
                 const group = new THREE.Group();
                 group.position.set(rx, 0, rz);
 
-                const roll = Math.random();
-                if (roll > 0.6) {
-                    // 回復スポット or アイテム
-                    const isRecovery = Math.random() > 0.5;
-                    const color = isRecovery ? 0x00ffff : 0x00ff00;
-                    const p = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 18, 8), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.6 }));
-                    p.position.y = 9; group.add(p); scene.add(group);
-                    spots.push({ group, type: isRecovery ? "recovery" : "item", active: true });
-                } else {
-                    // 通常モンスター or メガモンスター（低確率ボス）
-                    const isMega = Math.random() > 0.94;
-                    const enemyType = isMega ? MEGA_MONSTER_TYPES[Math.floor(Math.random() * MEGA_MONSTER_TYPES.length)] : ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
-                    const enemyLv = isMega ? 10 : (1 + Math.floor(Math.random() * Math.max(1, playerState.lv + 1)));
-                    const scale = enemyType.scale || 1.0;
+                const isMega = Math.random() > 0.94;
+                const enemyType = isMega ? MEGA_MONSTER_TYPES[Math.floor(Math.random() * MEGA_MONSTER_TYPES.length)] : ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
+                const enemyLv = isMega ? 10 : (1 + Math.floor(Math.random() * Math.max(1, playerState.lv + 1)));
+                const scale = enemyType.scale || 1.0;
 
-                    const enemyStats = {
-                        name: (isMega ? "[MEGA] " : "") + enemyType.name,
-                        lv: enemyLv,
-                        maxHp: enemyType.baseHp + enemyLv * 5,
-                        hp: enemyType.baseHp + enemyLv * 5,
-                        atk: enemyType.baseAtk + enemyLv * 3,
-                        def: enemyType.baseDef + enemyLv * 2,
-                        exp: enemyType.exp + enemyLv * 5,
-                        drops: enemyType.drops,
-                        isMega: isMega
-                    };
+                const enemyStats = {
+                    name: (isMega ? "[MEGA] " : "") + enemyType.name,
+                    lv: enemyLv,
+                    maxHp: enemyType.baseHp + enemyLv * 5,
+                    hp: enemyType.baseHp + enemyLv * 5,
+                    atk: enemyType.baseAtk + enemyLv * 3,
+                    def: enemyType.baseDef + enemyLv * 2,
+                    exp: enemyType.exp + enemyLv * 5,
+                    drops: enemyType.drops,
+                    isMega: isMega
+                };
 
-                    const b = new THREE.Mesh(new THREE.SphereGeometry(3 * scale, 16, 16), new THREE.MeshPhongMaterial({ color: isMega ? 0x8800ff : 0xff4444 }));
-                    b.position.y = 3 * scale; group.add(b);
-                    const mark = createEmoteMark();
-                    mark.position.y = 12 * scale; mark.visible = isMega;
-                    group.add(mark);
-                    scene.add(group);
-                    monsters.push({ group, mark, active: true, velocity: new THREE.Vector3(0, 0, 0), nextMoveTime: 0, stats: enemyStats });
-                }
+                const b = new THREE.Mesh(new THREE.SphereGeometry(3 * scale, 16, 16), new THREE.MeshPhongMaterial({ color: isMega ? 0x8800ff : 0xff4444 }));
+                b.position.y = 3 * scale; group.add(b);
+                const mark = createEmoteMark();
+                mark.position.y = 12 * scale; mark.visible = isMega;
+                group.add(mark);
+                scene.add(group);
+                monsters.push({ group, mark, active: true, velocity: new THREE.Vector3(0, 0, 0), nextMoveTime: 0, stats: enemyStats });
             }
         }
 
@@ -1962,37 +2129,111 @@
             return group;
         }
 
+        function interactSpot(s) {
+            if (!s || !s.active) return;
+
+            if (s.type === "recovery") {
+                s.active = false;
+                const pStats = getPlayerBattleStats();
+                playerState.hp = pStats.maxHp;
+                playerState.mp = pStats.maxMp;
+                const bonusGold = 10 + Math.floor(Math.random() * 20);
+                playerState.gold += bonusGold;
+                updatePlayerWindow();
+
+                if (typeof playTone === 'function') {
+                    playTone(880, 'sine', 0.15, 0.08, 0);
+                    playTone(1320, 'sine', 0.25, 0.08, 0.12);
+                }
+                showMessage(`【回復のツボ】HPと MPが 全回復した！\n(＋${bonusGold}G)`);
+
+                setTimeout(() => { scene.remove(s.group); }, 400);
+
+            } else if (s.type.startsWith("chest_")) {
+                s.active = false;
+                const cType = s.chestType || "wood";
+                const chestData = s.group.userData;
+                if (chestData) chestData.isOpen = true;
+
+                let goldReward = 0;
+                let itemPool = [];
+                let chestName = "木の宝箱";
+
+                if (cType === "gold") {
+                    chestName = "金の宝箱";
+                    goldReward = 500 + Math.floor(Math.random() * 700);
+                    itemPool = ["せかいじゅのしずく", "ふっかつのおうとう", "特やくそう", "まほうのせいすい"];
+                } else if (cType === "silver") {
+                    chestName = "銀の宝箱";
+                    goldReward = 180 + Math.floor(Math.random() * 250);
+                    itemPool = ["特やくそう", "まほうのせいすい", "上やくそう", "めざめのはな"];
+                } else {
+                    chestName = "木の宝箱";
+                    goldReward = 50 + Math.floor(Math.random() * 100);
+                    itemPool = ["やくそう", "上やくそう", "どくけしそう", "せいすい"];
+                }
+
+                playerState.gold += goldReward;
+                const item = itemPool[Math.floor(Math.random() * itemPool.length)];
+                inventory.push(item);
+                updateInventoryUI();
+                updatePlayerWindow();
+                addQuestProgress("pickup", 1);
+
+                if (typeof playTone === 'function') {
+                    playTone(660, 'sine', 0.12, 0.08, 0);
+                    playTone(880, 'sine', 0.12, 0.08, 0.08);
+                    playTone(1100, 'sine', 0.2, 0.08, 0.16);
+                }
+                showMessage(`【${chestName}】を あけた！\n${goldReward}G と 「${item}」 を 手に入れた！`);
+
+                setTimeout(() => { scene.remove(s.group); }, 2500);
+
+            } else if (s.type === "home") {
+                const pStats = getPlayerBattleStats();
+                if (playerState.hp < pStats.maxHp || playerState.mp < pStats.maxMp) {
+                    playerState.hp = pStats.maxHp;
+                    playerState.mp = pStats.maxMp;
+                    updatePlayerWindow();
+                    showMessage("自宅で やすんで HP・MP全回復！");
+                }
+            }
+        }
+
         function handleInteraction() {
             spots.forEach(s => {
                 if (s.active && slimeGroup.position.distanceTo(s.group.position) < 11) {
-                    if (s.type === "recovery") {
-                        s.active = false;
-                        const pStats = getPlayerBattleStats();
-                        playerState.hp = pStats.maxHp;
-                        playerState.mp = pStats.maxMp;
-                        showMessage("HP・MPが まんたんに なった！");
-                        scene.remove(s.group);
-                    } else if (s.type === "item") {
-                        s.active = false;
-                        const item = ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
-                        inventory.push(item);
-                        updateInventoryUI();
-                        addQuestProgress("pickup", 1);
-                        showMessage(`${item}を みつけた！`);
-                        scene.remove(s.group);
-                    } else if (s.type === "home") {
-                        const pStats = getPlayerBattleStats();
-                        if (playerState.hp < pStats.maxHp || playerState.mp < pStats.maxMp) {
-                            playerState.hp = pStats.maxHp;
-                            playerState.mp = pStats.maxMp;
-                            showMessage("自宅で やすんで HP・MP全回復！");
-                        }
-                    }
+                    interactSpot(s);
                 }
             });
             monsters.forEach(m => {
                 if (m.active && slimeGroup.position.distanceTo(m.group.position) < 11) {
                     beginBattle(m);
+                }
+            });
+        }
+
+        function updateFieldSpots(now) {
+            spots.forEach(s => {
+                if (!s.group) return;
+
+                if (s.type === "recovery") {
+                    const uData = s.group.userData;
+                    if (uData && uData.ringMesh) {
+                        uData.ringMesh.rotation.z += 0.02;
+                    }
+                    if (uData && uData.hoverOffset !== undefined) {
+                        s.group.position.y = Math.sin(now * 0.003 + uData.hoverOffset) * 0.5;
+                    }
+                }
+
+                if (s.type && s.type.startsWith("chest_")) {
+                    const uData = s.group.userData;
+                    if (uData && uData.isOpen && uData.lidGroup && uData.openProgress < 1) {
+                        uData.openProgress += 0.08;
+                        const t = Math.min(uData.openProgress, 1);
+                        uData.lidGroup.rotation.x = -1.3 * t;
+                    }
                 }
             });
         }
@@ -3107,6 +3348,8 @@
             updateWeatherParticles();
             // 雲オブジェクトの更新
             updateCloudObjects();
+            // 回復のツボ＆宝箱のアニメーション更新
+            updateFieldSpots(now);
 
             // 建物のスケールアニメのみ（opacity操作なし→ マテリアル共有OK）
             mapLayer.children.forEach(child => {
