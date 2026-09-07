@@ -894,9 +894,10 @@
         const animatingBuildings = [];
         let lastVisibilityUpdatePos = new THREE.Vector3(99999, 99999, 99999);
         const mouse = new THREE.Vector2();
-        const inventory = [];
+        window.inventory = [];
+        const inventory = window.inventory;
         const ITEM_POOL = ["やくそう", "どうのつるぎ", "かわのたて", "どくけしそう", "スライムゼリー", "スライムコイン"];
-        const ITEM_DEFS = {
+        window.ITEM_DEFS = {
             "やくそう": { type: "consumable", heal: 15 },
             "どくけしそう": { type: "consumable", heal: 8 },
             "まほうのせいすい": { type: "consumable", mpHeal: 10 },
@@ -912,6 +913,7 @@
             "キングスライムのこころ": { type: "heart", atk: 15, def: 10, hp: 40, cost: 25 },
             "スライムコイン": { type: "misc" }
         };
+        const ITEM_DEFS = window.ITEM_DEFS;
         const JOB_DEFS = {
             "戦士": { hp: 1.2, mp: 0.8, atk: 1.2, def: 1.2, skill: "ぶんまわし", skillDmg: 1.3, mpCost: 3 },
             "僧侶": { hp: 1.0, mp: 1.5, atk: 0.8, def: 1.0, skill: "ホイミ", heal: 25, mpCost: 4 },
@@ -1010,26 +1012,26 @@
                 day: {
                     clear: { bg: 0x78b3ff, ambient: 0xffffff, sun: 0xffffff, sunIntensity: 1.0, fog: null },
                     cloudy: { bg: 0xc4d6e8, ambient: 0xeeeeee, sun: 0xffffff, sunIntensity: 0.85, fog: 0xc4d6e8 },
-                    rain: { bg: 0x6c8299, ambient: 0xccccdd, sun: 0xddeeff, sunIntensity: 0.7, fog: 0x6c8299 },
+                    rain: { bg: 0x667788, ambient: 0x8899aa, sun: 0xaabbcc, sunIntensity: 0.6, fog: 0x667788 },
                     snow: { bg: 0xdbe6f2, ambient: 0xeeeeee, sun: 0xffffff, sunIntensity: 0.85, fog: 0xdbe6f2 },
-                    fog: { bg: 0xb8cadc, ambient: 0xdddddd, sun: 0xeeeeee, sunIntensity: 0.7, fog: 0xb8cadc },
-                    thunderstorm: { bg: 0x324458, ambient: 0x8899aa, sun: 0xbbccdd, sunIntensity: 0.5, fog: 0x324458 }
+                    fog: { bg: 0xaabbcc, ambient: 0xdddddd, sun: 0xeeeeee, sunIntensity: 0.7, fog: 0xaabbcc },
+                    thunderstorm: { bg: 0x333344, ambient: 0x667788, sun: 0x8899aa, sunIntensity: 0.4, fog: 0x333344 }
                 },
                 sunset: {
-                    clear: { bg: 0xff8555, ambient: 0xffddbb, sun: 0xffcc77, sunIntensity: 0.95, fog: null },
-                    cloudy: { bg: 0xcc7766, ambient: 0xddaaaa, sun: 0xffaa77, sunIntensity: 0.7, fog: 0xcc7766 },
-                    rain: { bg: 0x775566, ambient: 0x997788, sun: 0xbb8899, sunIntensity: 0.5, fog: 0x775566 },
-                    snow: { bg: 0xd699aa, ambient: 0xeeccdd, sun: 0xffbbcc, sunIntensity: 0.75, fog: 0xd699aa },
-                    fog: { bg: 0xaa7788, ambient: 0xcc99aa, sun: 0xddaabb, sunIntensity: 0.6, fog: 0xaa7788 },
-                    thunderstorm: { bg: 0x442e3a, ambient: 0x664455, sun: 0x885566, sunIntensity: 0.4, fog: 0x442e3a }
+                    clear: { bg: 0xffaa55, ambient: 0xffccaa, sun: 0xffbb66, sunIntensity: 0.9, fog: null },
+                    cloudy: { bg: 0xbbaaaa, ambient: 0xccbbbb, sun: 0xddccaa, sunIntensity: 0.7, fog: 0xbbaaaa },
+                    rain: { bg: 0x666677, ambient: 0x777788, sun: 0x888899, sunIntensity: 0.5, fog: 0x666677 },
+                    snow: { bg: 0xaabbcc, ambient: 0xbbccdd, sun: 0xccddee, sunIntensity: 0.75, fog: 0xaabbcc },
+                    fog: { bg: 0x888899, ambient: 0x9999aa, sun: 0xaaaabb, sunIntensity: 0.6, fog: 0x888899 },
+                    thunderstorm: { bg: 0x444455, ambient: 0x555566, sun: 0x666677, sunIntensity: 0.4, fog: 0x444455 }
                 },
                 night: {
                     clear: { bg: 0x1e2d42, ambient: 0x7799cc, sun: 0x99bbff, sunIntensity: 0.6, fog: null },
                     cloudy: { bg: 0x24344a, ambient: 0x6688bb, sun: 0x88aacc, sunIntensity: 0.5, fog: 0x24344a },
-                    rain: { bg: 0x1a2638, ambient: 0x5577aa, sun: 0x7799bb, sunIntensity: 0.4, fog: 0x1a2638 },
+                    rain: { bg: 0x1a222e, ambient: 0x445566, sun: 0x667788, sunIntensity: 0.3, fog: 0x1a222e },
                     snow: { bg: 0x2d3e56, ambient: 0x88aacc, sun: 0xaaccff, sunIntensity: 0.55, fog: 0x2d3e56 },
                     fog: { bg: 0x223246, ambient: 0x6688aa, sun: 0x88aabb, sunIntensity: 0.45, fog: 0x223246 },
-                    thunderstorm: { bg: 0x141e2c, ambient: 0x446688, sun: 0x6688aa, sunIntensity: 0.3, fog: 0x141e2c }
+                    thunderstorm: { bg: 0x101520, ambient: 0x334455, sun: 0x556677, sunIntensity: 0.2, fog: 0x101520 }
                 }
             };
 
@@ -1535,7 +1537,7 @@
             const ctx = canvas.getContext('2d');
 
             // ニュートラルなライトグレーの目地
-            ctx.fillStyle = '#b8c0c8';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, 512, 512);
 
             const rows = 16;
@@ -1553,10 +1555,10 @@
 
                     const seed = (r * 13 + c * 29) % 100;
                     const tone = (seed % 14);
-                    // 均一で清潔感のある美しい純灰色（ピュアグレー）
-                    const grayVal = 205 + tone - (seed % 5);
+                    // 白基調の道路
+                    const grayVal = 245 + (seed % 10);
 
-                    ctx.fillStyle = `rgb(${grayVal}, ${grayVal}, ${grayVal + 4})`;
+                    ctx.fillStyle = `rgb(${grayVal}, ${grayVal}, ${grayVal})`;
 
                     ctx.beginPath();
                     if (typeof ctx.roundRect === 'function') {
@@ -1688,7 +1690,7 @@
             geom.setIndex(allIdx);
 
             const texture = getCobblestoneTexture();
-            const mat = new THREE.MeshLambertMaterial({
+            const mat = new THREE.MeshBasicMaterial({
                 map: texture,
                 side: THREE.DoubleSide,
                 polygonOffset: true,
@@ -2111,8 +2113,48 @@
                     isMega: isMega
                 };
 
-                const b = new THREE.Mesh(new THREE.SphereGeometry(3 * scale, 16, 16), new THREE.MeshPhongMaterial({ color: isMega ? 0x8800ff : 0xff4444 }));
-                b.position.y = 3 * scale; group.add(b);
+                let enemyColor = 0xff4444;
+                if (enemyType.name.includes("スライム")) enemyColor = 0x3399ff;
+                else if (enemyType.name.includes("ドラキー")) enemyColor = 0x555577;
+                else if (enemyType.name.includes("おおがらす")) enemyColor = 0x222222;
+                else if (enemyType.name.includes("ゴーレム")) enemyColor = 0xcc8833;
+
+                let enemyMesh;
+                if (enemyType.name.includes("ゴーレム")) {
+                    enemyMesh = new THREE.Mesh(new THREE.BoxGeometry(5 * scale, 5 * scale, 5 * scale), new THREE.MeshPhongMaterial({ color: enemyColor }));
+                    enemyMesh.position.y = 2.5 * scale;
+                } else if (enemyType.name.includes("スライム")) {
+                    enemyMesh = new THREE.Group();
+                    const b = new THREE.Mesh(new THREE.SphereGeometry(3 * scale, 32, 32), new THREE.MeshPhongMaterial({ color: enemyColor }));
+                    b.position.y = 3 * scale;
+                    b.scale.set(1.1, 0.85, 1.1);
+                    const h = new THREE.Mesh(new THREE.ConeGeometry(1.5 * scale, 3 * scale, 32), new THREE.MeshPhongMaterial({ color: enemyColor }));
+                    h.position.y = 4.5 * scale;
+                    enemyMesh.add(b);
+                    enemyMesh.add(h);
+                } else if (enemyType.name.includes("ドラキー")) {
+                    enemyMesh = new THREE.Group();
+                    const b = new THREE.Mesh(new THREE.SphereGeometry(2.5 * scale, 32, 32), new THREE.MeshPhongMaterial({ color: enemyColor }));
+                    b.position.y = 3 * scale;
+                    const w1 = new THREE.Mesh(new THREE.BoxGeometry(3 * scale, 0.5 * scale, 1 * scale), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+                    w1.position.set(2.5 * scale, 3.5 * scale, 0);
+                    const w2 = new THREE.Mesh(new THREE.BoxGeometry(3 * scale, 0.5 * scale, 1 * scale), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+                    w2.position.set(-2.5 * scale, 3.5 * scale, 0);
+                    enemyMesh.add(b);
+                    enemyMesh.add(w1);
+                    enemyMesh.add(w2);
+                } else {
+                    enemyMesh = new THREE.Group();
+                    const b = new THREE.Mesh(new THREE.SphereGeometry(2.5 * scale, 32, 32), new THREE.MeshPhongMaterial({ color: enemyColor }));
+                    b.position.y = 3 * scale;
+                    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.8 * scale, 2.5 * scale, 16), new THREE.MeshPhongMaterial({ color: 0xffcc00 }));
+                    beak.rotation.x = Math.PI / 2;
+                    beak.position.set(0, 3 * scale, 2.5 * scale);
+                    enemyMesh.add(b);
+                    enemyMesh.add(beak);
+                }
+                
+                group.add(enemyMesh);
                 const mark = createEmoteMark();
                 mark.position.y = 12 * scale; mark.visible = isMega;
                 group.add(mark);
@@ -3873,48 +3915,53 @@
 
 
 
+
+
+
 <!-- GACHA_SYSTEM_START -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
     #gacha-floating-panel {
+        display: none;
         position: fixed;
         bottom: 20px;
         right: 20px;
         width: 300px;
-        background: rgba(6, 10, 20, 0.95);
-        border: 1px solid #00f3ff;
-        border-radius: 14px;
+        background: rgba(10, 16, 28, 0.9);
+        border: 2px solid #f3c85c;
+        border-radius: 12px;
         padding: 14px;
-        color: #e0f7fa;
-        font-family: monospace, sans-serif;
+        color: #fff;
+        font-family: 'DotGothic16', 'Press Start 2P', cursive;
         z-index: 999999;
-        box-shadow: 0 0 25px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.1);
-        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(12px);
         text-align: center;
     }
     .gacha-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         padding-bottom: 6px;
         margin-bottom: 8px;
     }
     .gacha-title-bar {
-        font-size: 0.9rem;
-        color: #00f3ff;
+        font-size: 14px;
+        color: #f3c85c;
         font-weight: bold;
-        letter-spacing: 1px;
-        text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 0 #000;
     }
     #gacha-3d-canvas {
         width: 100%;
         height: 150px;
-        background: radial-gradient(circle at center, #0a1128 0%, #02040a 100%);
+        background: #0b1526;
         border-radius: 8px;
         margin: 6px 0;
-        border: 1px solid rgba(0, 243, 255, 0.2);
+        border: 2px solid #000000;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     }
     .gacha-btn-group {
         display: flex;
@@ -3923,24 +3970,32 @@
         margin-top: 6px;
     }
     .gacha-btn {
-        background: linear-gradient(135deg, rgba(0,243,255,0.2) 0%, rgba(0,119,255,0.4) 100%);
-        color: #00f3ff;
-        border: 1px solid #00f3ff;
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        border-radius: 6px;
+        background: linear-gradient(135deg, rgba(0, 180, 255, 0.25) 0%, rgba(0, 100, 255, 0.15) 100%);
+        color: #fff;
+        border: 1px solid rgba(0, 180, 255, 0.4);
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 10px;
         cursor: pointer;
         font-weight: bold;
+        font-family: 'DotGothic16', cursive;
         transition: all 0.2s;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
     }
     .gacha-btn.ten {
-        background: linear-gradient(135deg, rgba(255,0,128,0.2) 0%, rgba(255,0,85,0.5) 100%);
-        color: #ff007f;
+        background: linear-gradient(135deg, rgba(255, 0, 128, 0.2) 0%, rgba(255, 0, 85, 0.5) 100%);
+        color: #ffccff;
         border-color: #ff007f;
     }
     .gacha-btn:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 0 12px currentColor;
+    }
+    .gacha-btn:active:not(:disabled) {
+        transform: scale(0.95);
+        background: linear-gradient(135deg, rgba(0, 180, 255, 0.4) 0%, rgba(0, 100, 255, 0.3) 100%);
+        border-color: rgba(0, 220, 255, 0.6);
     }
     .gacha-btn:disabled {
         opacity: 0.4;
@@ -3955,12 +4010,12 @@
         background: rgba(0, 0, 0, 0.7);
         padding: 8px;
         border-radius: 6px;
-        font-size: 0.78rem;
+        font-size: 12px;
         max-height: 90px;
         overflow-y: auto;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         text-align: left;
-        line-height: 1.4;
+        line-height: 1.5;
     }
     .rarity-ssr { color: #ffe600; font-weight: bold; text-shadow: 0 0 8px #ffaa00; }
     .rarity-sr { color: #e0e0e0; font-weight: bold; text-shadow: 0 0 5px #aaa; }
@@ -3969,8 +4024,11 @@
 
 <div id="gacha-floating-panel">
     <div class="gacha-header">
-        <div class="gacha-title-bar">✦ CYBER GACHA</div>
-        <div style="font-size: 0.8rem; color: #00f3ff;">💎 ∞</div>
+        <div class="gacha-title-bar">【 ガチャ 】</div>
+        <div style="font-size: 12px; color: #f3c85c; display: flex; align-items: center; gap: 8px;">
+            <span>💎 ∞</span>
+            <button onclick="document.getElementById('gacha-floating-panel').style.display='none'" style="background:transparent; border:none; color:#f3c85c; font-weight:bold; cursor:pointer; font-size:16px; line-height:1;">×</button>
+        </div>
     </div>
     
     <div id="gacha-3d-canvas"></div>
@@ -4028,6 +4086,8 @@
                 if (!isExecuting) {
                     setGachaButtonsState(true, "システム起動完了。実行可能です。");
                 }
+                const mainBtn = document.getElementById('gacha-btn-main');
+                if (mainBtn) mainBtn.style.display = '';
             } else {
                 setGachaButtonsState(false, "🌐 マップ読み込み待機中...");
                 setTimeout(check, 500);
@@ -4045,11 +4105,11 @@
         possibleBagKeys.forEach(key => {
             if (window[key]) {
                 if (Array.isArray(window[key])) {
-                    window[key].push(item);
+                    window[key].push(item.name);
                 } else if (typeof window[key] === 'object') {
                     ['inventory', 'bag', 'items', 'itemList'].forEach(subKey => {
                         if (Array.isArray(window[key][subKey])) {
-                            window[key][subKey].push(item);
+                            window[key][subKey].push(item.name);
                         }
                     });
                 }
@@ -4075,35 +4135,33 @@
         if (!canvasBox) return;
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, canvasBox.clientWidth / canvasBox.clientHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(50, 272 / 150, 0.1, 1000);
         camera.position.z = 4.2;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(canvasBox.clientWidth, canvasBox.clientHeight);
+        renderer.setSize(272, 150);
         canvasBox.appendChild(renderer.domElement);
 
         const group = new THREE.Group();
         scene.add(group);
 
-        const ringGeo = new THREE.TorusGeometry(1.3, 0.02, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true });
-        const ring1 = new THREE.Mesh(ringGeo, ringMat);
-        group.add(ring1);
-
-        const ring2 = new THREE.Mesh(ringGeo, ringMat);
-        ring2.rotation.x = Math.PI;
-        ring2.rotation.y = Math.PI / 4;
-        group.add(ring2);
-
-        const coreGeo = new THREE.OctahedronGeometry(0.75, 0);
+        const coreGroup = new THREE.Group();
         const coreMat = new THREE.MeshStandardMaterial({ 
-            color: 0x00f3ff, 
-            wireframe: true,
-            emissive: 0x00aaff,
-            emissiveIntensity: 0.6
+            color: 0x3399ff, 
+            wireframe: false,
+            emissive: 0x1144aa,
+            emissiveIntensity: 0.4
         });
-        const core = new THREE.Mesh(coreGeo, coreMat);
-        group.add(core);
+        const bodyGeo = new THREE.SphereGeometry(0.6, 32, 32);
+        const bodyMesh = new THREE.Mesh(bodyGeo, coreMat);
+        bodyMesh.scale.set(1.1, 0.85, 1.1);
+        const hornGeo = new THREE.ConeGeometry(0.25, 0.5, 32);
+        const hornMesh = new THREE.Mesh(hornGeo, coreMat);
+        hornMesh.position.y = 0.55;
+        coreGroup.add(bodyMesh);
+        coreGroup.add(hornMesh);
+        group.add(coreGroup);
+        const core = coreGroup;
 
         const pLight = new THREE.PointLight(0x00f3ff, 2.5, 10);
         pLight.position.set(0, 0, 2);
@@ -4114,9 +4172,6 @@
             requestAnimationFrame(renderLoop);
             if (!isExecuting) {
                 group.rotation.y += 0.01;
-                group.rotation.x += 0.005;
-                ring1.rotation.z -= 0.015;
-                ring2.rotation.z += 0.015;
             }
             renderer.render(scene, camera);
         }
@@ -4150,8 +4205,7 @@
             let startTime = Date.now();
             let duration = 3800;
 
-            const targetColor = hasSSR ? 0xff007f : hasSR ? 0xffaa00 : 0x00f3ff;
-            ringMat.color.setHex(targetColor);
+            const targetColor = hasSSR ? 0xff007f : hasSR ? 0xffaa00 : 0x3399ff;
             coreMat.color.setHex(targetColor);
             coreMat.emissive.setHex(targetColor);
             pLight.color.setHex(targetColor);
@@ -4163,12 +4217,9 @@
                 if (progress < 1.0) {
                     let speedFactor = 0.01 + Math.pow(progress, 3) * 1.4;
 
-                    group.rotation.y += speedFactor;
-                    group.rotation.x += speedFactor * 0.7;
-                    ring1.rotation.z -= speedFactor * 1.6;
-                    ring2.rotation.z += speedFactor * 1.8;
+                    group.rotation.y += speedFactor * 1.5;
 
-                    coreMat.emissiveIntensity = 0.6 + Math.pow(progress, 2) * 8.0;
+                    coreMat.emissiveIntensity = 0.4 + Math.pow(progress, 2) * 5.0;
                     pLight.intensity = 2.5 + Math.pow(progress, 2) * 15.0;
 
                     let scalePulse = 1 + Math.sin(progress * Math.PI * 12) * (0.05 + progress * 0.4);
@@ -4178,7 +4229,7 @@
                 } else {
                     isExecuting = false;
                     core.scale.setScalar(1);
-                    coreMat.emissiveIntensity = 0.6;
+                    coreMat.emissiveIntensity = 0.4;
                     pLight.intensity = 2.5;
 
                     let html = `<b>✦ 獲得アイテム (${count}件)</b><br>`;
@@ -4193,6 +4244,20 @@
             }
             animate();
         };
+
+        const bagGui = document.getElementById('bag-gui');
+        if (bagGui && !document.getElementById('gacha-btn-main')) {
+            const btn = document.createElement('button');
+            btn.id = 'gacha-btn-main';
+            btn.className = 'game-btn';
+            btn.innerText = 'ガチャ';
+            btn.style.display = 'none'; // Hidden until map loads
+            btn.onclick = () => {
+                const panel = document.getElementById('gacha-floating-panel');
+                panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+            };
+            bagGui.appendChild(btn);
+        }
 
         initMapObserver();
     }

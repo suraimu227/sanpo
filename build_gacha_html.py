@@ -16,43 +16,42 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
 
 <style>
     #gacha-floating-panel {
+        display: none;
         position: fixed;
         bottom: 20px;
         right: 20px;
         width: 300px;
-        background: rgba(6, 10, 20, 0.95);
-        border: 1px solid #00f3ff;
-        border-radius: 14px;
+        background: #000;
+        border: 4px solid #fff;
+        border-radius: 8px;
         padding: 14px;
-        color: #e0f7fa;
-        font-family: monospace, sans-serif;
+        color: #fff;
+        font-family: 'DotGothic16', 'Press Start 2P', cursive;
         z-index: 999999;
-        box-shadow: 0 0 25px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.1);
-        backdrop-filter: blur(8px);
+        box-shadow: inset 0 0 0 2px #000, 0 0 0 2px #fff;
         text-align: center;
     }
     .gacha-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+        border-bottom: 2px solid #fff;
         padding-bottom: 6px;
         margin-bottom: 8px;
     }
     .gacha-title-bar {
-        font-size: 0.9rem;
-        color: #00f3ff;
+        font-size: 16px;
+        color: #fff;
         font-weight: bold;
-        letter-spacing: 1px;
-        text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+        letter-spacing: 2px;
     }
     #gacha-3d-canvas {
         width: 100%;
         height: 150px;
-        background: radial-gradient(circle at center, #0a1128 0%, #02040a 100%);
-        border-radius: 8px;
+        background: #000;
+        border-radius: 4px;
         margin: 6px 0;
-        border: 1px solid rgba(0, 243, 255, 0.2);
+        border: 2px solid #fff;
     }
     .gacha-btn-group {
         display: flex;
@@ -61,61 +60,59 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
         margin-top: 6px;
     }
     .gacha-btn {
-        background: linear-gradient(135deg, rgba(0,243,255,0.2) 0%, rgba(0,119,255,0.4) 100%);
-        color: #00f3ff;
-        border: 1px solid #00f3ff;
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        border-radius: 6px;
+        background: #000;
+        color: #fff;
+        border: 2px solid #fff;
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 4px;
         cursor: pointer;
         font-weight: bold;
+        font-family: 'DotGothic16', cursive;
         transition: all 0.2s;
     }
-    .gacha-btn.ten {
-        background: linear-gradient(135deg, rgba(255,0,128,0.2) 0%, rgba(255,0,85,0.5) 100%);
-        color: #ff007f;
-        border-color: #ff007f;
-    }
     .gacha-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 0 12px currentColor;
+        background: #fff;
+        color: #000;
+    }
+    .gacha-btn:active:not(:disabled) {
+        transform: scale(0.95);
     }
     .gacha-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
-        border-color: #555 !important;
-        color: #888 !important;
-        background: rgba(50, 50, 50, 0.3) !important;
-        box-shadow: none !important;
     }
     #gacha-result-log {
         margin-top: 8px;
-        background: rgba(0, 0, 0, 0.7);
+        background: #000;
         padding: 8px;
-        border-radius: 6px;
-        font-size: 0.78rem;
+        border-radius: 4px;
+        font-size: 12px;
         max-height: 90px;
         overflow-y: auto;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 2px solid #fff;
         text-align: left;
-        line-height: 1.4;
+        line-height: 1.5;
     }
-    .rarity-ssr { color: #ffe600; font-weight: bold; text-shadow: 0 0 8px #ffaa00; }
-    .rarity-sr { color: #e0e0e0; font-weight: bold; text-shadow: 0 0 5px #aaa; }
-    .rarity-r { color: #64b5f6; }
+    .rarity-ssr { color: #ffd700; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+    .rarity-sr { color: #c0c0c0; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+    .rarity-r { color: #cd7f32; }
 </style>
 
 <div id="gacha-floating-panel">
     <div class="gacha-header">
-        <div class="gacha-title-bar">✦ CYBER GACHA</div>
-        <div style="font-size: 0.8rem; color: #00f3ff;">💎 ∞</div>
+        <div class="gacha-title-bar">【 ふくびき 】</div>
+        <div style="font-size: 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>Ｇ ∞</span>
+            <button onclick="document.getElementById('gacha-floating-panel').style.display='none'" style="background:transparent; border:none; color:#fff; font-weight:bold; cursor:pointer; font-size:16px; line-height:1;">×</button>
+        </div>
     </div>
     
     <div id="gacha-3d-canvas"></div>
 
     <div class="gacha-btn-group">
-        <button id="gacha-btn-1" class="gacha-btn" onclick="runGachaProcess(1)">EXECUTE x1</button>
-        <button id="gacha-btn-10" class="gacha-btn ten" onclick="runGachaProcess(10)">EXECUTE x10</button>
+        <button id="gacha-btn-1" class="gacha-btn" onclick="runGachaProcess(1)">１回 ひく</button>
+        <button id="gacha-btn-10" class="gacha-btn" onclick="runGachaProcess(10)">１０回 ひく</button>
     </div>
 
     <div id="gacha-result-log">マップ初期化チェック中...</div>
@@ -126,17 +123,17 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
     const ITEMS_DB = {
         SSR: [
             { id: "ssr_1", name: "★SSR★ ロトのつるぎ", type: "weapon", atk: 120 },
-            { id: "ssr_2", name: "★SSR★ 勇者の盾", type: "armor", def: 100 },
+            { id: "ssr_2", name: "★SSR★ 勇者の盾", type: "shield", def: 100 },
             { id: "ssr_3", name: "★SSR★ りゅうおうのこころ", type: "accessory", atk: 80, def: 80 }
         ],
         SR: [
             { id: "sr_1", name: "☆SR☆ 鋼のつるぎ", type: "weapon", atk: 50 },
-            { id: "sr_2", name: "☆SR☆ 魔法の盾", type: "armor", def: 45 },
+            { id: "sr_2", name: "☆SR☆ 魔法の盾", type: "shield", def: 45 },
             { id: "sr_3", name: "☆SR☆ キラーマシンのこころ", type: "accessory", atk: 40, def: 30 }
         ],
         R: [
             { id: "r_1", name: "[R] 銅の剣", type: "weapon", atk: 15 },
-            { id: "r_2", name: "[R] 皮のたて", type: "armor", def: 12 },
+            { id: "r_2", name: "[R] 皮のたて", type: "shield", def: 12 },
             { id: "r_3", name: "[R] スライムのこころ", type: "accessory", atk: 10, def: 10 }
         ]
     };
@@ -166,6 +163,8 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
                 if (!isExecuting) {
                     setGachaButtonsState(true, "システム起動完了。実行可能です。");
                 }
+                const mainBtn = document.getElementById('gacha-btn-main');
+                if (mainBtn) mainBtn.style.display = '';
             } else {
                 setGachaButtonsState(false, "🌐 マップ読み込み待機中...");
                 setTimeout(check, 500);
@@ -175,6 +174,15 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
     }
 
     function forcePushToOriginalBag(item) {
+        if (window.ITEM_DEFS) {
+            window.ITEM_DEFS[item.name] = {
+                type: item.type || "weapon",
+                atk: item.atk || 0,
+                def: item.def || 0,
+                heal: item.heal || 0
+            };
+        }
+        
         const possibleBagKeys = [
             'playerInventory', 'inventory', 'bag', 'items', 'itemList', 'playerBag',
             'playerState', 'player', 'gameState', 'userItems', 'myItems'
@@ -183,11 +191,11 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
         possibleBagKeys.forEach(key => {
             if (window[key]) {
                 if (Array.isArray(window[key])) {
-                    window[key].push(item);
+                    window[key].push(item.name);
                 } else if (typeof window[key] === 'object') {
                     ['inventory', 'bag', 'items', 'itemList'].forEach(subKey => {
                         if (Array.isArray(window[key][subKey])) {
-                            window[key][subKey].push(item);
+                            window[key][subKey].push(item.name);
                         }
                     });
                 }
@@ -213,48 +221,66 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
         if (!canvasBox) return;
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, canvasBox.clientWidth / canvasBox.clientHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(50, 272 / 150, 0.1, 1000);
         camera.position.z = 4.2;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(canvasBox.clientWidth, canvasBox.clientHeight);
+        renderer.setSize(272, 150);
         canvasBox.appendChild(renderer.domElement);
 
         const group = new THREE.Group();
         scene.add(group);
 
-        const ringGeo = new THREE.TorusGeometry(1.3, 0.02, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true });
-        const ring1 = new THREE.Mesh(ringGeo, ringMat);
-        group.add(ring1);
-
-        const ring2 = new THREE.Mesh(ringGeo, ringMat);
-        ring2.rotation.x = Math.PI;
-        ring2.rotation.y = Math.PI / 4;
-        group.add(ring2);
-
-        const coreGeo = new THREE.OctahedronGeometry(0.75, 0);
+        const coreGroup = new THREE.Group();
         const coreMat = new THREE.MeshStandardMaterial({ 
-            color: 0x00f3ff, 
-            wireframe: true,
-            emissive: 0x00aaff,
-            emissiveIntensity: 0.6
+            color: 0xcd7f32, 
+            roughness: 0.8,
+            metalness: 0.2
         });
-        const core = new THREE.Mesh(coreGeo, coreMat);
-        group.add(core);
+        const bandMat = new THREE.MeshStandardMaterial({
+            color: 0x888888,
+            roughness: 0.4,
+            metalness: 0.8
+        });
+        
+        // Treasure Box Body
+        const bodyGeo = new THREE.BoxGeometry(1.2, 0.8, 0.8);
+        const bodyMesh = new THREE.Mesh(bodyGeo, coreMat);
+        bodyMesh.position.y = -0.2;
+        
+        const band1 = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.1, 0.85), bandMat);
+        band1.position.y = -0.2;
+        
+        // Treasure Box Lid
+        const lidGroup = new THREE.Group();
+        lidGroup.position.set(0, 0.2, -0.4); // Hinge position
+        
+        const lidGeo = new THREE.BoxGeometry(1.2, 0.3, 0.8);
+        const lidMesh = new THREE.Mesh(lidGeo, coreMat);
+        lidMesh.position.set(0, 0.15, 0.4); // Offset from hinge
+        
+        const band2 = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.35, 0.85), bandMat);
+        band2.position.set(0, 0.15, 0.4);
+        
+        lidGroup.add(lidMesh);
+        lidGroup.add(band2);
+        
+        coreGroup.add(bodyMesh);
+        coreGroup.add(band1);
+        coreGroup.add(lidGroup);
+        
+        group.add(coreGroup);
+        const core = coreGroup;
 
-        const pLight = new THREE.PointLight(0x00f3ff, 2.5, 10);
-        pLight.position.set(0, 0, 2);
+        const pLight = new THREE.PointLight(0xffffff, 1.0, 10);
+        pLight.position.set(0, 1, 2);
         scene.add(pLight);
-        scene.add(new THREE.AmbientLight(0x222244));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
         function renderLoop() {
             requestAnimationFrame(renderLoop);
             if (!isExecuting) {
                 group.rotation.y += 0.01;
-                group.rotation.x += 0.005;
-                ring1.rotation.z -= 0.015;
-                ring2.rotation.z += 0.015;
             }
             renderer.render(scene, camera);
         }
@@ -264,7 +290,7 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
             if (!isMapLoaded || isExecuting) return;
 
             isExecuting = true;
-            setGachaButtonsState(false, "⚡ <span style='color:#00f3ff;'>高次元エネルギー充填中...</span>");
+            setGachaButtonsState(false, "宝箱をあけている...");
 
             let results = [];
             let hasSSR = false;
@@ -286,51 +312,67 @@ GACHA_UI_HTML = """<!-- GACHA_SYSTEM_START -->
             }
 
             let startTime = Date.now();
-            let duration = 3800;
+            let duration = 3000;
 
-            const targetColor = hasSSR ? 0xff007f : hasSR ? 0xffaa00 : 0x00f3ff;
-            ringMat.color.setHex(targetColor);
-            coreMat.color.setHex(targetColor);
-            coreMat.emissive.setHex(targetColor);
-            pLight.color.setHex(targetColor);
+            const targetColor = hasSSR ? 0xffd700 : hasSR ? 0xc0c0c0 : 0xcd7f32;
+            
+            // Initial reset
+            lidGroup.rotation.x = 0;
+            pLight.color.setHex(0xffffff);
+            pLight.intensity = 1.0;
 
             function animate() {
                 let elapsed = Date.now() - startTime;
                 let progress = Math.min(elapsed / duration, 1.0);
 
                 if (progress < 1.0) {
-                    let speedFactor = 0.01 + Math.pow(progress, 3) * 1.4;
+                    group.rotation.y += 0.05;
 
-                    group.rotation.y += speedFactor;
-                    group.rotation.x += speedFactor * 0.7;
-                    ring1.rotation.z -= speedFactor * 1.6;
-                    ring2.rotation.z += speedFactor * 1.8;
-
-                    coreMat.emissiveIntensity = 0.6 + Math.pow(progress, 2) * 8.0;
-                    pLight.intensity = 2.5 + Math.pow(progress, 2) * 15.0;
-
-                    let scalePulse = 1 + Math.sin(progress * Math.PI * 12) * (0.05 + progress * 0.4);
-                    core.scale.setScalar(scalePulse);
+                    if (progress > 0.7) {
+                        let openProgress = (progress - 0.7) / 0.3;
+                        lidGroup.rotation.x = -Math.PI / 3 * openProgress;
+                        
+                        pLight.color.setHex(targetColor);
+                        pLight.intensity = 1.0 + openProgress * 4.0;
+                    } else {
+                        // Shake before opening
+                        let shake = Math.sin(progress * Math.PI * 40) * 0.05;
+                        core.position.x = shake;
+                    }
 
                     requestAnimationFrame(animate);
                 } else {
                     isExecuting = false;
-                    core.scale.setScalar(1);
-                    coreMat.emissiveIntensity = 0.6;
-                    pLight.intensity = 2.5;
+                    core.position.x = 0;
+                    lidGroup.rotation.x = -Math.PI / 3;
+                    pLight.intensity = 2.0;
 
-                    let html = `<b>✦ 獲得アイテム (${count}件)</b><br>`;
+                    let html = `<b>＊ 獲得アイテム (${count}件)</b><br>`;
                     results.forEach((res, idx) => {
                         let rClass = res.rarity === "SSR" ? "rarity-ssr" : res.rarity === "SR" ? "rarity-sr" : "rarity-r";
                         html += `${idx + 1}. <span class="${rClass}">${res.name}</span><br>`;
                     });
-                    html += `<small style="color:#00f3ff;">✔ ふくろに格納されました</small>`;
+                    html += `<br>＊ ふくろに しまった！`;
 
                     setGachaButtonsState(isMapLoaded, html);
                 }
             }
             animate();
         };
+
+        const bagGui = document.getElementById('bag-gui');
+        if (bagGui && !document.getElementById('gacha-btn-main')) {
+            const btn = document.createElement('button');
+            btn.id = 'gacha-btn-main';
+            btn.className = 'game-btn';
+            btn.innerText = 'ふくびき';
+            btn.style.display = 'none'; // Hidden until map loads
+            btn.onclick = () => {
+                const panel = document.getElementById('gacha-floating-panel');
+                panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+            };
+            bagGui.appendChild(btn);
+        }
 
         initMapObserver();
     }
