@@ -747,6 +747,393 @@
                 padding: 10px 14px;
             }
         }
+
+        /* =========================================================
+           スマホ向け 全面刷新 CSS
+        ========================================================= */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+
+        /* ステータスバー 上左 */
+        #status-bar {
+            position: fixed;
+            top: env(safe-area-inset-top, 12px);
+            left: 12px;
+            z-index: 1000;
+            font-size: 11px;
+            min-width: 120px;
+            max-width: 42vw;
+            pointer-events: none;
+        }
+
+        /* 右上GUI */
+        #gui {
+            position: fixed;
+            top: env(safe-area-inset-top, 12px);
+            right: 12px;
+            z-index: 1000;
+            width: 110px;
+            text-align: center;
+            padding: 8px;
+        }
+
+        #clock-text { font-size: 14px; }
+        #weather-info { font-size: 9px; margin-bottom: 6px; }
+
+        /* 下部アクションバー */
+        #bag-gui {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 14px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            display: flex;
+            gap: 6px;
+            width: 97%;
+            max-width: 480px;
+            justify-content: center;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, rgba(20,40,80,0.88) 0%, rgba(10,25,60,0.93) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #e8d88a;
+            border: 1.5px solid rgba(243, 200, 92, 0.55);
+            border-radius: 10px;
+            padding: 10px 4px;
+            font-family: 'DotGothic16';
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.15s;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .game-btn:active {
+            transform: scale(0.93);
+            background: linear-gradient(135deg, rgba(40,80,160,0.92) 0%, rgba(20,50,120,0.97) 100%);
+            border-color: #f3c85c;
+        }
+
+        /* インベントリ/プレイヤー/クエスト ウィンドウ */
+        #inventory-window,
+        #player-window,
+        #quest-window {
+            position: fixed;
+            bottom: 62px;
+            left: 2%;
+            width: 96%;
+            max-height: 52vh;
+            overflow-y: auto;
+            z-index: 1200;
+            display: none;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* メッセージウィンドウ */
+        #message-window {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1500;
+            background: rgba(8, 14, 30, 0.92);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(243, 200, 92, 0.7);
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px 18px;
+            font-size: 12px;
+            min-width: 220px;
+            max-width: 88%;
+            display: none;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+
+        /* =========================================================
+           DQW風 新バトルUI
+        ========================================================= */
+
+        /* バトルフラッシュ */
+        #battle-flash {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.08s;
+        }
+
+        /* バトルウィンドウ共通 */
+        .battle-window {
+            position: fixed;
+            z-index: 2200;
+            display: none;
+            box-sizing: border-box;
+        }
+
+        /* ステータスウィンドウ（上部） */
+        #battle-status-window {
+            top: env(safe-area-inset-top, 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 96%;
+            max-width: 440px;
+            background: rgba(5, 10, 22, 0.94);
+            border: 2px solid rgba(243,200,92,0.7);
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7), 0 0 0 1px rgba(243,200,92,0.15);
+            color: #fff;
+            font-family: 'DotGothic16', cursive;
+        }
+
+        #battle-title {
+            font-size: 13px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            color: #ff6b6b;
+            text-shadow: 0 0 8px rgba(255,80,60,0.5);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .battle-hp {
+            font-size: 11px;
+            line-height: 1.5;
+            padding: 4px 0;
+        }
+
+        /* HPバー */
+        .battle-hp-bar-wrap {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            height: 8px;
+            margin: 2px 0 5px 0;
+            overflow: hidden;
+        }
+
+        .battle-hp-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.35s ease;
+        }
+
+        .player-hp-fill { background: linear-gradient(90deg, #4caf50, #8bc34a); box-shadow: 0 0 6px #4caf5088; }
+        .enemy-hp-fill  { background: linear-gradient(90deg, #f44336, #ff7043); box-shadow: 0 0 6px #f4433688; }
+
+        #battle-log {
+            min-height: 36px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #eee;
+            white-space: pre-line;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+
+        /* コマンドウィンドウ（下部） */
+        #battle-command-window {
+            bottom: env(safe-area-inset-bottom, 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 96%;
+            max-width: 440px;
+            background: rgba(5, 10, 22, 0.94);
+            border: 2px solid rgba(243,200,92,0.7);
+            border-radius: 10px;
+            padding: 10px 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+            color: #fff;
+            font-family: 'DotGothic16', cursive;
+        }
+
+        .battle-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+        }
+
+        .battle-btn {
+            background: linear-gradient(135deg, rgba(20,40,80,0.92) 0%, rgba(10,25,60,0.97) 100%);
+            color: #e8d88a;
+            border: 1.5px solid rgba(243,200,92,0.5);
+            border-radius: 8px;
+            padding: 12px 4px;
+            font-family: 'DotGothic16';
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .battle-btn:active:not(:disabled) {
+            transform: scale(0.93);
+            background: linear-gradient(135deg, rgba(40,80,160,0.97) 0%, rgba(20,50,120,1) 100%);
+            border-color: #f3c85c;
+            box-shadow: 0 0 12px rgba(243,200,92,0.4);
+        }
+
+        .battle-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ダメージポップアップ */
+        .dmg-popup {
+            position: fixed;
+            pointer-events: none;
+            font-family: 'Press Start 2P', 'DotGothic16', cursive;
+            font-size: 22px;
+            font-weight: bold;
+            z-index: 3000;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+            animation: dmg-float 1.1s ease-out forwards;
+        }
+        .dmg-popup.player-dmg { color: #ff4444; }
+        .dmg-popup.enemy-dmg  { color: #ffee22; }
+        .dmg-popup.heal-dmg   { color: #44ff88; }
+        .dmg-popup.miss-dmg   { color: #aaaaaa; font-size: 14px; }
+        .dmg-popup.critical   { color: #ff9900; font-size: 26px; }
+
+        @keyframes dmg-float {
+            0%   { opacity: 1; transform: translateY(0) scale(1.2); }
+            60%  { opacity: 1; transform: translateY(-50px) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+        }
+
+        /* =========================================================
+           ガチャ（お宝ふくびき所）刷新
+        ========================================================= */
+        #gacha-floating-panel {
+            display: none;
+            position: fixed;
+            bottom: 66px;
+            right: 8px;
+            width: min(320px, 93vw);
+            background: rgba(8, 14, 30, 0.96);
+            border: 2px solid #f3c85c;
+            border-radius: 14px;
+            padding: 14px;
+            color: #fff;
+            font-family: 'DotGothic16', cursive;
+            z-index: 999999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(243,200,92,0.2), inset 0 0 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(16px);
+            text-align: center;
+        }
+
+        .gacha-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(243,200,92,0.3);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .gacha-title-bar {
+            font-size: 13px;
+            color: #f3c85c;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(243,200,92,0.5);
+        }
+
+        #gacha-gold-display {
+            font-size: 11px;
+            color: #f3c85c;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        #gacha-3d-canvas {
+            width: 100%;
+            height: 140px;
+            background: radial-gradient(ellipse at center, #1a2d5a 0%, #050a18 100%);
+            border-radius: 8px;
+            margin: 6px 0;
+            border: 1px solid rgba(243,200,92,0.3);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .gacha-btn-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .gacha-btn {
+            background: linear-gradient(135deg, rgba(20,40,80,0.92) 0%, rgba(10,25,60,0.97) 100%);
+            color: #e8d88a;
+            border: 1.5px solid rgba(243,200,92,0.6);
+            padding: 10px 14px;
+            font-size: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'DotGothic16', cursive;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .gacha-btn.ten {
+            background: linear-gradient(135deg, rgba(80,20,100,0.92) 0%, rgba(60,10,80,0.97) 100%);
+            color: #e8b0ff;
+            border-color: rgba(200,100,255,0.6);
+        }
+
+        .gacha-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 10px rgba(243,200,92,0.3);
+            border-color: #f3c85c;
+        }
+
+        .gacha-btn:active:not(:disabled) {
+            transform: scale(0.93);
+            box-shadow: 0 0 12px rgba(243,200,92,0.5);
+        }
+
+        .gacha-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        #gacha-result-log {
+            margin-top: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid rgba(243,200,92,0.2);
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .rarity-ssr { color: #ffe600; font-weight: bold; text-shadow: 0 0 8px #ffaa00, 0 0 16px #ff6600; }
+        .rarity-sr  { color: #c8a0ff; font-weight: bold; text-shadow: 0 0 6px #9944cc; }
+        .rarity-r   { color: #64b5f6; }
+
     </style>
 </head>
 
@@ -853,22 +1240,30 @@
         </div>
     </div>
 
-    <div id="battle-status-window" class="battle-window glass-panel">
+    <!-- バトルフラッシュオーバーレイ -->
+    <div id="battle-flash"></div>
+
+    <div id="battle-status-window" class="battle-window">
         <div id="battle-title">たたかい</div>
         <div class="battle-hp">
-            <div id="battle-player-hp">ゆうしゃ Lv1 HP: 24/24</div>
-            <div id="battle-enemy-hp">まもの Lv1 HP: 16/16</div>
+            <div id="battle-player-hp-label">ゆうしゃ Lv1</div>
+            <div class="battle-hp-bar-wrap"><div class="battle-hp-bar-fill player-hp-fill" id="battle-player-hp-bar" style="width:100%"></div></div>
+            <div id="battle-player-hp">HP 30/30  MP 10/10</div>
+            <div id="battle-enemy-hp-label" style="margin-top:4px;">まもの Lv1</div>
+            <div class="battle-hp-bar-wrap"><div class="battle-hp-bar-fill enemy-hp-fill" id="battle-enemy-hp-bar" style="width:100%"></div></div>
+            <div id="battle-enemy-hp">HP 16/16</div>
         </div>
         <div id="battle-log">まものが あらわれた！</div>
     </div>
 
-    <div id="battle-command-window" class="battle-window glass-panel">
+    <div id="battle-command-window" class="battle-window">
         <div class="battle-actions">
-            <button class="battle-btn" id="battle-attack-btn">たたかう</button>
-            <button class="battle-btn" id="battle-skill-btn">スキル</button>
-            <button class="battle-btn" id="battle-run-btn">にげる</button>
-            <button class="battle-btn" id="battle-guard-btn">ぼうぎょ</button>
-            <button class="battle-btn" id="battle-item-btn">どうぐ</button>
+            <button class="battle-btn" id="battle-attack-btn">⚔ たたかう</button>
+            <button class="battle-btn" id="battle-skill-btn">✨ スキル</button>
+            <button class="battle-btn" id="battle-run-btn">💨 にげる</button>
+            <button class="battle-btn" id="battle-guard-btn">🛡 ぼうぎょ</button>
+            <button class="battle-btn" id="battle-item-btn">🧪 どうぐ</button>
+            <button class="battle-btn" id="battle-magic-btn">🔮 じゅもん</button>
         </div>
     </div>
 
@@ -2286,6 +2681,8 @@
             document.getElementById('battle-run-btn').addEventListener('click', onBattleRun);
             document.getElementById('battle-guard-btn').addEventListener('click', onBattleGuard);
             document.getElementById('battle-item-btn').addEventListener('click', onBattleItem);
+            const _magicBtn = document.getElementById('battle-magic-btn');
+            if (_magicBtn) _magicBtn.addEventListener('click', onBattleMagic);
             document.getElementById('player-items').addEventListener('click', onPlayerItemAction);
         }
 
@@ -2738,9 +3135,56 @@
         }
 
         function setBattleButtonsEnabled(enabled) {
-            ["battle-attack-btn", "battle-skill-btn", "battle-run-btn", "battle-guard-btn", "battle-item-btn"].forEach(id => {
-                document.getElementById(id).disabled = !enabled;
+            ["battle-attack-btn", "battle-skill-btn", "battle-run-btn", "battle-guard-btn", "battle-item-btn", "battle-magic-btn"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !enabled;
             });
+        }
+
+        function battleFlash(color, duration) {
+            const el = document.getElementById('battle-flash');
+            if (!el) return;
+            el.style.background = color;
+            el.style.opacity = '0.65';
+            setTimeout(() => { el.style.opacity = '0'; }, duration || 150);
+        }
+
+        function showDmgPopup(txt, type, x, y) {
+            const el = document.createElement('div');
+            el.className = 'dmg-popup ' + (type || 'enemy-dmg');
+            el.textContent = txt;
+            el.style.left = (x !== undefined ? x : window.innerWidth * 0.5) + 'px';
+            el.style.top  = (y !== undefined ? y : window.innerHeight * 0.42) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function onBattleMagic() {
+            if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
+            const enemy = battleState.enemy;
+            if (!enemy) return;
+            const pStats = getPlayerBattleStats();
+            if (playerState.mp < 6) {
+                updateBattleUI('MPが たりない！');
+                return;
+            }
+            battleState.busy = true;
+            setBattleButtonsEnabled(false);
+            playerState.mp = Math.max(0, playerState.mp - 6);
+            const magicDmg = Math.max(8, Math.floor(pStats.atk * 1.8 + Math.random() * 10));
+            enemy.hp -= magicDmg;
+            battleFlash('rgba(80,80,255,0.5)', 200);
+            showDmgPopup(magicDmg, 'critical', window.innerWidth * 0.52, window.innerHeight * 0.38);
+            const isWin = enemy.hp <= 0;
+            setTimeout(() => {
+                battleState.busy = false;
+                if (isWin) {
+                    endBattle(true, 'ライデイン！ ' + magicDmg + ' ダメージ！\n' + enemy.name + ' を たおした！');
+                } else {
+                    updateBattleUI('ライデイン！ ' + magicDmg + ' ダメージ！');
+                    setTimeout(enemyTurn, 600);
+                }
+            }, 500);
         }
 
         function enterBattleCamera(center) {
@@ -2862,8 +3306,16 @@
             updateStatusBar();
             const enemy = battleState.enemy || { name: "まもの", lv: 1, hp: 0, maxHp: 0 };
             const pStats = getPlayerBattleStats();
-            document.getElementById('battle-player-hp').textContent = `ゆうしゃ Lv${playerState.lv} HP: ${Math.max(0, playerState.hp)}/${pStats.maxHp} MP:${playerState.mp}/${playerState.maxMp}`;
-            document.getElementById('battle-enemy-hp').textContent = `${enemy.name} Lv${enemy.lv} HP: ${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
+            const plLabel = document.getElementById('battle-player-hp-label');
+            if (plLabel) plLabel.textContent = `ゆうしゃ Lv${playerState.lv}`;
+            const enLabel = document.getElementById('battle-enemy-hp-label');
+            if (enLabel) enLabel.textContent = `${enemy.name} Lv${enemy.lv}`;
+            document.getElementById('battle-player-hp').textContent = `HP ${Math.max(0, playerState.hp)}/${pStats.maxHp}  MP ${playerState.mp}/${playerState.maxMp}`;
+            document.getElementById('battle-enemy-hp').textContent = `HP ${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
+            const phbar = document.getElementById('battle-player-hp-bar');
+            if (phbar) phbar.style.width = Math.max(0, (playerState.hp / pStats.maxHp) * 100) + '%';
+            const ehbar = document.getElementById('battle-enemy-hp-bar');
+            if (ehbar && enemy.maxHp > 0) ehbar.style.width = Math.max(0, (enemy.hp / enemy.maxHp) * 100) + '%';
             document.getElementById('battle-log').textContent = logText;
         }
 
@@ -3021,6 +3473,7 @@
             if (!isInBattle || battleState.busy || !battleState.playerTurn) return;
             const enemy = battleState.enemy;
             if (!enemy) return;
+            if (typeof battleFlash === 'function') battleFlash('rgba(255,200,50,0.25)', 110);
             battleState.busy = true;
             setBattleButtonsEnabled(false);
             const motion = startBattleMotion(slimeGroup, currentBattleMonster.group);
@@ -3029,6 +3482,7 @@
             const playerDmg = Math.max(2, Math.floor(base + Math.random() * 5));
             await sleep(motion.hitMs);
             enemy.hp -= playerDmg;
+            if (typeof showDmgPopup === 'function') showDmgPopup(playerDmg, 'enemy-dmg', window.innerWidth * 0.55, window.innerHeight * 0.38);
             if (enemy.hp <= 0) {
                 updateBattleUI(`${enemy.name}に ${playerDmg} ダメージ！\n${enemy.name}を たおした！`);
                 await sleep(Math.max(0, motion.totalMs - motion.hitMs + 120));
@@ -3063,10 +3517,14 @@
                 playerState.hp = Math.min(pStats.maxHp, playerState.hp + healAmount);
                 logText = `ホイミ！ HPが ${healAmount} かいふくした！\n${enemy.name}の こうげき...`;
                 await sleep(motion.hitMs);
+                if (typeof showDmgPopup === 'function') showDmgPopup('+' + healAmount, 'heal-dmg', window.innerWidth * 0.4, window.innerHeight * 0.38);
+                if (typeof battleFlash === 'function') battleFlash('rgba(50,255,100,0.25)', 180);
             } else {
                 const dmg = Math.max(5, Math.floor((pStats.atk * (job.skillDmg || 1.3)) - enemy.def * 0.4 + Math.random() * 8));
                 await sleep(motion.hitMs);
                 enemy.hp -= dmg;
+                if (typeof showDmgPopup === 'function') showDmgPopup(dmg, 'critical', window.innerWidth * 0.55, window.innerHeight * 0.38);
+                if (typeof battleFlash === 'function') battleFlash('rgba(255,160,30,0.35)', 160);
                 if (enemy.hp <= 0) {
                     updateBattleUI(`${job.skill}！ ${dmg} ダメージ！\n${enemy.name}を たおした！`);
                     await sleep(Math.max(0, motion.totalMs - motion.hitMs + 140));
@@ -3142,6 +3600,8 @@
             battleState.guardRate = 1.0;
             await sleep(motion.hitMs);
             playerState.hp -= enemyDmg;
+            if (typeof battleFlash === 'function') battleFlash('rgba(255,50,50,0.4)', 180);
+            if (typeof showDmgPopup === 'function') showDmgPopup(enemyDmg, 'player-dmg', window.innerWidth * 0.35, window.innerHeight * 0.38);
             if (playerState.hp <= 0) {
                 playerState.hp = Math.floor(getPlayerBattleStats().maxHp * 0.6);
                 await sleep(Math.max(0, motion.totalMs - motion.hitMs + 120));
@@ -3921,351 +4381,327 @@
 <!-- GACHA_SYSTEM_START -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<style>
-    #gacha-floating-panel {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        background: rgba(10, 16, 28, 0.9);
-        border: 2px solid #f3c85c;
-        border-radius: 12px;
-        padding: 14px;
-        color: #fff;
-        font-family: 'DotGothic16', 'Press Start 2P', cursive;
-        z-index: 999999;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(12px);
-        text-align: center;
-    }
-    .gacha-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        padding-bottom: 6px;
-        margin-bottom: 8px;
-    }
-    .gacha-title-bar {
-        font-size: 14px;
-        color: #f3c85c;
-        font-weight: bold;
-        letter-spacing: 2px;
-        text-shadow: 1px 1px 0 #000;
-    }
-    #gacha-3d-canvas {
-        width: 100%;
-        height: 150px;
-        background: #0b1526;
-        border-radius: 8px;
-        margin: 6px 0;
-        border: 2px solid #000000;
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-    }
-    .gacha-btn-group {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        margin-top: 6px;
-    }
-    .gacha-btn {
-        background: linear-gradient(135deg, rgba(0, 180, 255, 0.25) 0%, rgba(0, 100, 255, 0.15) 100%);
-        color: #fff;
-        border: 1px solid rgba(0, 180, 255, 0.4);
-        padding: 10px 12px;
-        font-size: 13px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        font-family: 'DotGothic16', cursive;
-        transition: all 0.2s;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
-    }
-    .gacha-btn.ten {
-        background: linear-gradient(135deg, rgba(255, 0, 128, 0.2) 0%, rgba(255, 0, 85, 0.5) 100%);
-        color: #ffccff;
-        border-color: #ff007f;
-    }
-    .gacha-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 0 12px currentColor;
-    }
-    .gacha-btn:active:not(:disabled) {
-        transform: scale(0.95);
-        background: linear-gradient(135deg, rgba(0, 180, 255, 0.4) 0%, rgba(0, 100, 255, 0.3) 100%);
-        border-color: rgba(0, 220, 255, 0.6);
-    }
-    .gacha-btn:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        border-color: #555 !important;
-        color: #888 !important;
-        background: rgba(50, 50, 50, 0.3) !important;
-        box-shadow: none !important;
-    }
-    #gacha-result-log {
-        margin-top: 8px;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 8px;
-        border-radius: 6px;
-        font-size: 12px;
-        max-height: 90px;
-        overflow-y: auto;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        text-align: left;
-        line-height: 1.5;
-    }
-    .rarity-ssr { color: #ffe600; font-weight: bold; text-shadow: 0 0 8px #ffaa00; }
-    .rarity-sr { color: #e0e0e0; font-weight: bold; text-shadow: 0 0 5px #aaa; }
-    .rarity-r { color: #64b5f6; }
-</style>
-
 <div id="gacha-floating-panel">
     <div class="gacha-header">
-        <div class="gacha-title-bar">【 ガチャ 】</div>
-        <div style="font-size: 12px; color: #f3c85c; display: flex; align-items: center; gap: 8px;">
-            <span>💎 ∞</span>
-            <button onclick="document.getElementById('gacha-floating-panel').style.display='none'" style="background:transparent; border:none; color:#f3c85c; font-weight:bold; cursor:pointer; font-size:16px; line-height:1;">×</button>
+        <div class="gacha-title-bar">【 お宝ふくびき所 】</div>
+        <div id="gacha-gold-display">
+            <span>G:</span><span id="gacha-gold-val">???</span>
+            <button onclick="document.getElementById('gacha-floating-panel').style.display='none'"
+                style="background:transparent;border:none;color:#f3c85c;font-weight:bold;cursor:pointer;font-size:18px;line-height:1;margin-left:6px;">x</button>
         </div>
     </div>
-    
+
     <div id="gacha-3d-canvas"></div>
 
     <div class="gacha-btn-group">
-        <button id="gacha-btn-1" class="gacha-btn" onclick="runGachaProcess(1)">EXECUTE x1</button>
-        <button id="gacha-btn-10" class="gacha-btn ten" onclick="runGachaProcess(10)">EXECUTE x10</button>
+        <button id="gacha-btn-1"  class="gacha-btn"     onclick="runGachaProcess(1)">1回 ひく</button>
+        <button id="gacha-btn-10" class="gacha-btn ten" onclick="runGachaProcess(10)">10連 ふくびき</button>
     </div>
 
-    <div id="gacha-result-log">マップ初期化チェック中...</div>
+    <div id="gacha-result-log">ふくびきを はじめましょう！</div>
 </div>
 
 <script>
 (function() {
     const ITEMS_DB = {
         SSR: [
-            { id: "ssr_1", name: "★SSR★ ロトのつるぎ", type: "weapon", atk: 120 },
-            { id: "ssr_2", name: "★SSR★ 勇者の盾", type: "armor", def: 100 },
-            { id: "ssr_3", name: "★SSR★ りゅうおうのこころ", type: "accessory", atk: 80, def: 80 }
+            { id: "ssr_1", name: "SSR ロトのつるぎ",        type: "weapon",    atk: 120 },
+            { id: "ssr_2", name: "SSR 勇者の盾",            type: "armor",     def: 100 },
+            { id: "ssr_3", name: "SSR りゅうおうのこころ",  type: "accessory", atk: 80, def: 80 }
         ],
         SR: [
-            { id: "sr_1", name: "☆SR☆ 鋼のつるぎ", type: "weapon", atk: 50 },
-            { id: "sr_2", name: "☆SR☆ 魔法の盾", type: "armor", def: 45 },
-            { id: "sr_3", name: "☆SR☆ キラーマシンのこころ", type: "accessory", atk: 40, def: 30 }
+            { id: "sr_1", name: "SR はがねのつるぎ",        type: "weapon",    atk: 50 },
+            { id: "sr_2", name: "SR シルバートレイ",          type: "armor",     def: 45 },
+            { id: "sr_3", name: "SR キラーマシンのこころ",   type: "accessory", atk: 40, def: 30 }
         ],
         R: [
-            { id: "r_1", name: "[R] 銅の剣", type: "weapon", atk: 15 },
-            { id: "r_2", name: "[R] 皮のたて", type: "armor", def: 12 },
-            { id: "r_3", name: "[R] スライムのこころ", type: "accessory", atk: 10, def: 10 }
+            { id: "r_1", name: "どうのつるぎ",      type: "weapon",    atk: 15 },
+            { id: "r_2", name: "かわのたて",          type: "armor",     def: 12 },
+            { id: "r_3", name: "スライムのこころ",    type: "accessory", atk: 10, def: 10 },
+            { id: "r_4", name: "やくそう",            type: "consumable", heal: 15 }
         ]
     };
 
-    let isMapLoaded = false;
+    let isReady = false;
     let isExecuting = false;
 
-    function setGachaButtonsState(enabled, message) {
-        const btn1 = document.getElementById('gacha-btn-1');
-        const btn10 = document.getElementById('gacha-btn-10');
-        const logBox = document.getElementById('gacha-result-log');
-
-        if (btn1) btn1.disabled = !enabled;
-        if (btn10) btn10.disabled = !enabled;
-        if (message && logBox) logBox.innerHTML = message;
+    function getPlayerGold() {
+        if (window.playerState && typeof window.playerState.gold === 'number') return window.playerState.gold;
+        return 0;
     }
 
-    function initMapObserver() {
-        let attempts = 0;
-        function check() {
-            attempts++;
-            const hasMapElem = document.querySelector('.leaflet-container, .mapboxgl-map, #map, canvas');
-            const hasMapObj = window.map || window.leafletMap || window.mapboxMap || window.isMapReady;
+    function updateGoldDisplay() {
+        const el = document.getElementById('gacha-gold-val');
+        if (el) el.textContent = getPlayerGold().toLocaleString();
+    }
 
-            if (hasMapElem || hasMapObj || attempts >= 10) { 
-                isMapLoaded = true;
-                if (!isExecuting) {
-                    setGachaButtonsState(true, "システム起動完了。実行可能です。");
-                }
+    function setGachaButtonsState(enabled, message) {
+        const btn1  = document.getElementById('gacha-btn-1');
+        const btn10 = document.getElementById('gacha-btn-10');
+        const logBox = document.getElementById('gacha-result-log');
+        if (btn1)  btn1.disabled  = !enabled;
+        if (btn10) btn10.disabled = !enabled;
+        if (message && logBox) logBox.innerHTML = message;
+        updateGoldDisplay();
+    }
+
+    function initReadyObserver() {
+        let tries = 0;
+        function check() {
+            tries++;
+            const ok = document.querySelector('canvas') || window.isMapReady || tries >= 12;
+            if (ok) {
+                isReady = true;
+                setGachaButtonsState(true, 'ふくびきを はじめましょう！');
                 const mainBtn = document.getElementById('gacha-btn-main');
                 if (mainBtn) mainBtn.style.display = '';
             } else {
-                setGachaButtonsState(false, "🌐 マップ読み込み待機中...");
+                setGachaButtonsState(false, 'じゅんびちゅう...');
                 setTimeout(check, 500);
             }
         }
         check();
     }
 
-    function forcePushToOriginalBag(item) {
-        const possibleBagKeys = [
-            'playerInventory', 'inventory', 'bag', 'items', 'itemList', 'playerBag',
-            'playerState', 'player', 'gameState', 'userItems', 'myItems'
-        ];
-
-        possibleBagKeys.forEach(key => {
-            if (window[key]) {
-                if (Array.isArray(window[key])) {
-                    window[key].push(item.name);
-                } else if (typeof window[key] === 'object') {
-                    ['inventory', 'bag', 'items', 'itemList'].forEach(subKey => {
-                        if (Array.isArray(window[key][subKey])) {
-                            window[key][subKey].push(item.name);
-                        }
-                    });
-                }
+    function pushItemToGame(item) {
+        if (window.ITEM_DEFS) {
+            window.ITEM_DEFS[item.name] = { type: item.type||'weapon', atk: item.atk||0, def: item.def||0, heal: item.heal||0 };
+        }
+        const bagKeys = ['playerInventory','inventory','bag','items','itemList','playerBag','playerState','player','gameState'];
+        bagKeys.forEach(function(key) {
+            if (!window[key]) return;
+            if (Array.isArray(window[key])) { window[key].push(item.name); }
+            else if (typeof window[key] === 'object') {
+                ['inventory','bag','items','itemList'].forEach(function(sub) {
+                    if (Array.isArray(window[key][sub])) window[key][sub].push(item.name);
+                });
             }
         });
-
-        const possibleUpdateFuncs = [
-            'updateInventoryUI', 'renderBag', 'updateBag', 'renderInventory',
-            'updatePlayerStats', 'drawBag', 'refreshBag', 'renderItems', 'updateUI', 'render'
-        ];
-
-        possibleUpdateFuncs.forEach(funcName => {
-            if (typeof window[funcName] === 'function') {
-                try { window[funcName](); } catch(e) {}
-            }
+        ['updateInventoryUI','renderBag','updateBag','renderInventory','updateUI','render'].forEach(function(fn) {
+            if (typeof window[fn] === 'function') { try { window[fn](); } catch(e) {} }
         });
-
         window.dispatchEvent(new CustomEvent('gachaItemObtained', { detail: item }));
     }
 
     function init3D() {
-        const canvasBox = document.getElementById('gacha-3d-canvas');
-        if (!canvasBox) return;
+        var container = document.getElementById('gacha-3d-canvas');
+        if (!container) return;
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, 272 / 150, 0.1, 1000);
-        camera.position.z = 4.2;
+        var W = container.clientWidth  || 280;
+        var H = container.clientHeight || 140;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(272, 150);
-        canvasBox.appendChild(renderer.domElement);
+        var scn = new THREE.Scene();
+        scn.background = new THREE.Color(0x040d1a);
+        var cam = new THREE.PerspectiveCamera(50, W / H, 0.1, 1000);
+        cam.position.set(0, 0.6, 4.8);
 
-        const group = new THREE.Group();
-        scene.add(group);
+        var rdr = new THREE.WebGLRenderer({ antialias: true });
+        rdr.setSize(W, H);
+        container.appendChild(rdr.domElement);
 
-        const coreGroup = new THREE.Group();
-        const coreMat = new THREE.MeshStandardMaterial({ 
-            color: 0x3399ff, 
-            wireframe: false,
-            emissive: 0x1144aa,
-            emissiveIntensity: 0.4
-        });
-        const bodyGeo = new THREE.SphereGeometry(0.6, 32, 32);
-        const bodyMesh = new THREE.Mesh(bodyGeo, coreMat);
-        bodyMesh.scale.set(1.1, 0.85, 1.1);
-        const hornGeo = new THREE.ConeGeometry(0.25, 0.5, 32);
-        const hornMesh = new THREE.Mesh(hornGeo, coreMat);
-        hornMesh.position.y = 0.55;
-        coreGroup.add(bodyMesh);
-        coreGroup.add(hornMesh);
-        group.add(coreGroup);
-        const core = coreGroup;
+        // ライト
+        scn.add(new THREE.AmbientLight(0xffffff, 0.4));
+        var pLight = new THREE.PointLight(0xf3c85c, 2.8, 20);
+        pLight.position.set(0, 3, 3);
+        scn.add(pLight);
+        var rimLight = new THREE.PointLight(0x4488ff, 1.5, 15);
+        rimLight.position.set(-3, 1, -2);
+        scn.add(rimLight);
 
-        const pLight = new THREE.PointLight(0x00f3ff, 2.5, 10);
-        pLight.position.set(0, 0, 2);
-        scene.add(pLight);
-        scene.add(new THREE.AmbientLight(0x222244));
+        // 宝箱グループ
+        var chestGroup = new THREE.Group();
+        scn.add(chestGroup);
+
+        var woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5c2a, roughness: 0.7, metalness: 0.1 });
+        var goldMat = new THREE.MeshStandardMaterial({ color: 0xf3c85c, roughness: 0.3, metalness: 0.85 });
+        var lockMat = new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.4, metalness: 0.9 });
+        var gemMat  = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x004488, roughness: 0.0, metalness: 1.0 });
+
+        // 本体
+        var body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.9, 1.1), woodMat);
+        body.position.y = -0.15;
+        chestGroup.add(body);
+
+        // バンド
+        var b1 = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.12, 1.15), goldMat);
+        b1.position.y = 0.1; chestGroup.add(b1);
+        var b2 = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.12, 1.15), goldMat);
+        b2.position.y = -0.4; chestGroup.add(b2);
+        chestGroup.add(new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.95, 1.15), goldMat));
+
+        // 錠前
+        var lock = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.12), lockMat);
+        lock.position.set(0, -0.05, 0.62);
+        chestGroup.add(lock);
+
+        // 蓋
+        var lidGroup = new THREE.Group();
+        lidGroup.position.set(0, 0.42, -0.55);
+        chestGroup.add(lidGroup);
+        var lid = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.45, 1.1), woodMat);
+        lid.position.set(0, 0.22, 0.55);
+        lidGroup.add(lid);
+        var lidBand = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.12, 1.15), goldMat);
+        lidBand.position.set(0, 0.42, 0.55);
+        lidGroup.add(lidBand);
+        // アーチ
+        var arch = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 1.15, 16, 1, false, 0, Math.PI), woodMat);
+        arch.rotation.z = Math.PI / 2;
+        arch.position.set(0, 0.45, 0.55);
+        lidGroup.add(arch);
+        // 宝石
+        var gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), gemMat);
+        gem.position.set(0, 0.45, 1.12);
+        lidGroup.add(gem);
+
+        // 台座
+        var base = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 1.3), goldMat);
+        base.position.y = -0.63;
+        chestGroup.add(base);
+
+        // パーティクル
+        var partCount = 80;
+        var partGeo = new THREE.BufferGeometry();
+        var partPos = new Float32Array(partCount * 3);
+        var partVel = [];
+        for (var i = 0; i < partCount; i++) {
+            partPos[i*3] = partPos[i*3+1] = partPos[i*3+2] = 0;
+            partVel.push({ x:(Math.random()-0.5)*0.04, y:Math.random()*0.07+0.02, z:(Math.random()-0.5)*0.04, active:false });
+        }
+        partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+        var partMat = new THREE.PointsMaterial({ color: 0xffd700, size: 0.1, transparent: true, opacity: 0 });
+        var partSys = new THREE.Points(partGeo, partMat);
+        scn.add(partSys);
+
+        var isOpen = false, partActive = false, partTime = 0;
 
         function renderLoop() {
             requestAnimationFrame(renderLoop);
-            if (!isExecuting) {
-                group.rotation.y += 0.01;
+            var t = performance.now() * 0.001;
+            if (!isOpen) { chestGroup.rotation.y = Math.sin(t * 0.5) * 0.3; }
+            gem.rotation.y = t * 2;
+            gemMat.emissiveIntensity = 0.5 + Math.sin(t * 3) * 0.3;
+            pLight.intensity = 2.2 + Math.sin(t * 2) * 0.5;
+            if (partActive) {
+                partTime += 0.016;
+                partMat.opacity = Math.max(0, 1.0 - partTime * 0.7);
+                for (var pi = 0; pi < partCount; pi++) {
+                    if (partVel[pi].active) {
+                        partPos[pi*3]   += partVel[pi].x;
+                        partPos[pi*3+1] += partVel[pi].y;
+                        partPos[pi*3+2] += partVel[pi].z;
+                        partVel[pi].y   -= 0.001;
+                    }
+                }
+                partGeo.attributes.position.needsUpdate = true;
+                if (partTime > 2.5) { partActive = false; partMat.opacity = 0; }
             }
-            renderer.render(scene, camera);
+            rdr.render(scn, cam);
         }
         renderLoop();
 
+        function spawnParticles(color) {
+            partMat.color.setHex(color || 0xffd700);
+            for (var pi = 0; pi < partCount; pi++) {
+                partPos[pi*3]   = (Math.random()-0.5)*0.2;
+                partPos[pi*3+1] = 0.3;
+                partPos[pi*3+2] = (Math.random()-0.5)*0.2;
+                partVel[pi].x = (Math.random()-0.5)*0.06;
+                partVel[pi].y = Math.random()*0.09 + 0.03;
+                partVel[pi].z = (Math.random()-0.5)*0.06;
+                partVel[pi].active = true;
+            }
+            partGeo.attributes.position.needsUpdate = true;
+            partMat.opacity = 1.0;
+            partActive = true;
+            partTime = 0;
+        }
+
         window.runGachaProcess = function(count) {
-            if (!isMapLoaded || isExecuting) return;
-
+            if (!isReady || isExecuting) return;
             isExecuting = true;
-            setGachaButtonsState(false, "⚡ <span style='color:#00f3ff;'>高次元エネルギー充填中...</span>");
+            setGachaButtonsState(false, '宝箱が 神秘的な光を放っている…');
 
-            let results = [];
-            let hasSSR = false;
-            let hasSR = false;
-
-            for (let i = 0; i < count; i++) {
-                const rand = Math.random();
-                let rarity = rand < 0.08 ? "SSR" : rand < 0.30 ? "SR" : "R";
-                if (rarity === "SSR") hasSSR = true;
-                if (rarity === "SR") hasSR = true;
-
-                const pool = ITEMS_DB[rarity];
-                const picked = pool[Math.floor(Math.random() * pool.length)];
-                
-                const itemData = { ...picked, rarity, obtainedAt: Date.now() };
-                results.push(itemData);
-
-                forcePushToOriginalBag(itemData);
+            var results = [];
+            var hasSSR = false, hasSR = false;
+            for (var gi = 0; gi < count; gi++) {
+                var rand = Math.random();
+                var rarity = rand < 0.05 ? 'SSR' : rand < 0.25 ? 'SR' : 'R';
+                if (rarity === 'SSR') hasSSR = true;
+                if (rarity === 'SR')  hasSR  = true;
+                var pool   = ITEMS_DB[rarity];
+                var picked = pool[Math.floor(Math.random() * pool.length)];
+                var item   = Object.assign({}, picked, { rarity: rarity, obtainedAt: Date.now() });
+                results.push(item);
+                pushItemToGame(item);
             }
 
-            let startTime = Date.now();
-            let duration = 3800;
+            var targetColor = hasSSR ? 0xffd700 : hasSR ? 0xcc88ff : 0x44aaff;
+            var startTime = performance.now();
+            var SHAKE_MS = 1100, OPEN_MS = 800, TOTAL_MS = SHAKE_MS + OPEN_MS;
 
-            const targetColor = hasSSR ? 0xff007f : hasSR ? 0xffaa00 : 0x3399ff;
-            coreMat.color.setHex(targetColor);
-            coreMat.emissive.setHex(targetColor);
-            pLight.color.setHex(targetColor);
+            isOpen = false;
+            lidGroup.rotation.x = 0;
+            pLight.color.setHex(0xf3c85c);
 
-            function animate() {
-                let elapsed = Date.now() - startTime;
-                let progress = Math.min(elapsed / duration, 1.0);
-
-                if (progress < 1.0) {
-                    let speedFactor = 0.01 + Math.pow(progress, 3) * 1.4;
-
-                    group.rotation.y += speedFactor * 1.5;
-
-                    coreMat.emissiveIntensity = 0.4 + Math.pow(progress, 2) * 5.0;
-                    pLight.intensity = 2.5 + Math.pow(progress, 2) * 15.0;
-
-                    let scalePulse = 1 + Math.sin(progress * Math.PI * 12) * (0.05 + progress * 0.4);
-                    core.scale.setScalar(scalePulse);
-
-                    requestAnimationFrame(animate);
+            function animChest(now) {
+                var elapsed = now - startTime;
+                if (elapsed < SHAKE_MS) {
+                    var shake = Math.sin(elapsed * 0.05) * 0.07;
+                    chestGroup.position.x = shake;
+                    chestGroup.rotation.y = shake * 0.5;
+                    requestAnimationFrame(animChest);
+                } else if (elapsed < TOTAL_MS) {
+                    chestGroup.position.x = 0;
+                    chestGroup.rotation.y = 0;
+                    var openT = (elapsed - SHAKE_MS) / OPEN_MS;
+                    lidGroup.rotation.x = -Math.PI * 0.65 * openT;
+                    pLight.color.setHex(targetColor);
+                    pLight.intensity = 2 + openT * 6;
+                    if (!isOpen && openT >= 0.8) { isOpen = true; spawnParticles(targetColor); }
+                    requestAnimationFrame(animChest);
                 } else {
                     isExecuting = false;
-                    core.scale.setScalar(1);
-                    coreMat.emissiveIntensity = 0.4;
-                    pLight.intensity = 2.5;
-
-                    let html = `<b>✦ 獲得アイテム (${count}件)</b><br>`;
-                    results.forEach((res, idx) => {
-                        let rClass = res.rarity === "SSR" ? "rarity-ssr" : res.rarity === "SR" ? "rarity-sr" : "rarity-r";
-                        html += `${idx + 1}. <span class="${rClass}">${res.name}</span><br>`;
+                    chestGroup.position.x = 0;
+                    chestGroup.rotation.y = 0;
+                    lidGroup.rotation.x = -Math.PI * 0.65;
+                    pLight.intensity = 3.0;
+                    var html = '<b>ふくびき けっか (' + count + '回)</b><br>';
+                    results.forEach(function(res, idx) {
+                        var cls = res.rarity === 'SSR' ? 'rarity-ssr' : res.rarity === 'SR' ? 'rarity-sr' : 'rarity-r';
+                        html += (idx+1) + '. <span class="' + cls + '">' + res.name + '</span><br>';
                     });
-                    html += `<small style="color:#00f3ff;">✔ ふくろに格納されました</small>`;
-
-                    setGachaButtonsState(isMapLoaded, html);
+                    html += '<br>ふくろに しまった！';
+                    setGachaButtonsState(isReady, html);
                 }
             }
-            animate();
+            requestAnimationFrame(animChest);
         };
 
-        const bagGui = document.getElementById('bag-gui');
+        // メインボタン追加
+        var bagGui = document.getElementById('bag-gui');
         if (bagGui && !document.getElementById('gacha-btn-main')) {
-            const btn = document.createElement('button');
+            var btn = document.createElement('button');
             btn.id = 'gacha-btn-main';
             btn.className = 'game-btn';
-            btn.innerText = 'ガチャ';
-            btn.style.display = 'none'; // Hidden until map loads
-            btn.onclick = () => {
-                const panel = document.getElementById('gacha-floating-panel');
-                panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+            btn.textContent = 'ふくびき';
+            btn.style.display = 'none';
+            btn.onclick = function() {
+                var panel = document.getElementById('gacha-floating-panel');
+                var shown = panel.style.display === 'block';
+                panel.style.display = shown ? 'none' : 'block';
+                if (!shown) updateGoldDisplay();
             };
             bagGui.appendChild(btn);
         }
 
-        initMapObserver();
+        initReadyObserver();
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init3D);
     } else {
-        init3D();
+        setTimeout(init3D, 0);
     }
 })();
 </script>
