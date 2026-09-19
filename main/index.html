@@ -662,6 +662,147 @@
             box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
         }
 
+        /* EXPバー */
+        #status-exp-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            position: relative;
+            margin-bottom: 4px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #status-exp-fill {
+            background: linear-gradient(90deg, #ff9800, #ffeb3b);
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 6px rgba(255, 200, 0, 0.6);
+        }
+        #status-exp-text {
+            position: relative; z-index: 2;
+            font-size: 9px; font-weight: bold;
+            color: #ffe082;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* 方向コンパス */
+        #direction-compass {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            user-select: none;
+        }
+        #compass-rose {
+            width: 52px; height: 52px;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #compass-rose svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 52px; height: 52px;
+        }
+        #compass-needle {
+            position: absolute;
+            width: 0; height: 0;
+            transform-origin: center center;
+        }
+        #compass-dir-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 6px rgba(0,200,255,0.9), 0 1px 3px #000;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* レベルアップオーバーレイ */
+        #lvup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #lvup-overlay.active {
+            display: flex;
+        }
+        #lvup-flash {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(255,215,0,0.55) 0%, rgba(255,140,0,0.15) 55%, transparent 80%);
+            animation: lvup-flash-anim 0.35s ease-out;
+        }
+        @keyframes lvup-flash-anim {
+            0%   { opacity: 0; transform: scale(0.7); }
+            40%  { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        #lvup-particles {
+            position: absolute; inset: 0;
+            overflow: hidden;
+        }
+        .lvup-star {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 8px 3px #ffd700;
+            animation: star-fly 0.9s ease-out forwards;
+        }
+        @keyframes star-fly {
+            0%   { opacity: 1; transform: scale(1) translate(0,0); }
+            100% { opacity: 0; transform: scale(0.3) translate(var(--tx), var(--ty)); }
+        }
+        #lvup-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(20,10,40,0.95), rgba(40,20,80,0.95));
+            border: 2px solid #ffd700;
+            border-radius: 16px;
+            padding: 22px 32px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,140,0,0.3);
+            animation: lvup-card-anim 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes lvup-card-anim {
+            0%   { opacity: 0; transform: scale(0.5) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        #lvup-title {
+            font-size: 13px;
+            color: #ffe082;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #ffd700;
+            margin-bottom: 6px;
+        }
+        #lvup-lv-num {
+            font-size: 46px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px #ffd700, 0 0 40px #ff9800;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        #lvup-stats {
+            font-size: 12px;
+            color: #a5f3a5;
+            line-height: 1.7;
+        }
+        #lvup-stats span {
+            color: #7fffb2;
+            font-weight: bold;
+        }
+
         @keyframes bar-move {
             0% {
                 left: -60px;
@@ -1187,6 +1328,119 @@
         .rarity-r {
             color: #64b5f6;
         }
+
+        /* 2Dマップ・目的地設定用UIスタイル */
+        #map-2d-overlay {
+            display: none;
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 440px;
+            z-index: 9999;
+            text-align: center;
+            pointer-events: none;
+        }
+        #map-2d-overlay.visible {
+            display: block;
+            animation: popIn 0.25s ease-out;
+        }
+        .map-2d-box {
+            pointer-events: auto;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), 0 8px 32px rgba(0, 0, 0, 0.6);
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(10, 20, 36, 0.9);
+            backdrop-filter: blur(12px);
+        }
+        .map-2d-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #00f0ff;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        }
+        .map-2d-hint {
+            font-size: 11px;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        .map-2d-info {
+            font-size: 12px;
+            color: #ffd700;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px dashed rgba(255, 215, 0, 0.4);
+            border-radius: 8px;
+            padding: 5px 8px;
+            margin-bottom: 10px;
+        }
+        .map-2d-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .map-2d-btn {
+            font-family: 'DotGothic16', cursive;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .map-2d-btn-confirm {
+            background: linear-gradient(135deg, #00e676, #00b0ff);
+            color: #000;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 230, 118, 0.4);
+            flex: 1;
+        }
+        .map-2d-btn-confirm:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            background: #444;
+            color: #888;
+            box-shadow: none;
+        }
+        .map-2d-btn-cancel {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 目的地ナビゲーションバー */
+        #dest-nav-bar {
+            display: none;
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            pointer-events: none;
+        }
+        .dest-nav-inner {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(12, 24, 45, 0.88);
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 240, 255, 0.25);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 12px;
+        }
+
+        @keyframes popIn {
+            from { transform: translateX(-50%) scale(0.9); opacity: 0; }
+            to { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
     </style>
 </head>
 
@@ -1207,8 +1461,42 @@
         </div>
     </div>
 
+    <!-- 2Dマップ目的地設定ガイドUI -->
+    <div id="map-2d-overlay">
+        <div class="map-2d-box">
+            <div class="map-2d-title">🗺️ 2Dマップ：目的地設定</div>
+            <div id="map-2d-hint" class="map-2d-hint">全体マップから行く場所をタップ（※赤い円の外側・100m以上）</div>
+            <div id="map-2d-info" class="map-2d-info" style="display:none;">
+                📍 目的地候補：距離 <span id="map-2d-dist">0</span>m
+            </div>
+            <div class="map-2d-btns">
+                <button id="map-2d-confirm-btn" class="map-2d-btn map-2d-btn-confirm" onclick="confirmDestinationQuest()" disabled>
+                    ここに決定する
+                </button>
+                <button class="map-2d-btn map-2d-btn-cancel" onclick="cancelDestinationQuestMode()">
+                    やめる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 目的地追跡ナビゲーションバー -->
+    <div id="dest-nav-bar">
+        <div class="dest-nav-inner">
+            <span style="font-size:15px; animation:title-pulse 1.5s infinite;">🏁</span>
+            <span style="color:#00f0ff; font-weight:bold;">目的地まで <span id="dest-nav-dist" style="color:#fff; font-size:14px; font-weight:bold;">---</span>m</span>
+            <span style="color:#ffd700; font-size:11px; margin-left:4px;">(💎300)</span>
+            <button onclick="cancelActiveDestinationQuest()" style="background:transparent; border:none; color:#ff6b6b; cursor:pointer; font-size:13px; margin-left:4px; line-height:1; font-weight:bold;" title="目的地をキャンセル">×</button>
+        </div>
+    </div>
+
     <div id="status-bar" class="glass-panel">
-        <div id="status-lv">Lv 1</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div id="status-lv">Lv 1</div>
+            <div id="status-gem-badge" style="font-size:11px; color:#ffd700; font-weight:bold; background:rgba(255,215,0,0.15); border:1px solid rgba(255,215,0,0.45); padding:1px 7px; border-radius:12px; display:flex; align-items:center; gap:3px;">
+                <span>💎</span><span id="status-gem">0</span>
+            </div>
+        </div>
         <div id="status-hp-bar">
             <div id="status-hp-fill"></div>
             <div id="status-hp-text">HP 30/30</div>
@@ -1216,6 +1504,46 @@
         <div id="status-mp-bar">
             <div id="status-mp-fill"></div>
             <div id="status-mp-text">MP 10/10</div>
+        </div>
+        <div id="status-exp-bar">
+            <div id="status-exp-fill" style="width:0%"></div>
+            <div id="status-exp-text">EXP 0/100</div>
+        </div>
+    </div>
+
+    <!-- 方向コンパス -->
+    <div id="direction-compass">
+        <div id="compass-rose">
+            <!-- 背景リング -->
+            <svg viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="24" fill="rgba(10,15,30,0.75)" stroke="rgba(0,200,255,0.35)" stroke-width="1.5"/>
+                <!-- 方位ラベル -->
+                <text x="26" y="10" text-anchor="middle" font-size="7" fill="#ff6b6b" font-weight="bold" font-family="monospace">N</text>
+                <text x="42" y="29" text-anchor="middle" font-size="6" fill="#aaa" font-family="monospace">E</text>
+                <text x="26" y="46" text-anchor="middle" font-size="6" fill="#aaa" font-family="monospace">S</text>
+                <text x="10" y="29" text-anchor="middle" font-size="6" fill="#aaa" font-family="monospace">W</text>
+                <!-- 中心点 -->
+                <circle cx="26" cy="26" r="2.5" fill="rgba(255,255,255,0.5)"/>
+            </svg>
+            <!-- 回転する針 -->
+            <svg id="compass-needle-svg" viewBox="0 0 52 52" style="position:absolute;top:0;left:0;width:52px;height:52px;transition:transform 0.15s ease;">
+                <!-- 北向き（赤） -->
+                <polygon points="26,6 29,26 26,22 23,26" fill="#ff4444" opacity="0.9"/>
+                <!-- 南向き（白） -->
+                <polygon points="26,46 29,26 26,30 23,26" fill="rgba(255,255,255,0.6)" opacity="0.7"/>
+            </svg>
+        </div>
+        <div id="compass-dir-label">N</div>
+    </div>
+
+    <!-- レベルアップオーバーレイ -->
+    <div id="lvup-overlay">
+        <div id="lvup-flash"></div>
+        <div id="lvup-particles"></div>
+        <div id="lvup-card">
+            <div id="lvup-title">✦ LEVEL UP ✦</div>
+            <div id="lvup-lv-num">2</div>
+            <div id="lvup-stats"></div>
         </div>
     </div>
 
@@ -1249,7 +1577,29 @@
             </div>
         </div>
         <div id="quest-window" class="glass-panel">
-            <div>クエスト</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:6px; margin-bottom:8px;">
+                <div style="color:#00ffff; font-weight:bold; font-size:13px;">【 クエスト 】</div>
+                <button onclick="toggleQuestWindow()" style="background:transparent; border:none; color:#bbb; cursor:pointer; font-size:14px; line-height:1;">✕</button>
+            </div>
+
+            <!-- 目的地設定クエスト（新機能） -->
+            <div id="dest-quest-card" style="background:linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,100,255,0.25)); border:1px solid rgba(0,240,255,0.45); border-radius:8px; padding:10px; margin-bottom:10px;">
+                <div style="font-weight:bold; color:#ffd700; font-size:12px; margin-bottom:4px;">★ 目的地クエスト：散歩の旅立ち</div>
+                <div style="font-size:11px; color:#ddd; margin-bottom:6px; line-height:1.4;">
+                    2Dマップ上で行きたい場所をタップして目的地を設定しよう！ 到達するとクリア報酬を獲得！
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:11px;">
+                    <span style="color:#7fffa5;">クリア報酬:</span>
+                    <span style="color:#ffd700; font-weight:bold;">💎 300 ジェム + 200G</span>
+                </div>
+                <button id="start-dest-quest-btn" onclick="startDestinationQuestMode()" style="width:100%; background:linear-gradient(180deg, #00d2ff, #0072ff); color:#fff; border:none; border-radius:6px; padding:9px; font-family:'DotGothic16'; font-weight:bold; font-size:12px; cursor:pointer; box-shadow:0 3px 12px rgba(0,180,255,0.4); transition:transform 0.15s;">
+                    🗺️ クエストを開始する（目的地設定）
+                </button>
+            </div>
+
+            <div style="font-size:11px; color:#ffeb3b; margin-bottom:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:6px;">
+                📜 日課クエスト（毎日更新）
+            </div>
             <div id="quest-list"></div>
         </div>
         <button id="bag-btn" class="game-btn" onclick="toggleBag()">ふくろ</button>
@@ -1383,9 +1733,9 @@
         ];
         const LV_UP_TABLE = { hp: 6, mp: 2, atk: 3, def: 2, cost: 2 };
         const QUEST_MASTER = [
-            { id: "walk_500", name: "日課：500mあるく", type: "walk", target: 500, rewardGold: 100, rewardItem: "やくそう" },
-            { id: "battle_5", name: "日課：まもの5体討伐", type: "battle", target: 5, rewardGold: 150, rewardItem: "まほうのせいすい" },
-            { id: "pickup_3", name: "日課：素材を3回拾う", type: "pickup", target: 3, rewardGold: 120, rewardItem: "スライムコイン" }
+            { id: "walk_500", name: "日課：500mあるく", type: "walk", target: 500, rewardGold: 100, rewardGem: 100, rewardItem: "やくそう" },
+            { id: "battle_5", name: "日課：まもの5体討伐", type: "battle", target: 5, rewardGold: 150, rewardGem: 100, rewardItem: "まほうのせいすい" },
+            { id: "pickup_3", name: "日課：素材を3回拾う", type: "pickup", target: 3, rewardGold: 120, rewardGem: 100, rewardItem: "スライムコイン" }
         ];
         const TUTORIAL_CHAPTERS = [
             { id: 0, key: "start", text: "ようこそ、散歩の世界へ。\nWキーで すすもう。" },
@@ -1410,6 +1760,7 @@
             atk: 999,
             def: 999,
             gold: 9999999,
+            gems: 0, // 開始時ジェム0個
             maxCost: 10,
             equipment: { weapon: null, shield: null, heart: null },
             homeSet: false,
@@ -1435,6 +1786,14 @@
         let questDone = {};
         const defeatEffects = [];
         let homeSpotGroup = null;
+
+        // 目的地設定クエスト（2Dマップ選択）用変数
+        let activeDestinationQuest = null;
+        let isMap2DMode = false;
+        let previewGoalCoords = null;
+        let previewGoalMarker = null;
+        let activeDestMarker = null;
+        let camera3DBackup = null;
 
 
         const R = 6378137;
@@ -1916,6 +2275,16 @@
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
+
+                // 2Dマップ目的地選択モード中のタップ処理
+                if (isMap2DMode) {
+                    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                    const intersectPoint = new THREE.Vector3();
+                    if (raycaster.ray.intersectPlane(plane, intersectPoint)) {
+                        onMap2DTap(intersectPoint);
+                    }
+                    return;
+                }
 
                 // スポット（回復のツボ・宝箱）のタップ検出 (60m以内)
                 const spotGroups = spots.filter(s => s.active && s.type !== "home").map(s => s.group);
@@ -2744,6 +3113,7 @@
         }
 
         function initQuestState() {
+            if (playerState.gems == null) playerState.gems = 0;
             QUEST_MASTER.forEach(q => {
                 if (questProgress[q.id] == null) questProgress[q.id] = 0;
                 if (questDone[q.id] == null) questDone[q.id] = false;
@@ -2758,12 +3128,19 @@
                 if (questProgress[q.id] >= q.target) {
                     questDone[q.id] = true;
                     playerState.gold += q.rewardGold;
+                    const gemReward = q.rewardGem || 0;
+                    playerState.gems = (playerState.gems || 0) + gemReward;
                     if (q.rewardItem) inventory.push(q.rewardItem);
-                    showMessage(`クエスト達成: ${q.name}\n${q.rewardGold}G かくとく`);
+                    const gemMsg = gemReward > 0 ? `\n💎 ${gemReward}ジェム かくとく！` : "";
+                    showMessage(`クエスト達成: ${q.name}\n${q.rewardGold}G かくとく${gemMsg}`);
                     anyComplete = true;
                 }
             }
-            if (anyComplete) updateInventoryUI();
+            if (anyComplete) {
+                updateInventoryUI();
+                updateStatusBar();
+                if (typeof updateGoldDisplay === 'function') updateGoldDisplay();
+            }
             updateQuestWindow();
         }
 
@@ -2777,14 +3154,470 @@
         function updateQuestWindow() {
             const el = document.getElementById('quest-list');
             const today = new Date().toLocaleDateString("ja-JP");
-            const rows = [`<div style="color:#ff9;margin-bottom:8px;">今日: ${today}</div>`];
+            const rows = [`<div style="color:#ff9;margin-bottom:8px;font-size:11px;">本日: ${today}</div>`];
             QUEST_MASTER.forEach(q => {
                 const progress = Math.min(q.target, questProgress[q.id] || 0);
                 const done = questDone[q.id];
-                const state = done ? "達成" : `${Math.floor(progress)}/${q.target}`;
-                rows.push(`<div style="margin-bottom:8px;">${q.name}<br><span style="color:${done ? "#7fffa5" : "#ddd"}">${state}</span></div>`);
+                const state = done ? "<span style='color:#7fffa5;'>達成済み</span>" : `${Math.floor(progress)}/${q.target}`;
+                const gemBadge = q.rewardGem ? `<span style='color:#ffd700;margin-left:6px;'>💎${q.rewardGem}</span>` : "";
+                rows.push(`
+                    <div style="margin-bottom:8px;background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:6px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:bold;color:#fff;">${q.name}</span>
+                            <span>${state}</span>
+                        </div>
+                        <div style="font-size:10px;color:#aaa;margin-top:2px;">
+                            報酬: 🪙${q.rewardGold}G ${gemBadge} ${q.rewardItem ? "+ " + q.rewardItem : ""}
+                        </div>
+                    </div>
+                `);
             });
             el.innerHTML = rows.join("");
+
+            // 目的地クエストカードの状態更新
+            const cardBtn = document.getElementById('start-dest-quest-btn');
+            if (cardBtn) {
+                if (activeDestinationQuest) {
+                    cardBtn.textContent = "📍 目的地に向かって進行中！";
+                    cardBtn.style.background = "linear-gradient(180deg, #ff9800, #f57c00)";
+                } else {
+                    cardBtn.textContent = "🗺️ クエストを開始する（目的地設定）";
+                    cardBtn.style.background = "linear-gradient(180deg, #00d2ff, #0072ff)";
+                }
+            }
+        }
+
+        // =========================================================
+        // 2D見下ろしマップ・目的地設定システム
+        // =========================================================
+
+        function startDestinationQuestMode() {
+            if (!slimeGroup) {
+                showMessage("プレイヤーの初期化中です...");
+                return;
+            }
+            if (activeDestinationQuest) {
+                showMessage("すでに目的地が設定されています。\n画面上の「×」でキャンセルして再設定できます。");
+                return;
+            }
+
+            // クエストウィンドウを閉じる
+            const win = document.getElementById('quest-window');
+            if (win) win.style.display = 'none';
+
+            isMap2DMode = true;
+
+            // 3D通常カメラとOrbitControlsの状態を保存
+            camera3DBackup = {
+                pos: camera.position.clone(),
+                target: controls.target.clone(),
+                minP: controls.minPolarAngle,
+                maxP: controls.maxPolarAngle,
+                minD: controls.minDistance,
+                maxD: controls.maxDistance,
+                enableRotate: controls.enableRotate,
+                enablePan: controls.enablePan
+            };
+
+            // 2D見下ろし（真上からのトップダウン）設定
+            // 高度400mで42°FOVなら約300m×300mの範囲が見える
+            const slimePos = slimeGroup.position;
+            const targetCamPos = new THREE.Vector3(slimePos.x, 400, slimePos.z + 0.1);
+            const targetCenter = new THREE.Vector3(slimePos.x, 0, slimePos.z);
+
+            // アニメーション前にOrbitControlsの制限を解除
+            controls.minPolarAngle = 0;
+            controls.maxPolarAngle = 0.05;
+            controls.minDistance = 80;
+            controls.maxDistance = 600;
+            controls.enableRotate = false;
+            controls.enablePan = true;
+            controls.update();
+
+            // カメラのスムーズ移行（プレイヤー真上へ）
+            animateCameraTransition(camera.position.clone(), targetCamPos, controls.target.clone(), targetCenter, 600, () => {
+                controls.update();
+            });
+
+            // プレイヤー周囲の半径100m侵入禁止エリア（赤いゾーン）を表示
+            createPlayer100mZoneRing();
+
+            // 2DモードUIを表示
+            const overlay = document.getElementById('map-2d-overlay');
+            if (overlay) overlay.classList.add('visible');
+            const info = document.getElementById('map-2d-info');
+            if (info) info.style.display = 'none';
+            const confirmBtn = document.getElementById('map-2d-confirm-btn');
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.35';
+            }
+
+            previewGoalCoords = null;
+            if (previewGoalMarker) {
+                scene.remove(previewGoalMarker);
+                previewGoalMarker = null;
+            }
+
+            showMessage("🗺️ 全体2Dマップ視点に切り替えました！\n赤い円（100m）の外側をタップしてください。");
+        }
+
+        let player100mZoneRing = null;
+
+        function createPlayer100mZoneRing() {
+            removePlayer100mZoneRing();
+            if (!slimeGroup) return;
+
+            const group = new THREE.Group();
+            group.position.set(slimeGroup.position.x, 0.35, slimeGroup.position.z);
+
+            // 外枠リング (半径100m境界線)
+            const ringGeo = new THREE.RingGeometry(97, 100, 64);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0xff3b30,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.85
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            group.add(ring);
+
+            // 内側塗りつぶし (半径97m 半透明の赤)
+            const fillGeo = new THREE.CircleGeometry(97, 64);
+            const fillMat = new THREE.MeshBasicMaterial({
+                color: 0xff1744,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.18
+            });
+            const fill = new THREE.Mesh(fillGeo, fillMat);
+            fill.rotation.x = -Math.PI / 2;
+            group.add(fill);
+
+            scene.add(group);
+            player100mZoneRing = group;
+        }
+
+        function removePlayer100mZoneRing() {
+            if (player100mZoneRing) {
+                scene.remove(player100mZoneRing);
+                player100mZoneRing = null;
+            }
+        }
+
+        function onMap2DTap(intersectPoint) {
+            if (!isMap2DMode || !slimeGroup) return;
+
+            const dist = Math.round(slimeGroup.position.distanceTo(intersectPoint));
+            const info = document.getElementById('map-2d-info');
+            const confirmBtn = document.getElementById('map-2d-confirm-btn');
+
+            // 半径100m以内には置けない制限
+            if (dist < 100) {
+                previewGoalCoords = null;
+                if (previewGoalMarker) {
+                    scene.remove(previewGoalMarker);
+                    previewGoalMarker = null;
+                }
+                if (info) {
+                    info.style.display = 'block';
+                    info.innerHTML = `<span style="color:#ff6b6b;font-weight:bold;">⚠️ 近すぎます (${dist}m)</span><br><span style="font-size:11px;color:#eee;">自分の半径100mより遠く（赤い円の外側）を選んでください</span>`;
+                }
+                if (confirmBtn) {
+                    confirmBtn.disabled = true;
+                    confirmBtn.style.opacity = '0.35';
+                }
+                if (typeof playTone === 'function') playTone(220, 'sawtooth', 0.15, 0.08, 0); // 警告音
+                return;
+            }
+
+            // 100m以上の場合は配置可能
+            previewGoalCoords = { x: intersectPoint.x, z: intersectPoint.z, dist: dist };
+
+            // プレビューマーカーの作成または移動
+            if (!previewGoalMarker) {
+                previewGoalMarker = createPreviewMarkerMesh();
+                scene.add(previewGoalMarker);
+            }
+            previewGoalMarker.position.set(intersectPoint.x, 0, intersectPoint.z);
+
+            // UI更新
+            if (info) {
+                info.style.display = 'block';
+                info.innerHTML = `📍 目的地候補：距離 <span style="color:#00ffff;font-size:14px;font-weight:bold;">${dist.toLocaleString()}</span>m (設定可能)`;
+            }
+
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+            }
+
+            if (typeof playTone === 'function') playTone(987.77, 'sine', 0.1, 0.08, 0); // B5
+        }
+
+        function createPreviewMarkerMesh() {
+            const group = new THREE.Group();
+
+            // 光のリング
+            const ringGeo = new THREE.RingGeometry(3, 4.5, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.y = 0.3;
+            group.add(ring);
+
+            // ポール（ピン）
+            const poleGeo = new THREE.CylinderGeometry(0.3, 0.3, 14, 16);
+            const poleMat = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.y = 7;
+            group.add(pole);
+
+            // フラッグ（旗）
+            const flagGeo = new THREE.BoxGeometry(4, 2.5, 0.2);
+            const flagMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
+            const flag = new THREE.Mesh(flagGeo, flagMat);
+            flag.position.set(2, 12.5, 0);
+            group.add(flag);
+
+            // 頂点の光玉
+            const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            sphere.position.y = 14;
+            group.add(sphere);
+
+            return group;
+        }
+
+        function confirmDestinationQuest() {
+            if (!previewGoalCoords || previewGoalCoords.dist < 100) return;
+
+            // プレビューピンを消去
+            if (previewGoalMarker) {
+                scene.remove(previewGoalMarker);
+                previewGoalMarker = null;
+            }
+
+            // 正式な目的地オブジェクトを配置
+            activeDestinationQuest = {
+                x: previewGoalCoords.x,
+                z: previewGoalCoords.z,
+                dist: previewGoalCoords.dist,
+                rewardGems: 300,
+                rewardGold: 200
+            };
+
+            createActiveDestinationMarker(activeDestinationQuest.x, activeDestinationQuest.z);
+
+            // 2Dモードを終了し、通常の3D視点へ戻る
+            exitMap2DMode(true);
+
+            // ナビゲーションHUDを表示
+            const navBar = document.getElementById('dest-nav-bar');
+            if (navBar) navBar.style.display = 'block';
+            updateDestNavBarDistance();
+
+            showMessage("目的地を設定しました！\n光の柱を目印に向かいましょう！\n到達で 💎300ジェム 獲得！", 4000);
+            saveGame(true);
+        }
+
+        function cancelDestinationQuestMode() {
+            if (previewGoalMarker) {
+                scene.remove(previewGoalMarker);
+                previewGoalMarker = null;
+            }
+            previewGoalCoords = null;
+            exitMap2DMode(false);
+            showMessage("目的地の設定をキャンセルしました");
+        }
+
+        function exitMap2DMode(isConfirmed = false) {
+            isMap2DMode = false;
+            removePlayer100mZoneRing();
+            const overlay = document.getElementById('map-2d-overlay');
+            if (overlay) overlay.classList.remove('visible');
+
+            // 3D通常視点へカメラを復元
+            if (camera3DBackup && slimeGroup) {
+                const targetCamPos = slimeGroup.position.clone().add(new THREE.Vector3(0, 47, 60));
+                const targetCenter = slimeGroup.position.clone();
+
+                controls.enableRotate = true;
+                controls.enablePan = false;
+                controls.minPolarAngle = Math.PI / 12;
+                controls.maxPolarAngle = Math.PI / 2.15;
+                controls.minDistance = CAMERA_DIST - 12;
+                controls.maxDistance = CAMERA_DIST + 15;
+
+                animateCameraTransition(camera.position, targetCamPos, controls.target, targetCenter, 450, () => {
+                    controls.target.copy(slimeGroup.position);
+                    controls.update();
+                });
+            }
+        }
+
+        function cancelActiveDestinationQuest() {
+            if (!activeDestinationQuest) return;
+            if (activeDestMarker) {
+                scene.remove(activeDestMarker);
+                activeDestMarker = null;
+            }
+            activeDestinationQuest = null;
+            const navBar = document.getElementById('dest-nav-bar');
+            if (navBar) navBar.style.display = 'none';
+            saveGame(true);
+            showMessage("目的地クエストを取り消しました");
+        }
+
+        function createActiveDestinationMarker(x, z) {
+            if (activeDestMarker) {
+                scene.remove(activeDestMarker);
+                activeDestMarker = null;
+            }
+
+            const group = new THREE.Group();
+            group.position.set(x, 0, z);
+
+            // 1. 巨大な光の柱（ビーコンビーム）
+            const beamGeo = new THREE.CylinderGeometry(1.8, 1.8, 120, 16, 1, true);
+            const beamMat = new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.45,
+                side: THREE.DoubleSide
+            });
+            const beam = new THREE.Mesh(beamGeo, beamMat);
+            beam.position.y = 60;
+            group.add(beam);
+
+            // 2. 輝く魔法陣リング
+            const ringGeo = new THREE.RingGeometry(3.5, 6.0, 32);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0xffd700,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.8
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.y = 0.4;
+            group.add(ring);
+
+            // 3. 浮遊するクリスタル
+            const crystalGeo = new THREE.OctahedronGeometry(3.0, 0);
+            const crystalMat = new THREE.MeshPhongMaterial({
+                color: 0x00f0ff,
+                emissive: 0x005577,
+                shininess: 90
+            });
+            const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+            crystal.position.y = 8;
+            group.add(crystal);
+
+            // 4. フラッグ（旗）
+            const poleGeo = new THREE.CylinderGeometry(0.25, 0.25, 12, 8);
+            const poleMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.y = 6;
+            group.add(pole);
+
+            const flagGeo = new THREE.BoxGeometry(4.5, 2.5, 0.1);
+            const flagMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
+            const flag = new THREE.Mesh(flagGeo, flagMat);
+            flag.position.set(2.25, 10.5, 0);
+            group.add(flag);
+
+            group.userData = { ring, crystal, beam };
+            scene.add(group);
+            activeDestMarker = group;
+        }
+
+        function updateDestNavBarDistance() {
+            if (!activeDestinationQuest || !slimeGroup) return;
+            const dist = Math.hypot(slimeGroup.position.x - activeDestinationQuest.x, slimeGroup.position.z - activeDestinationQuest.z);
+            const distEl = document.getElementById('dest-nav-dist');
+            if (distEl) distEl.textContent = Math.round(dist).toLocaleString();
+        }
+
+        function checkDestinationQuestArrival() {
+            if (!activeDestinationQuest || !slimeGroup || isInBattle || isMap2DMode) return;
+
+            const dist = Math.hypot(slimeGroup.position.x - activeDestinationQuest.x, slimeGroup.position.z - activeDestinationQuest.z);
+            updateDestNavBarDistance();
+
+            // 半径25m以内に接近でクリア！
+            if (dist <= 25) {
+                const rewardGems = activeDestinationQuest.rewardGems || 300;
+                const rewardGold = activeDestinationQuest.rewardGold || 200;
+
+                // 報酬付与
+                playerState.gems = (playerState.gems || 0) + rewardGems;
+                playerState.gold += rewardGold;
+                playerState.exp += 150;
+
+                // レベルアップチェック
+                if (playerState.exp >= playerState.nextExp) {
+                    playerState.lv += 1;
+                    playerState.exp -= playerState.nextExp;
+                    playerState.nextExp = Math.floor(playerState.nextExp * 1.5);
+                    playerState.maxHp += LV_UP_TABLE.hp;
+                    playerState.hp = playerState.maxHp;
+                    playerState.maxMp += LV_UP_TABLE.mp;
+                    playerState.mp = playerState.maxMp;
+                    playerState.atk += LV_UP_TABLE.atk;
+                    playerState.def += LV_UP_TABLE.def;
+                    showMessage("レベルがあがった！ Lv" + playerState.lv);
+                }
+
+                // マーカー消去
+                if (activeDestMarker) {
+                    scene.remove(activeDestMarker);
+                    activeDestMarker = null;
+                }
+                activeDestinationQuest = null;
+
+                const navBar = document.getElementById('dest-nav-bar');
+                if (navBar) navBar.style.display = 'none';
+
+                // クリアファンファーレ効果音
+                if (typeof playTone === 'function') {
+                    playTone(523.25, 'triangle', 0.15, 0.1, 0);       // C5
+                    playTone(659.25, 'triangle', 0.15, 0.1, 0.15);    // E5
+                    playTone(783.99, 'triangle', 0.15, 0.1, 0.30);    // G5
+                    playTone(1046.50, 'triangle', 0.45, 0.12, 0.45);  // C6
+                }
+
+                showMessage(`🎉 目的地に到着しました！\n【クエストクリア！】\n💎 ジェム ${rewardGems}個 かくとく！\n🪙 ${rewardGold}G かくとく！`, 6000);
+
+                saveGame(true);
+                updateStatusBar();
+                updatePlayerWindow();
+                updateQuestWindow();
+                if (typeof updateGoldDisplay === 'function') updateGoldDisplay();
+            }
+        }
+
+        // カメラアニメーション補間ユーティリティ
+        function animateCameraTransition(fromPos, toPos, fromTarget, toTarget, duration, onComplete) {
+            const startTime = performance.now();
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(1.0, elapsed / duration);
+                const ease = 0.5 - Math.cos(progress * Math.PI) / 2; // easeInOut
+
+                camera.position.lerpVectors(fromPos, toPos, ease);
+                controls.target.lerpVectors(fromTarget, toTarget, ease);
+                controls.update();
+
+                if (progress < 1.0) {
+                    requestAnimationFrame(step);
+                } else {
+                    if (onComplete) onComplete();
+                }
+            }
+            requestAnimationFrame(step);
         }
 
         function saveGame(silent = false) {
@@ -2794,7 +3627,13 @@
                 questProgress,
                 questDone,
                 walkedDistance,
-                storyState
+                storyState,
+                activeDestinationQuest: activeDestinationQuest ? {
+                    x: activeDestinationQuest.x,
+                    z: activeDestinationQuest.z,
+                    rewardGems: activeDestinationQuest.rewardGems,
+                    rewardGold: activeDestinationQuest.rewardGold
+                } : null
             };
             localStorage.setItem("dqw_like_save", JSON.stringify(payload));
             if (!silent) showMessage("セーブしました");
@@ -2802,10 +3641,19 @@
 
         function loadGame() {
             const raw = localStorage.getItem("dqw_like_save");
-            if (!raw) return;
+            if (!raw) {
+                // 初回起動時はジェムを必ず0に初期化
+                playerState.gems = 0;
+                return;
+            }
             try {
                 const data = JSON.parse(raw);
-                if (data.playerState) Object.assign(playerState, data.playerState);
+                if (data.playerState) {
+                    Object.assign(playerState, data.playerState);
+                    if (playerState.gems == null) playerState.gems = 0;
+                } else {
+                    playerState.gems = 0;
+                }
                 if (Array.isArray(data.inventory)) {
                     inventory.length = 0;
                     data.inventory.forEach(i => inventory.push(i));
@@ -2814,8 +3662,15 @@
                 if (data.questDone) questDone = data.questDone;
                 if (typeof data.walkedDistance === "number") walkedDistance = data.walkedDistance;
                 if (data.storyState) storyState = { ...storyState, ...data.storyState };
+
+                if (data.activeDestinationQuest) {
+                    activeDestinationQuest = data.activeDestinationQuest;
+                    createActiveDestinationMarker(activeDestinationQuest.x, activeDestinationQuest.z);
+                    const navBar = document.getElementById('dest-nav-bar');
+                    if (navBar) navBar.style.display = 'block';
+                }
             } catch (e) {
-                // ignore broken save
+                playerState.gems = 0;
             }
         }
 
@@ -3096,13 +3951,18 @@
                 const mpT = document.getElementById('status-mp-text');
                 const hpF = document.getElementById('status-hp-fill');
                 const mpF = document.getElementById('status-mp-fill');
+                const gemEl = document.getElementById('status-gem');
+                const expF = document.getElementById('status-exp-fill');
+                const expT = document.getElementById('status-exp-text');
 
                 if (lvEl) lvEl.textContent = `Lv ${playerState.lv} ${playerState.job}`;
                 if (hpT) hpT.textContent = `HP ${Math.max(0, playerState.hp)}/${pStats.maxHp}`;
                 if (mpT) mpT.textContent = `MP ${playerState.mp}/${pStats.maxMp}`;
+                if (gemEl) gemEl.textContent = (playerState.gems || 0).toLocaleString();
 
                 const hpPct = (playerState.hp / pStats.maxHp) * 100;
                 const mpPct = (playerState.mp / pStats.maxMp) * 100;
+                const expPct = Math.min(100, (playerState.exp / playerState.nextExp) * 100);
 
                 if (hpF) {
                     hpF.style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
@@ -3111,6 +3971,8 @@
                 if (mpF) {
                     mpF.style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
                 }
+                if (expF) expF.style.width = `${expPct}%`;
+                if (expT) expT.textContent = `EXP ${playerState.exp}/${playerState.nextExp}`;
             } catch (e) {
                 console.error("StatusBar Error:", e);
             }
@@ -3128,6 +3990,7 @@
                 `MP ${playerState.mp}/${pStats.maxMp}`,
                 `EXP ${playerState.exp}/${playerState.nextExp}`,
                 `GOLD ${playerState.gold}`,
+                `💎 ジェム ${(playerState.gems || 0).toLocaleString()}個`,
                 `コスト ${bonus.cost}/${playerState.maxCost}`,
                 `歩行 ${Math.floor(walkedDistance)}m`,
                 `こうげき ${pStats.atk}`,
@@ -3379,6 +4242,7 @@
         function grantExp(exp) {
             playerState.exp += exp;
             let lvupCount = 0;
+            const lvupNewLevels = [];
             while (playerState.exp >= playerState.nextExp) {
                 playerState.exp -= playerState.nextExp;
                 playerState.lv += 1;
@@ -3390,9 +4254,76 @@
                 playerState.maxCost += LV_UP_TABLE.cost;
                 playerState.hp = getPlayerBattleStats().maxHp;
                 playerState.mp = getPlayerBattleStats().maxMp;
+                lvupNewLevels.push(playerState.lv);
                 lvupCount += 1;
             }
+            if (lvupCount > 0) {
+                showLevelUpEffect(lvupNewLevels[lvupNewLevels.length - 1]);
+            }
+            updateStatusBar();
             return lvupCount;
+        }
+
+        function showLevelUpEffect(newLv) {
+            const overlay = document.getElementById('lvup-overlay');
+            const lvNum = document.getElementById('lvup-lv-num');
+            const statsEl = document.getElementById('lvup-stats');
+            const particles = document.getElementById('lvup-particles');
+            if (!overlay) return;
+
+            // レベル数・ステータス上昇を表示
+            if (lvNum) lvNum.textContent = `Lv ${newLv}`;
+            if (statsEl) {
+                statsEl.innerHTML = [
+                    `HP  +<span>${LV_UP_TABLE.hp}</span>`,
+                    `MP  +<span>${LV_UP_TABLE.mp}</span>`,
+                    `こうげき +<span>${LV_UP_TABLE.atk}</span>`,
+                    `しゅび  +<span>${LV_UP_TABLE.def}</span>`
+                ].join('　');
+            }
+
+            // パーティクル生成
+            if (particles) {
+                particles.innerHTML = '';
+                for (let i = 0; i < 22; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'lvup-star';
+                    const cx = 40 + Math.random() * (window.innerWidth - 80);
+                    const cy = 40 + Math.random() * (window.innerHeight - 80);
+                    const tx = (Math.random() - 0.5) * 260;
+                    const ty = (Math.random() - 0.5) * 260;
+                    star.style.cssText = `left:${cx}px;top:${cy}px;--tx:${tx}px;--ty:${ty}px;animation-delay:${Math.random()*0.3}s;animation-duration:${0.7+Math.random()*0.4}s;`;
+                    particles.appendChild(star);
+                }
+            }
+
+            // フラッシュを再生成して再アニメーション
+            const flash = document.getElementById('lvup-flash');
+            if (flash) {
+                flash.style.animation = 'none';
+                void flash.offsetWidth;
+                flash.style.animation = '';
+            }
+
+            // 効果音（ファンファーレ風）
+            try {
+                const ctx = getAudioCtx();
+                const fanfare = [523.25, 659.25, 783.99, 1046.5];
+                fanfare.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    const t = ctx.currentTime + i * 0.12;
+                    gain.gain.setValueAtTime(0.18, t);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+                    osc.start(t); osc.stop(t + 0.4);
+                });
+            } catch(e) {}
+
+            overlay.classList.add('active');
+            setTimeout(() => { overlay.classList.remove('active'); }, 2400);
         }
 
         function enemyDrop(enemy, preferHeart = false) {
@@ -3483,7 +4414,7 @@
                 if (isWin && battleState.enemy) {
                     const gained = battleState.enemy.exp;
                     const gainedGold = battleState.enemy.isMega ? (50 + battleState.enemy.lv * 12) : (8 + battleState.enemy.lv * 5);
-                    const lvups = grantExp(gained);
+                    const lvups = grantExp(gained); // 内部でshowLevelUpEffectが呼ばれる
                     const dropped = options.dropped ?? (options.skipDrop ? null : enemyDrop(battleState.enemy));
                     playerState.gold += gainedGold;
                     if (dropped && !options.skipDrop) inventory.push(dropped);
@@ -3491,13 +4422,16 @@
                     storyState.battleWins += 1;
                     checkTutorialProgress();
                     updateInventoryUI();
-                    const lvText = lvups > 0 ? `\nLvが ${lvups} あがった！` : "";
                     const dropText = dropped ? `\n${dropped} を てにいれた！` : "";
-                    if (!options.dropped) {
-                        showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}${dropText}`);
-                    } else {
-                        showMessage(`${gained} EXP / ${gainedGold}G かくとく！${lvText}`);
-                    }
+                    // レベルアップ演出と少しずらしてメッセージ表示
+                    const msgDelay = lvups > 0 ? 500 : 0;
+                    setTimeout(() => {
+                        if (!options.dropped) {
+                            showMessage(`${gained} EXP / ${gainedGold}G かくとく！${dropText}`);
+                        } else {
+                            showMessage(`${gained} EXP / ${gainedGold}G かくとく！`);
+                        }
+                    }, msgDelay);
                 }
                 if (currentBattleMonster) {
                     if (options.keepEnemy) {
@@ -4009,7 +4943,23 @@
                 }
             }
             handleInteraction();
-            if (!isInBattle) checkStoryArrival();
+            if (!isInBattle) {
+                checkStoryArrival();
+                checkDestinationQuestArrival();
+            }
+
+            // 目的地マーカーのアニメーション
+            if (activeDestMarker && activeDestMarker.userData) {
+                if (activeDestMarker.userData.ring) activeDestMarker.userData.ring.rotation.z += 0.02;
+                if (activeDestMarker.userData.crystal) {
+                    activeDestMarker.userData.crystal.rotation.y += 0.025;
+                    activeDestMarker.userData.crystal.position.y = 8 + Math.sin(performance.now() * 0.003) * 0.8;
+                }
+            }
+            if (previewGoalMarker) {
+                previewGoalMarker.rotation.y += 0.02;
+            }
+
             monsters.forEach(m => {
                 if (!m.active) return;
                 if (m.isChasingPlayer && slimeGroup) {
@@ -4036,8 +4986,11 @@
             if (isInBattle && battleState.center) {
                 controls.target.lerp(battleState.center, 0.2);
                 camera.lookAt(battleState.center.x, battleState.center.y + 4, battleState.center.z);
-            } else {
+                controls.update();
+            } else if (!isMap2DMode) {
                 controls.target.lerp(slimeGroup.position, 0.1);
+                controls.update();
+            } else {
                 controls.update();
             }
 
@@ -4053,6 +5006,9 @@
                 const compassEl = document.getElementById('dest-compass');
                 if (compassEl) compassEl.style.display = 'none';
             }
+
+            // 方向コンパスを更新
+            updateDirectionCompass();
 
             renderer.render(scene, camera);
         }
@@ -4412,12 +5368,35 @@
             if (nameEl) nameEl.textContent = dest.userData.name || 'もくてきち';
         }
 
+        // 方向コンパス：スライムの向きからN/NE/E/...を表示
+        function updateDirectionCompass() {
+            const needle = document.getElementById('compass-needle-svg');
+            const label = document.getElementById('compass-dir-label');
+            if (!needle || !slimeGroup) return;
+
+            // スライムの向き（Y軸回転）を取得
+            // Three.jsのデフォルト: Z+ = 南 → 角度0でZ+方向を向いている
+            const euler = new THREE.Euler().setFromQuaternion(slimeGroup.quaternion, 'YXZ');
+            const yAngle = euler.y; // ラジアン（Y軸まわり）
+
+            // コンパス針はNが上（SVGで上 = y=6 が北）
+            // スライムが北（Z-方向）を向いているとき針は0度（上）
+            // Three.jsでZ+が南なので、Z-方向(南=-180deg)に針を合わせるには符号を逆に
+            // カメラ基準ではなくワールド基準の向きを直接使う
+            const degCW = (-yAngle * 180 / Math.PI + 360) % 360; // 時計回り角度（北=0）
+            needle.style.transform = `rotate(${degCW}deg)`;
+            needle.style.transformOrigin = '26px 26px';
+
+            // 方位ラベル
+            const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+            const idx = Math.round(degCW / 45) % 8;
+            if (label) label.textContent = dirs[idx];
+        }
+
     </script>
     <script>
         window.playerAtTestDestination = false; 
-</body >
-
-</html >
+    </script>
 
 
 
@@ -4441,18 +5420,19 @@
     <div id="gacha-floating-panel">
         <div class="gacha-header">
             <div class="gacha-title-bar">【 お宝ふくびき所 】</div>
-            <div id="gacha-gold-display">
-                <span>G:</span><span id="gacha-gold-val">???</span>
+            <div id="gacha-gold-display" style="display:flex; align-items:center; gap:8px; font-size:11px;">
+                <span style="color:#ffd700; font-weight:bold;">💎<span id="gacha-gem-val">0</span></span>
+                <span>G:<span id="gacha-gold-val">???</span></span>
                 <button onclick="document.getElementById('gacha-floating-panel').style.display='none'"
-                    style="background:transparent;border:none;color:#f3c85c;font-weight:bold;cursor:pointer;font-size:18px;line-height:1;margin-left:6px;">x</button>
+                    style="background:transparent;border:none;color:#f3c85c;font-weight:bold;cursor:pointer;font-size:18px;line-height:1;margin-left:4px;">×</button>
             </div>
         </div>
 
         <div id="gacha-3d-canvas"></div>
 
         <div class="gacha-btn-group">
-            <button id="gacha-btn-1" class="gacha-btn" onclick="runGachaProcess(1)">1回 ひく</button>
-            <button id="gacha-btn-10" class="gacha-btn ten" onclick="runGachaProcess(10)">10連 ふくびき</button>
+            <button id="gacha-btn-1" class="gacha-btn" onclick="runGachaProcess(1)">1回 (💎100)</button>
+            <button id="gacha-btn-10" class="gacha-btn ten" onclick="runGachaProcess(10)">10連 (💎1000)</button>
         </div>
 
         <div id="gacha-result-log">ふくびきを はじめましょう！</div>
@@ -4490,6 +5470,9 @@
         function updateGoldDisplay() {
         const el = document.getElementById('gacha-gold-val');
         if (el) el.textContent = getPlayerGold().toLocaleString();
+        const gemEl = document.getElementById('gacha-gem-val');
+        const gems = (window.playerState && typeof window.playerState.gems === 'number') ? window.playerState.gems : 0;
+        if (gemEl) gemEl.textContent = gems.toLocaleString();
     }
 
         function setGachaButtonsState(enabled, message) {
@@ -4676,8 +5659,23 @@
 
         window.runGachaProcess = function(count) {
             if (!isReady || isExecuting) return;
-        isExecuting = true;
-        setGachaButtonsState(false, '宝箱が 神秘的な光を放っている…');
+
+            var cost = count === 1 ? 100 : 1000;
+            var currentGems = (window.playerState && typeof window.playerState.gems === 'number') ? window.playerState.gems : 0;
+            if (currentGems < cost) {
+                setGachaButtonsState(true, '<span style="color:#ff6b6b;font-weight:bold;">ジェムが足りません！</span><br>必要: 💎' + cost + '個 (所持: 💎' + currentGems + '個)<br><span style="color:#ffd700;">クエストをクリアして集めよう！</span>');
+                return;
+            }
+
+            // ジェムを消費
+            window.playerState.gems -= cost;
+            if (typeof saveGame === 'function') saveGame(true);
+            if (typeof updateStatusBar === 'function') updateStatusBar();
+            if (typeof updatePlayerWindow === 'function') updatePlayerWindow();
+            updateGoldDisplay();
+
+            isExecuting = true;
+            setGachaButtonsState(false, '宝箱が 神秘的な光を放っている…');
 
         var results = [];
         var hasSSR = false, hasSR = false;
@@ -4763,3 +5761,5 @@
 })();
     </script>
     <!-- GACHA_SYSTEM_END -->
+</body>
+</html>
